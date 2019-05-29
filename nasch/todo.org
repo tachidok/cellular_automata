@@ -1,0 +1,4 @@
+* TODO Implement BUMPS in the non_periodic_boundary_conditions_with_bumps folder
+* TODO Plots for alpha and beta in the non_periodic_boundary_conditions folder
+- Consider to plot alpha vs current using different values of beta
+- Check for different phases in the plots

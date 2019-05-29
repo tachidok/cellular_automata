@@ -1,2 +1,2 @@
 # cellular_automata
-Cellular Automatas and Applications
+An Object-Oriented implementation of different cellular automatas with applications
