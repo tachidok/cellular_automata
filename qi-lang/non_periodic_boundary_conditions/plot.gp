@@ -14,13 +14,13 @@ set style line 10 lc rgb 'dark-green' lt 1 lw 2 pt 64 ps 0.3   # --- dark-green
 set style line 11 lc rgb 'brown' lt 1 lw 2 pt 65 ps 0.3   # --- brown
 
 # Legend
-set key top right
+set key top left
 
 set grid
 
-set terminal wxt 0 size 640,480 enhanced font 'Verdana,10' persist
-#set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
-#set output 'alpha_vs_current.png'
+#set terminal wxt 0 size 640,480 enhanced font 'Verdana,10' persist
+set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+set output 'alpha_vs_current.png'
 
 #set xrange [0:500]
 #set yrange [0:40]
@@ -40,10 +40,11 @@ plot 'RESLT/current_b0.dat' using 1:2 title '{/Symbol b} = 0.0' w linespoints ls
      'RESLT/current_b0.9.dat' using 1:2 title '{/Symbol b} = 0.9' w linespoints ls 10, \
      'RESLT/current_b1.dat' using 1:2 title '{/Symbol b} = 1.0' w linespoints ls 11
 
-set terminal wxt 1 size 640,480 enhanced font 'Verdana,10' persist
-#set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
-#set output 'alpha_vs_velocity.png'
+#set terminal wxt 1 size 640,480 enhanced font 'Verdana,10' persist
+set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+set output 'alpha_vs_velocity.png'
 
+set key top right
 #set xrange [0:500]
 #set yrange [0:40]
 set xlabel 'Alpha ({/Symbol a})'
@@ -62,10 +63,11 @@ plot 'RESLT/velocity_b0.dat' using 1:2 title '{/Symbol b} = 0.0' w linespoints l
      'RESLT/velocity_b0.9.dat' using 1:2 title '{/Symbol b} = 0.9' w linespoints ls 10, \
      'RESLT/velocity_b1.dat' using 1:2 title '{/Symbol b} = 1.0' w linespoints ls 11
 
-set terminal wxt 2 size 640,480 enhanced font 'Verdana,10' persist
-#set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
-#set output 'alpha_vs_density.png'
+#set terminal wxt 2 size 640,480 enhanced font 'Verdana,10' persist
+set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+set output 'alpha_vs_density.png'
 
+set key top left
 #set xrange [0:500]
 #set yrange [0:40]
 set xlabel 'Alpha ({/Symbol a})'

@@ -1,0 +1,6 @@
+* Configuration
+- #define MAX_MONTE_CARLO_LOOP 100000
+- #define MONTE_CARLO_STAB_PHASE 10000 // %10 of MAX_MONTE_CARLO_LOOP
+
+- #define LANE_SIZE 1000 // %0.1 of MAX_MONTE_CARLO_LOOP
+- #define MAX_VELOCITY 5

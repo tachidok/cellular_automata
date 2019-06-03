@@ -1,0 +1,13 @@
+#+STARTUP: showall
+#+TITLE: TODO STUFF
+#+AUTHOR: Julio C.
+
+* NaSch folder
+** TODO Implement BUMPS in the non_periodic_boundary_conditions_with_bumps folder
+- The bumps object is alredy implemented but left to include it as
+  part of the apply_nasch() function
+** TODO Plots for alpha and beta in the non_periodic_boundary_conditions folder
+- Check for different phases in the plots
+
+* Lang Li folder
+
