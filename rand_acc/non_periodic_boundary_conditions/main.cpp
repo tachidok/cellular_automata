@@ -7,12 +7,16 @@
 
 #include "general.h"
 #include "cc_vehicle.h"
-#include "cc_qilang.h"
+#include "cc_rand_acc.h"
 
-#define MAX_MONTE_CARLO_LOOP 200000
-#define MONTE_CARLO_STAB_PHASE 20000 // %10 of MAX_MONTE_CARLO_LOOP
+#define MAX_MONTE_CARLO_LOOP  200000
+#define MONTE_CARLO_STAB_PHASE 10000 // %5 of MAX_MONTE_CARLO_LOOP
+#define LANE_SIZE               1000 // %0.5 of MAX_MONTE_CARLO_LOOP
 
-#define LANE_SIZE 1000 // %0.5 of MAX_MONTE_CARLO_LOOP
+//#define MAX_MONTE_CARLO_LOOP  10000
+//#define MONTE_CARLO_STAB_PHASE 1000 // %10 of MAX_MONTE_CARLO_LOOP
+//#define LANE_SIZE               100 // %1 of MAX_MONTE_CARLO_LOOP
+
 #define MAX_VELOCITY 5
 
 int main()
@@ -51,7 +55,7 @@ int main()
      
      for (double alpha = alpha_min; alpha <= alpha_max; alpha+=alpha_step)
       {
-       QiLang lane;
+       RandAcc lane;
        lane.initialise(lane_size, maximum_velocity, break_probability, alpha, beta);
        
        double sum_mean_velocity = 0;
@@ -69,7 +73,9 @@ int main()
          lane.update_vehicles_list();
      
          // Apply NaSch rules
-         unsigned sum_velocity = lane.apply_qilang();
+         unsigned sum_velocity = lane.apply_rand_acc();
+         //DEB(sum_velocity);
+         //DEB(alpha);
          // Update lane status
          lane.update();
          
@@ -88,7 +94,7 @@ int main()
            double mean_current = double(sum_velocity) / double(lane.lane_size());
            sum_mean_current+=mean_current;
           }
-     
+         
         } // for (i < monte_carlo_max_loop)
        
        const double total_number_of_instances =

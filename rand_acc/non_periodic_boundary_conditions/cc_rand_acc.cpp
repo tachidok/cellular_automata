@@ -1,9 +1,9 @@
-#include "cc_qilang.h"
+#include "cc_rand_acc.h"
 
 // ----------------------------------------------------------------
 // Constructor -- do nothing
 // ----------------------------------------------------------------
-QiLang::QiLang() 
+RandAcc::RandAcc() 
 {
   
 }
@@ -11,8 +11,8 @@ QiLang::QiLang()
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-QiLang::QiLang(unsigned lane_size, unsigned maximum_velocity,
-               double break_probability,
+RandAcc::RandAcc(unsigned lane_size, unsigned maximum_velocity,
+                 double break_probability,
                double alpha, double beta)
 {
  // Set lane configuration
@@ -22,7 +22,7 @@ QiLang::QiLang(unsigned lane_size, unsigned maximum_velocity,
 // ----------------------------------------------------------------
 // Destructor - do nothing
 // ----------------------------------------------------------------
-QiLang::~QiLang()
+RandAcc::~RandAcc()
 {
  clear();
 }
@@ -30,7 +30,7 @@ QiLang::~QiLang()
 // ----------------------------------------------------------------
 // Initialise lane configuration
 // ----------------------------------------------------------------
-void QiLang::initialise(unsigned lane_size, unsigned maximum_velocity, double break_probability, double alpha, double beta)
+void RandAcc::initialise(unsigned lane_size, unsigned maximum_velocity, double break_probability, double alpha, double beta)
 {
  // Set lane configuration
  Allowed_number_of_vehicles = Lane_size = lane_size;
@@ -48,7 +48,7 @@ void QiLang::initialise(unsigned lane_size, unsigned maximum_velocity, double br
 // ----------------------------------------------------------------
 // Clear data structures
 // ----------------------------------------------------------------
-void QiLang::clear()
+void RandAcc::clear()
 {
  // Initialise data structures representing the lane
  Lane.clear();  
@@ -73,7 +73,7 @@ void QiLang::clear()
 // ----------------------------------------------------------------
 // Computes the density
 // ----------------------------------------------------------------
-double QiLang::density()
+double RandAcc::density()
 { 
  return double(Current_number_of_vehicles)/double(Lane_size);
 }
@@ -81,7 +81,7 @@ double QiLang::density()
 // ----------------------------------------------------------------
 // Update vehicles list
 // ----------------------------------------------------------------
-unsigned QiLang::update_vehicles_list()
+unsigned RandAcc::update_vehicles_list()
 {
  // Clear current vehicles vector status
  Vehicles_pt.clear();
@@ -139,11 +139,10 @@ unsigned QiLang::update_vehicles_list()
 }
 
 // ----------------------------------------------------------------
-// Update lane based on QiLang rules
+// Update lane based on RandAcc rules
 // ----------------------------------------------------------------
-unsigned QiLang::apply_qilang()
+unsigned RandAcc::apply_rand_acc()
 {
- 
  // Accumulated velocity
  unsigned sum_velocity = 0;
  
@@ -173,12 +172,16 @@ unsigned QiLang::apply_qilang()
    //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
    
    // -----------------------------------------------------------------
-   // QiLang rules
+   // Random acceleration rules
    // -----------------------------------------------------------------
    
    // Compute the randomisation parameter for the acceleration
    const double r_acc_temp = std::rand();
-   const unsigned r_acc = r_acc_temp / (Maximum_velocity + 1);
+   const double r_acc_normal = r_acc_temp / RAND_MAX; // Map it to [0,1]
+   // Compute acceleration based on random number and as a function of
+   // the spatial headway and the maximum velocity
+   const unsigned r_acc = r_acc_normal * std::min(Maximum_velocity, spatial_headway);
+   //DEB(r_acc);
    
    // First rule (acceleration)
    unsigned new_velocity = std::min(current_velocity + r_acc, Maximum_velocity);
@@ -186,15 +189,24 @@ unsigned QiLang::apply_qilang()
    // Second rule (deceleration)
    new_velocity = std::min(new_velocity, spatial_headway);
    
-   // Compute delay probability
-   const double p = (current_velocity - 1) / (2 * Maximum_velocity);
+   // Delay probability
+   const double p_0 = 1.0;
+   const double p_1 = 1.0;
    
-   // Third rule (randomization) if new velocity is equal to the
-   // spatial headway
-   if (new_velocity == spatial_headway)
+   // Third rule (randomization) if new velocity is equal to zero
+   if (new_velocity == 0)
     {
-     const double r = std::rand();
-     if ((r / RAND_MAX) <= p)
+     const int r = std::rand();
+     if ((r / RAND_MAX) <= p_0)
+      {
+       new_velocity = std::max(int(new_velocity - 1), 0);
+       //std::cerr << "NV: " << new_velocity << std::endl;
+      }
+    }
+   else // (new_velocity > 0)
+    {
+     const int r = std::rand();
+     if ((r / RAND_MAX) <= p_1)
       {
        new_velocity = std::max(int(new_velocity - 1), 0);
        //std::cerr << "NV: " << new_velocity << std::endl;
@@ -249,7 +261,7 @@ unsigned QiLang::apply_qilang()
      current_vehicle_pt->position(1) = new_position;
     }
    
-   sum_velocity+=new_velocity; 
+   sum_velocity+=new_velocity;
    
   } // for (i < Current_number_of_vehicles)
  
@@ -260,7 +272,7 @@ unsigned QiLang::apply_qilang()
 // ----------------------------------------------------------------
 // Update the lane status
 // ---------------------------------------------------------------- 
-void QiLang::update()
+void RandAcc::update()
 {
  for (unsigned i = 0; i < Current_number_of_vehicles; i++)
   {
@@ -284,7 +296,7 @@ void QiLang::update()
 // ----------------------------------------------------------------
 // Prints the lane status
 // ---------------------------------------------------------------- 
-void QiLang::print(bool print_velocities)
+void RandAcc::print(bool print_velocities)
 {
  for (unsigned i = 0; i < Lane_size; i++)
   {
