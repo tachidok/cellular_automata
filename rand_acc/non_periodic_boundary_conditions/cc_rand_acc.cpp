@@ -191,7 +191,7 @@ unsigned RandAcc::apply_rand_acc()
    
    // Delay probability
    const double p_0 = 1.0;
-   const double p_1 = 1.0;
+   const double p_1 = 0.8;
    
    // Third rule (randomization) if new velocity is equal to zero
    if (new_velocity == 0)
