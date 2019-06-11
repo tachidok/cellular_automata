@@ -1,0 +1,9 @@
+* Configuration
+- #define MAX_MONTE_CARLO_LOOP  200000
+- #define MONTE_CARLO_STAB_PHASE 10000 // %5 of MAX_MONTE_CARLO_LOOP
+- #define LANE_SIZE               1000 // %0.5 of MAX_MONTE_CARLO_LOOP
+- #define MAX_VELOCITY 5
+
+In file cc_rand_acc.cpp
+- P_0 = 0.6
+- P_1 = 0.0
