@@ -190,7 +190,7 @@ unsigned RandAcc::apply_rand_acc()
    new_velocity = std::min(new_velocity, spatial_headway);
    
    // Delay probability
-   const double p_0 = 0.6;
+   const double p_0 = 0.4;
    const double p_1 = 0.2;
    
    // Third rule (randomization) if new velocity is equal to zero
