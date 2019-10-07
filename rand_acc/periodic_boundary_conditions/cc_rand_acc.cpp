@@ -1,9 +1,9 @@
-#include "cc_nasch.h"
- 
+#include "cc_rand_acc.h"
+
 // ----------------------------------------------------------------
 // Constructor -- do nothing
 // ----------------------------------------------------------------
-NaSch::NaSch() 
+RandAcc::RandAcc() 
 {
   
 }
@@ -11,16 +11,17 @@ NaSch::NaSch()
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-NaSch::NaSch(unsigned lane_size, unsigned maximum_velocity, double break_probability)
+RandAcc::RandAcc(unsigned lane_size, unsigned maximum_velocity,
+                 double p0, double p1)
 {
  // Set lane configuration
- initialise(lane_size, maximum_velocity, break_probability); 
+ initialise(lane_size, maximum_velocity, p0, p1);
 }
- 
+
 // ----------------------------------------------------------------
 // Destructor - do nothing
 // ----------------------------------------------------------------
-NaSch::~NaSch()
+RandAcc::~RandAcc()
 {
  clear();
 }
@@ -28,20 +29,22 @@ NaSch::~NaSch()
 // ----------------------------------------------------------------
 // Initialise lane configuration
 // ----------------------------------------------------------------
-void NaSch::initialise(unsigned lane_size, unsigned maximum_velocity, double break_probability)
+void RandAcc::initialise(unsigned lane_size, unsigned maximum_velocity, double p0, double p1)
 {
  // Set lane configuration
  Lane_size = lane_size;
  Maximum_velocity = maximum_velocity;
- Break_probability = break_probability;
+ P_0 = p0;
+ P_1 = p1;
+ 
  // Initialise data structures
  clear();
 }
- 
+
 // ----------------------------------------------------------------
 // Clear data structures
 // ----------------------------------------------------------------
-void NaSch::clear()
+void RandAcc::clear()
 {
  // Initialise data structures representing the lane
  Lane.clear();  
@@ -56,28 +59,29 @@ void NaSch::clear()
      Lane[i] = 0;
     }
   }
-  
- Vehicles_pt.resize(Lane_size, 0);
-  
- // Reset lane configuration
- Number_of_vehicles = 0;
- Density = 0;
-}
  
+ Vehicles_pt.resize(Lane_size, 0);
+ 
+ // Reset lane configuration
+ Current_number_of_vehicles = 0;
+ Density = 0;
+ 
+}
+
 // ----------------------------------------------------------------
 // Fill in vehicles
 // ----------------------------------------------------------------
-void NaSch::fill_in_vehicles(double density)
+void RandAcc::fill_in_vehicles(double density)
 {
  // Set the density
  Density = density;
-  
+ 
  // Compute the number of vehicles to be added to the lane
- Number_of_vehicles = Density * Lane_size;
-  
+ Current_number_of_vehicles = Density * Lane_size;
+ 
  unsigned i = 0;
  // Add vehicles in the lane randomly
- while(i < Number_of_vehicles)
+ while(i < Current_number_of_vehicles)
   {
    // Random position to add a vehicle
    const double r = rand();
@@ -98,11 +102,11 @@ void NaSch::fill_in_vehicles(double density)
   }
   
 }
- 
+
 // ----------------------------------------------------------------
 // Update vehicles list
 // ----------------------------------------------------------------
-unsigned NaSch::update_vehicles_list()
+unsigned RandAcc::update_vehicles_list()
 {
  // Get the new vehicles order
  unsigned i = 0;
@@ -123,31 +127,30 @@ unsigned NaSch::update_vehicles_list()
   
  // Return the number of vehicles in the lane
  return i;
-  
-}
  
+}
+
 // ----------------------------------------------------------------
-// Update lane based on NaSch rules
+// Update lane based on RandAcc rules
 // ----------------------------------------------------------------
-unsigned NaSch::apply_nasch()
+unsigned RandAcc::apply_rand_acc()
 {
-  
  // Accumulated velocity
  unsigned sum_velocity = 0;
-  
- for (unsigned i = 0; i < Number_of_vehicles; i++)
+ 
+ for (unsigned i = 0; i < Current_number_of_vehicles; i++)
   {
    // Get a pointer to the current vehicle
    Vehicle *current_vehicle_pt = Vehicles_pt[i];
    const unsigned current_position = current_vehicle_pt->position();
    const unsigned current_velocity = current_vehicle_pt->velocity();
-    
+   
    // -----------------------------------------------------------------
    // Compute the spatial headway (the empty spaces between vehicles)
    // -----------------------------------------------------------------
    unsigned spatial_headway = 0;
-   // Is this the last vehicle
-   if (i + 1 == Number_of_vehicles)
+   // Is this the last vehicle (periodic boundary conditions)
+   if (i + 1 == Current_number_of_vehicles)
     {
      Vehicle *next_vehicle_pt = Vehicles_pt[0];
      spatial_headway = (next_vehicle_pt->position() + Lane_size) - current_position - 1;
@@ -157,52 +160,78 @@ unsigned NaSch::apply_nasch()
      Vehicle *next_vehicle_pt = Vehicles_pt[i+1];
      spatial_headway = next_vehicle_pt->position() - current_position - 1;
     }
-    
+   
    //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
    
    // -----------------------------------------------------------------
-   // NaSch rules
+   // Random acceleration rules
    // -----------------------------------------------------------------
    
+   // Compute the randomisation parameter for the acceleration
+   const double r_acc_temp = std::rand();
+   const double r_acc_normal = r_acc_temp / RAND_MAX; // Map it to [0,1]
+   // Compute acceleration based on random number and as a function of
+   // the spatial headway and the maximum velocity
+   const unsigned r_acc = r_acc_normal * std::min(Maximum_velocity, spatial_headway);
+   //DEB(r_acc);
+   
+   //const unsigned r_acc = 1;
+   
    // First rule (acceleration)
-   unsigned new_velocity = std::min(current_velocity + 1, Maximum_velocity);
+   unsigned new_velocity = std::min(current_velocity + r_acc, Maximum_velocity);
    
    // Second rule (deceleration)
    new_velocity = std::min(new_velocity, spatial_headway);
    
-   // Third rule (randomization) 
-   const double r = std::rand();
-   if ((r / RAND_MAX) <= Break_probability)
-    {
-     new_velocity = std::max(int(new_velocity - 1), 0);
-     //std::cerr << "NV: " << new_velocity << std::endl;
-    }
+   // Delay probability
+   const double p_0 = P_0;
+   const double p_1 = P_1;
    
+   // Third rule (randomization) if new velocity is equal to zero
+   if (new_velocity == 0)
+    {
+     const double r = std::rand();
+     if ((r / RAND_MAX) <= p_0)
+      {
+       new_velocity = std::max(int(new_velocity - 1), 0);
+       //std::cerr << "NV: " << new_velocity << std::endl;
+      }
+    }
+   else // (new_velocity > 0)
+    {
+     const double r = std::rand();
+     if ((r / RAND_MAX) <= p_1)
+      {
+       new_velocity = std::max(int(new_velocity - 1), 0);
+       //std::cerr << "NV: " << new_velocity << std::endl;
+      }
+    }
+
    // Fourth rule (movement)
    unsigned new_position = current_position + new_velocity;
    if (new_position >= Lane_size)
     {
      new_position = new_position - Lane_size;
     }
-    
+
    // Update velocity and positon of vehicle
    current_vehicle_pt->velocity(1) = new_velocity;
    current_vehicle_pt->position(1) = new_position;
-      
-   sum_velocity+=new_velocity; 
-    
-  } // for (i < Number_of_vehicles)
-  
- return sum_velocity;
-  
-}
+   
+   sum_velocity+=new_velocity;
+   
+  } // for (i < Current_number_of_vehicles)
  
+ return sum_velocity;
+ 
+}
+
 // ----------------------------------------------------------------
 // Update the lane status
 // ---------------------------------------------------------------- 
-void NaSch::update()
+void RandAcc::update()
 {
- for (unsigned i = 0; i < Number_of_vehicles; i++)
+ for (unsigned i = 0; i < Current_number_of_vehicles; i++)
   {
    // Get a pointer to the current vehicle
    Vehicle *vehicle_pt = Vehicles_pt[i];
@@ -217,14 +246,14 @@ void NaSch::update()
    // Update vehicle
    vehicle_pt->update();
     
-  }
-  
+  } // (for i < Current_number_of_vehicles)
+ 
 }
  
 // ----------------------------------------------------------------
 // Prints the lane status
 // ---------------------------------------------------------------- 
-void NaSch::print(bool print_velocities)
+void RandAcc::print(bool print_velocities)
 {
  for (unsigned i = 0; i < Lane_size; i++)
   {

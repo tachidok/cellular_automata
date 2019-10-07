@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <vector>
 #include <algorithm>
@@ -8,29 +9,38 @@
 #include "cc_vehicle.h"
 #include "cc_nasch.h"
 
-#define MAX_MONTE_CARLO_LOOP 500
-#define MONTE_CARLO_STAB_PHASE 100
+//#define MAX_MONTE_CARLO_LOOP 500
+//#define MONTE_CARLO_STAB_PHASE 100
+//#define LANE_SIZE 10000
 
-#define LANE_SIZE 10000
+#define MAX_MONTE_CARLO_LOOP  20000
+#define MONTE_CARLO_STAB_PHASE 1000 // %10 of MAX_MONTE_CARLO_LOOP
+#define LANE_SIZE               100 // %1 of MAX_MONTE_CARLO_LOOP
+
 #define MAX_VELOCITY 5
 
 int main()
-{
- // Output for testing/validation
- std::ofstream velocity_file("velocity.dat", std::ios_base::out);
- std::ofstream current_file("current.dat", std::ios_base::out);
- 
+{ 
  const unsigned lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
  const double maximum_break_probability = 1.0;
  //const double break_probability_step = 0.1;
- const double break_probability_step = 1.1;
- double break_probability = 0.2;
+ const double break_probability_step = 0.1;
+ double break_probability = 0.0;
  
  // Loop over break probability
  while (break_probability <= maximum_break_probability)
   {
+   // Output for testing/validation
+   std::ostringstream velocity_filename;
+   std::ostringstream current_filename;
+   velocity_filename << "RESLT/velocity_" << "bp" << break_probability << ".dat";
+   current_filename << "RESLT/current_" << "bp" << break_probability << ".dat";
+   // Output for testing/validation
+   std::ofstream velocity_file((velocity_filename.str()).c_str(), std::ios_base::out);
+   std::ofstream current_file((current_filename.str()).c_str(), std::ios_base::out);
+   
    const double maximum_density = 1.0;
    const double density_step = 0.01;
    double density = 0.0;
@@ -97,10 +107,10 @@ int main()
     // Increase density
    break_probability+=break_probability_step;
    
+   velocity_file.close();
+   current_file.close();
+   
   } // while (break_probability <= maximum_break_probability)
- 
- velocity_file.close();
- current_file.close();
  
  return 0;
  
