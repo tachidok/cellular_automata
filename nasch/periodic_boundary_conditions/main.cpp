@@ -13,21 +13,31 @@
 //#define MONTE_CARLO_STAB_PHASE 100
 //#define LANE_SIZE 10000
 
-#define MAX_MONTE_CARLO_LOOP  20000
-#define MONTE_CARLO_STAB_PHASE 1000 // %10 of MAX_MONTE_CARLO_LOOP
-#define LANE_SIZE               100 // %1 of MAX_MONTE_CARLO_LOOP
+// ----------------------------------------------------------------------
+// Checking with these initial configurations
+//#define MAX_MONTE_CARLO_LOOP    5000
+//#define MONTE_CARLO_STAB_PHASE   500 // %10 of MAX_MONTE_CARLO_LOOP
+//#define LANE_SIZE                100 // %1 of MAX_MONTE_CARLO_LOOP
+
+#define MAX_MONTE_CARLO_LOOP    500000
+#define MONTE_CARLO_STAB_PHASE   50000 // %10 of MAX_MONTE_CARLO_LOOP
+#define LANE_SIZE                  500 // %1 of MAX_MONTE_CARLO_LOOP
+// ----------------------------------------------------------------------
 
 #define MAX_VELOCITY 5
 
+#define BREAK_PROBABILITY_STEP   1.1
+#define DENSITY_STEP             0.01
+
 int main()
 { 
- const unsigned lane_size = LANE_SIZE;
+ const unsigned long lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
  const double maximum_break_probability = 1.0;
  //const double break_probability_step = 0.1;
- const double break_probability_step = 0.1;
- double break_probability = 0.0;
+ const double break_probability_step = BREAK_PROBABILITY_STEP;
+ double break_probability = 0.9;
  
  // Loop over break probability
  while (break_probability <= maximum_break_probability)
@@ -42,7 +52,7 @@ int main()
    std::ofstream current_file((current_filename.str()).c_str(), std::ios_base::out);
    
    const double maximum_density = 1.0;
-   const double density_step = 0.01;
+   const double density_step = DENSITY_STEP;
    double density = 0.0;
    
    // Loop over density
@@ -58,27 +68,26 @@ int main()
      lane.fill_in_vehicles(density);
      //lane.print(true); 
      
-     const unsigned monte_carlo_max_loop = MAX_MONTE_CARLO_LOOP;
-     const unsigned monte_carlo_stabilization_phase = MONTE_CARLO_STAB_PHASE;
+     const unsigned long monte_carlo_max_loop = MAX_MONTE_CARLO_LOOP;
+     const unsigned long monte_carlo_stabilization_phase = MONTE_CARLO_STAB_PHASE;
      // Monte-Carlo loop
-     for (unsigned i = 0; i < monte_carlo_max_loop; i++)
+     for (unsigned long i = 0; i < monte_carlo_max_loop; i++)
       {
        // Compute the occupancy index
        lane.update_vehicles_list();
        
        // Apply NaSch rules
-       unsigned sum_velocity = lane.apply_nasch();
+       unsigned long sum_velocity = lane.apply_nasch();
        // Update lane status
        lane.update();
        
        //lane.print(true);
-       //lane.print(false);
-       
-       //std::cerr << lane.number_of_vehicles() << " " << sum_velocity << std::endl;
+       //lane.print(false); 
        
        // Apply only after stabilization phase
        if (i > monte_carlo_stabilization_phase)
         {
+         //std::cerr << lane.number_of_vehicles() << " " << sum_velocity << std::endl;
          double mean_velocity = double(sum_velocity) / double(lane.number_of_vehicles());
          sum_mean_velocity+=mean_velocity;
          double mean_current = double(sum_velocity) / double(lane.lane_size());
@@ -95,9 +104,9 @@ int main()
      // Total mean current
      const double total_mean_current = sum_mean_current / total_number_of_instances;
      
-     std::cerr << "p: " << break_probability << "\trho: " << density << "\tmJ: " << total_mean_current << "\tmV: " << total_mean_velocity << std::endl;
-     velocity_file << density << "\t" << total_mean_velocity << std::endl;
+     std::cerr << "p: " << break_probability << "\trho: " << density << "\tmJ: " << total_mean_current << "\tmV: " << total_mean_velocity << "\tSmJ: " << sum_mean_current << "\tSmv: " << sum_mean_velocity << "\tTNI: " << total_number_of_instances << std::endl;
      current_file << density << "\t" << total_mean_current << std::endl;
+     velocity_file << density << "\t" << total_mean_velocity << std::endl;
      
      // Increase density
      density+=density_step;

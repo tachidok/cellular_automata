@@ -8,9 +8,9 @@ Linewidth = 2;
 # -------------------------------------------------------------------------------------
 fig1, ax1 = plt.subplots()
 
-filename = 'RESLT/current.dat'
+filename = 'RESLT/current_bp0.9.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.plot(density, current, label=r'Current $(J)$', color='red', linestyle='solid', linewidth=Linewidth)
+ax1.scatter(density, current, label=r'Current $(J)$', color='red', linestyle='solid', linewidth=Linewidth)
 
 ax1.grid()
 #plt.xticks(np.arange(0,10,step=1))
@@ -28,7 +28,7 @@ plt.show()
 # -------------------------------------------------------------------------------------
 fig1, ax2 = plt.subplots()
 
-filename = 'RESLT/velocity.dat'
+filename = 'RESLT/velocity_bp0.9.dat'
 density, velocity = np.loadtxt(filename, delimiter='\t', unpack=True)
 ax2.plot(density, velocity, label=r'Velocity $(v)$', color='red', linestyle='solid', linewidth=Linewidth)
 

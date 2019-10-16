@@ -12,7 +12,7 @@ Vehicle::Vehicle()
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-Vehicle::Vehicle(unsigned velocity, unsigned position)
+Vehicle::Vehicle(unsigned velocity, unsigned long position)
 {
  // Set initial velocity and position
  initialise(velocity, position);
@@ -29,7 +29,7 @@ Vehicle::~Vehicle()
 // ----------------------------------------------------------------
 // Set the current velocity and position
 // ----------------------------------------------------------------
-void Vehicle::initialise(unsigned velocity, unsigned position)
+void Vehicle::initialise(unsigned velocity, unsigned long position)
 {
  Velocity[1] = Velocity[0] = velocity;
  Position[1] = Position[0] = position;
