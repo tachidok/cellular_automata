@@ -2,13 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 Linewidth = 2;
+# Break probability
+break_probability = 0.2
 
 # -------------------------------------------------------------------------------------
 # Density vs Current plots
 # -------------------------------------------------------------------------------------
 fig1, ax1 = plt.subplots()
 
-filename = 'RESLT/current_bp0.2.dat'
+filename = 'RESLT/current_bp' + str(break_probability) + '.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
 ax1.scatter(density, current, label=r'Current $(J)$', color='red', linestyle='solid', linewidth=1)
 ax1.plot(density, current, label=r'Current $(J)$', color='red', linestyle='solid', linewidth=Linewidth)
@@ -29,7 +31,7 @@ plt.show()
 # -------------------------------------------------------------------------------------
 fig1, ax2 = plt.subplots()
 
-filename = 'RESLT/velocity_bp0.2.dat'
+filename = 'RESLT/velocity_bp' + str(break_probability) + '.dat'
 density, velocity = np.loadtxt(filename, delimiter='\t', unpack=True)
 ax2.plot(density, velocity, label=r'Velocity $(v)$', color='red', linestyle='solid', linewidth=Linewidth)
 

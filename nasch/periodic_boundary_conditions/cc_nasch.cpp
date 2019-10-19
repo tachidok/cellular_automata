@@ -71,20 +71,29 @@ void NaSch::fill_in_vehicles(double density)
 {
  // Initialise data structures
  clear();
+
+ // Used to get a seed for the random number engine
+ std::random_device rd;
+ // Standard mersenne_twister_engine seeded with rd()
+ std::mt19937 gen(rd());
+
+ // Use dist to generate a random number into a double in the range
+ // [0,1)
+ std::uniform_real_distribution<> dis(0.0, 1.0);
  
  // Set the density
  Density = density;
-  
+ 
  // Compute the number of vehicles to be added to the lane
  Number_of_vehicles = Density * Lane_size;
  
  unsigned long i = 0;
  // Add vehicles in the lane randomly
  while(i < Number_of_vehicles)
-  {
+  { 
    // Random position to add a vehicle
-   const double r = rand();
-   unsigned long k = (r / RAND_MAX) * Lane_size;
+   const double r = dis(gen);
+   unsigned long k = r * Lane_size;
    // Check whether there is a vehicle in the k lane position
    if (Lane[k] == 0)
     {
@@ -97,7 +106,7 @@ void NaSch::fill_in_vehicles(double density)
      // Increase the number of added vehicles to the lane
      i++;
     }
-    
+   
   }
   
 }
@@ -132,11 +141,20 @@ unsigned long NaSch::update_vehicles_list()
 // ----------------------------------------------------------------
 // Update lane based on NaSch rules
 // ----------------------------------------------------------------
-unsigned NaSch::apply_nasch()
+unsigned NaSch::apply_nasch(bool print)
 {
  
  // Accumulated velocity
  unsigned long sum_velocity = 0;
+ 
+ // Used to get a seed for the random number engine
+ std::random_device rd;
+ // Standard mersenne_twister_engine seeded with rd()
+ std::mt19937 gen(rd());
+ 
+ // Use dist to generate a random number into a double in the range
+ // [0,1)
+ std::uniform_real_distribution<> dis(0.0, 1.0);
  
  for (unsigned long i = 0; i < Number_of_vehicles; i++)
   {
@@ -173,13 +191,15 @@ unsigned NaSch::apply_nasch()
    // Second rule (deceleration)
    new_velocity = std::min(new_velocity, spatial_headway);
    
-   // Third rule (randomization) 
-   const double r = std::rand();
-   const double rand_normal = (r / RAND_MAX);
-   
-   if (rand_normal <= Break_probability)
+   // Third rule (randomization)
+   const double r = dis(gen); 
+   if (r <= Break_probability)
     {
      new_velocity = std::max(int(new_velocity - 1), 0);
+     if (print && (fabs(Density - 0.05) < 1.0e-2 || fabs(Density - 0.06) < 1.0e-2))
+      {
+       std::cerr << r << " cv: " << current_velocity << " nv: " << new_velocity << " rho: " << Density << " i: " << i << " nv: " << Number_of_vehicles << " cp: " << current_position << " sh: " << spatial_headway << std::endl;
+      }
      //std::cerr << "NV: " << new_velocity << std::endl;
     }
    

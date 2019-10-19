@@ -47,7 +47,7 @@ class NaSch
  // ----------------------------------------------------------------
  // Update lane based on NaSch rules
  // ----------------------------------------------------------------
- unsigned apply_nasch();
+ unsigned apply_nasch(bool print);
  
  // ----------------------------------------------------------------
  // Update the lane status

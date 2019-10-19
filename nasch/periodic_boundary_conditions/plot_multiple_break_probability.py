@@ -10,47 +10,47 @@ fig1, ax1 = plt.subplots()
 
 filename = 'RESLT/current_bp0.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.0$', color='red', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.0$', color='red', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.1.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.1$', color='blue', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.1$', color='blue', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.2.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.2$', color='green', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.2$', color='green', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.3.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.3$', color='violet', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.3$', color='violet', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.4.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.4$', color='orange', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.4$', color='orange', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.5.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.5$', color='cyan', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.5$', color='cyan', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.6.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.6$', color='yellow', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.6$', color='yellow', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.7.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.7$', color='pink', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.7$', color='pink', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.8.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.8$', color='black', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.8$', color='black', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp0.9.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 0.9$', color='lime', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 0.9$', color='lime', linestyle='solid', linewidth=Linewidth)
 
 filename = 'RESLT/current_bp1.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.scatter(density, current, label=r'$bp = 1.0$', color='saddlebrown', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$bp = 1.0$', color='saddlebrown', linestyle='solid', linewidth=Linewidth)
 
 ax1.grid()
 #plt.xticks(np.arange(0,10,step=1))
