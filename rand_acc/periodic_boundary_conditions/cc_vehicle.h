@@ -16,7 +16,7 @@ class Vehicle
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- Vehicle(unsigned velocity, unsigned position);
+ Vehicle(unsigned velocity, unsigned long position);
  
  // ----------------------------------------------------------------
  // Destructor
@@ -26,7 +26,7 @@ class Vehicle
  // ----------------------------------------------------------------
  // Set the current velocity and position
  // ----------------------------------------------------------------
- void initialise(unsigned velocity, unsigned position);
+ void initialise(unsigned velocity, unsigned long position);
  
  // ----------------------------------------------------------------
  // Update vehicles status
@@ -38,16 +38,16 @@ class Vehicle
  // Get velocity
  inline unsigned velocity(unsigned i = 0) const {return Velocity[i];}
  // Set position
- inline unsigned &position(unsigned i = 0) {return Position[i];}
+ inline unsigned long &position(unsigned long i = 0) {return Position[i];}
  // Get position
- inline unsigned position(unsigned i = 0) const {return Position[i];}
+ inline unsigned long position(unsigned long i = 0) const {return Position[i];}
  
  protected:
  
  // Velocity (index 0 is current time, other index is at time i-th)
  unsigned Velocity[2];
  // Position (index 0 is current time, other index is at time i-th)
- unsigned Position[2];
+ unsigned long Position[2];
  
 };
 

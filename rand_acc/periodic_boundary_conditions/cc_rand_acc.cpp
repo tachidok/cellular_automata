@@ -11,7 +11,7 @@ RandAcc::RandAcc()
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-RandAcc::RandAcc(unsigned lane_size, unsigned maximum_velocity,
+RandAcc::RandAcc(unsigned long lane_size, unsigned maximum_velocity,
                  double p0, double p1)
 {
  // Set lane configuration
@@ -29,7 +29,7 @@ RandAcc::~RandAcc()
 // ----------------------------------------------------------------
 // Initialise lane configuration
 // ----------------------------------------------------------------
-void RandAcc::initialise(unsigned lane_size, unsigned maximum_velocity, double p0, double p1)
+void RandAcc::initialise(unsigned long lane_size, unsigned maximum_velocity, double p0, double p1)
 {
  // Set lane configuration
  Lane_size = lane_size;
@@ -51,7 +51,7 @@ void RandAcc::clear()
  Lane.resize(Lane_size, 0);
 
  // Free vehicles in lane memory
- for (unsigned i = 0; i < Lane_size; i++)
+ for (unsigned long i = 0; i < Lane_size; i++)
   {
    if (Lane[i] != 0)
     {
@@ -73,44 +73,55 @@ void RandAcc::clear()
 // ----------------------------------------------------------------
 void RandAcc::fill_in_vehicles(double density)
 {
+ clear();
+ 
+ // Used to get a seed for the random number engine
+ std::random_device rd;
+ // Standard mersenne_twister_engine seeded with rd()
+ std::mt19937 gen(rd());
+ 
+ // Use dist to generate a random number into a double in the range
+ // [0,1)
+ std::uniform_real_distribution<> dis(0.0, 1.0);
+ 
  // Set the density
  Density = density;
  
  // Compute the number of vehicles to be added to the lane
  Current_number_of_vehicles = Density * Lane_size;
  
- unsigned i = 0;
+ unsigned long i = 0;
  // Add vehicles in the lane randomly
  while(i < Current_number_of_vehicles)
   {
    // Random position to add a vehicle
-   const double r = rand();
-   unsigned k = (r / RAND_MAX) * Lane_size;
+   const double r = dis(gen);
+   unsigned long k = r * Lane_size;
    // Check whether there is a vehicle in the k lane position
    if (Lane[k] == 0)
     {
      // Create a new vehicle
      unsigned initial_velocity = 0;
-     unsigned initial_position = k;
+     unsigned long initial_position = k;
      Vehicle *new_vehicle_pt = new Vehicle(initial_velocity, initial_position); 
      // Add a vehicle
      Lane[k] = new_vehicle_pt;
      // Increase the number of added vehicles to the lane
      i++;
     }
-    
+   
   }
-  
+ 
 }
 
 // ----------------------------------------------------------------
 // Update vehicles list
 // ----------------------------------------------------------------
-unsigned RandAcc::update_vehicles_list()
+unsigned long RandAcc::update_vehicles_list()
 {
  // Get the new vehicles order
- unsigned i = 0;
- for (unsigned k = 0; k < Lane_size; k++)
+ unsigned long i = 0;
+ for (unsigned long k = 0; k < Lane_size; k++)
   {
    if (Lane[k] != 0)
     {
@@ -133,16 +144,25 @@ unsigned RandAcc::update_vehicles_list()
 // ----------------------------------------------------------------
 // Update lane based on RandAcc rules
 // ----------------------------------------------------------------
-unsigned RandAcc::apply_rand_acc()
+unsigned long RandAcc::apply_rand_acc()
 {
  // Accumulated velocity
- unsigned sum_velocity = 0;
+ unsigned long sum_velocity = 0;
  
- for (unsigned i = 0; i < Current_number_of_vehicles; i++)
+ // Used to get a seed for the random number engine
+ std::random_device rd;
+ // Standard mersenne_twister_engine seeded with rd()
+ std::mt19937 gen(rd());
+ 
+ // Use dist to generate a random number into a double in the range
+ // [0,1)
+ std::uniform_real_distribution<> dis(0.0, 1.0);
+ 
+ for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
   {
    // Get a pointer to the current vehicle
    Vehicle *current_vehicle_pt = Vehicles_pt[i];
-   const unsigned current_position = current_vehicle_pt->position();
+   const unsigned long current_position = current_vehicle_pt->position();
    const unsigned current_velocity = current_vehicle_pt->velocity();
    
    // -----------------------------------------------------------------
@@ -168,11 +188,10 @@ unsigned RandAcc::apply_rand_acc()
    // -----------------------------------------------------------------
    
    // Compute the randomisation parameter for the acceleration
-   const double r_acc_temp = std::rand();
-   const double r_acc_normal = r_acc_temp / RAND_MAX; // Map it to [0,1]
+   const double r = dis(gen); 
    // Compute acceleration based on random number and as a function of
    // the spatial headway and the maximum velocity
-   const unsigned r_acc = r_acc_normal * std::min(Maximum_velocity, spatial_headway);
+   const unsigned r_acc = r * std::min(Maximum_velocity, spatial_headway);
    //DEB(r_acc);
    
    //const unsigned r_acc = 1;
@@ -190,8 +209,8 @@ unsigned RandAcc::apply_rand_acc()
    // Third rule (randomization) if new velocity is equal to zero
    if (new_velocity == 0)
     {
-     const double r = std::rand();
-     if ((r / RAND_MAX) <= p_0)
+     const double r = dis(gen); 
+     if (r <= p_0)
       {
        new_velocity = std::max(int(new_velocity - 1), 0);
        //std::cerr << "NV: " << new_velocity << std::endl;
@@ -199,8 +218,8 @@ unsigned RandAcc::apply_rand_acc()
     }
    else // (new_velocity > 0)
     {
-     const double r = std::rand();
-     if ((r / RAND_MAX) <= p_1)
+     const double r = dis(gen); 
+     if (r <= p_1)
       {
        new_velocity = std::max(int(new_velocity - 1), 0);
        //std::cerr << "NV: " << new_velocity << std::endl;
@@ -208,7 +227,7 @@ unsigned RandAcc::apply_rand_acc()
     }
 
    // Fourth rule (movement)
-   unsigned new_position = current_position + new_velocity;
+   unsigned long new_position = current_position + new_velocity;
    if (new_position >= Lane_size)
     {
      new_position = new_position - Lane_size;
@@ -231,13 +250,13 @@ unsigned RandAcc::apply_rand_acc()
 // ---------------------------------------------------------------- 
 void RandAcc::update()
 {
- for (unsigned i = 0; i < Current_number_of_vehicles; i++)
+ for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
   {
    // Get a pointer to the current vehicle
    Vehicle *vehicle_pt = Vehicles_pt[i];
     
-   const unsigned old_position = vehicle_pt->position(0);
-   const unsigned new_position = vehicle_pt->position(1);
+   const unsigned long old_position = vehicle_pt->position(0);
+   const unsigned long new_position = vehicle_pt->position(1);
     
    // Update the pointer on the lane
    Lane[old_position] = 0; // Delete the pointer from the old position
@@ -255,7 +274,7 @@ void RandAcc::update()
 // ---------------------------------------------------------------- 
 void RandAcc::print(bool print_velocities)
 {
- for (unsigned i = 0; i < Lane_size; i++)
+ for (unsigned long i = 0; i < Lane_size; i++)
   {
    Vehicle *vehicle_pt = Lane[i];
    if (vehicle_pt != 0)

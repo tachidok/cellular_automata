@@ -75,7 +75,7 @@ int main()
    // Loop over density
    while (density <= maximum_density)
     {
-
+     
      // Averaged configurations mean velocity
      double averaged_configurations_mean_velocity = 0;
      // Averaged configurations mean current

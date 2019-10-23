@@ -17,7 +17,7 @@ class RandAcc
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- RandAcc(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
+ RandAcc(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
  
  // ----------------------------------------------------------------
  // Destructor
@@ -27,7 +27,7 @@ class RandAcc
  // ----------------------------------------------------------------
  // Initialise lane configuration
  // ----------------------------------------------------------------
- void initialise(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
+ void initialise(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
  
  // ----------------------------------------------------------------
  // Clear data structures
@@ -42,12 +42,12 @@ class RandAcc
  // ----------------------------------------------------------------
  // Update vehicles list
  // ----------------------------------------------------------------
- unsigned update_vehicles_list();
+ unsigned long update_vehicles_list();
  
  // ----------------------------------------------------------------
  // Update lane based on RandAcc rules
  // ----------------------------------------------------------------
- unsigned apply_rand_acc();
+ unsigned long apply_rand_acc();
  
  // ----------------------------------------------------------------
  // Update the lane status
@@ -59,16 +59,16 @@ class RandAcc
  // ---------------------------------------------------------------- 
  void print(bool print_velocities = false); 
  
- inline unsigned lane_size() {return Lane_size;}
+ inline unsigned long lane_size() {return Lane_size;}
  inline unsigned maximum_velocity() {return Maximum_velocity;}
  inline double &density() {return Density;}
  inline double density() const {return Density;}
- inline unsigned &current_number_of_vehicles() {return Current_number_of_vehicles;}
- inline unsigned current_number_of_vehicles() const {return Current_number_of_vehicles;}
+ inline unsigned long &current_number_of_vehicles() {return Current_number_of_vehicles;}
+ inline unsigned long current_number_of_vehicles() const {return Current_number_of_vehicles;}
  
  protected:
  
- unsigned Lane_size;
+ unsigned long Lane_size;
  unsigned Maximum_velocity;
  double P_0;
  double P_1;
@@ -77,7 +77,7 @@ class RandAcc
  double Density;
  
  // Current number of vehicles (less or equal than the Lane size)
- unsigned Current_number_of_vehicles;
+ unsigned long Current_number_of_vehicles;
  
  std::vector<Vehicle*> Lane;
  std::vector<Vehicle*> Vehicles_pt;
