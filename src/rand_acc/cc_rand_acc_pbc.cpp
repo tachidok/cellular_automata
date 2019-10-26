@@ -1,9 +1,9 @@
-#include "cc_rand_acc.h"
+#include "cc_rand_acc_pbc.h"
 
 // ----------------------------------------------------------------
 // Constructor -- do nothing
 // ----------------------------------------------------------------
-RandAcc::RandAcc() 
+RandAccPBC::RandAccPBC() 
 {
   
 }
@@ -11,8 +11,8 @@ RandAcc::RandAcc()
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-RandAcc::RandAcc(unsigned long lane_size, unsigned maximum_velocity,
-                 double p0, double p1)
+RandAccPBC::RandAccPBC(unsigned long lane_size, unsigned maximum_velocity,
+                       double p0, double p1)
 {
  // Set lane configuration
  initialise(lane_size, maximum_velocity, p0, p1);
@@ -21,7 +21,7 @@ RandAcc::RandAcc(unsigned long lane_size, unsigned maximum_velocity,
 // ----------------------------------------------------------------
 // Destructor - do nothing
 // ----------------------------------------------------------------
-RandAcc::~RandAcc()
+RandAccPBC::~RandAccPBC()
 {
  clear();
 }
@@ -29,7 +29,7 @@ RandAcc::~RandAcc()
 // ----------------------------------------------------------------
 // Initialise lane configuration
 // ----------------------------------------------------------------
-void RandAcc::initialise(unsigned long lane_size, unsigned maximum_velocity, double p0, double p1)
+void RandAccPBC::initialise(unsigned long lane_size, unsigned maximum_velocity, double p0, double p1)
 {
  // Set lane configuration
  Lane_size = lane_size;
@@ -44,7 +44,7 @@ void RandAcc::initialise(unsigned long lane_size, unsigned maximum_velocity, dou
 // ----------------------------------------------------------------
 // Clear data structures
 // ----------------------------------------------------------------
-void RandAcc::clear()
+void RandAccPBC::clear()
 {
  // Initialise data structures representing the lane
  Lane.clear();  
@@ -71,7 +71,7 @@ void RandAcc::clear()
 // ----------------------------------------------------------------
 // Fill in vehicles
 // ----------------------------------------------------------------
-void RandAcc::fill_in_vehicles(double density)
+void RandAccPBC::fill_in_vehicles(double density)
 {
  clear();
  
@@ -117,7 +117,7 @@ void RandAcc::fill_in_vehicles(double density)
 // ----------------------------------------------------------------
 // Update vehicles list
 // ----------------------------------------------------------------
-unsigned long RandAcc::update_vehicles_list()
+unsigned long RandAccPBC::update_vehicles_list()
 {
  // Get the new vehicles order
  unsigned long i = 0;
@@ -142,9 +142,9 @@ unsigned long RandAcc::update_vehicles_list()
 }
 
 // ----------------------------------------------------------------
-// Update lane based on RandAcc rules
+// Update lane based on RandAccPBC rules
 // ----------------------------------------------------------------
-unsigned long RandAcc::apply_rand_acc()
+unsigned long RandAccPBC::apply_rand_acc()
 {
  // Accumulated velocity
  unsigned long sum_velocity = 0;
@@ -188,7 +188,7 @@ unsigned long RandAcc::apply_rand_acc()
    // -----------------------------------------------------------------
    
    // Compute the randomisation parameter for the acceleration
-   const double r = dis(gen); 
+   const double r = dis(gen);
    // Compute acceleration based on random number and as a function of
    // the spatial headway and the maximum velocity
    const unsigned r_acc = r * std::min(Maximum_velocity, spatial_headway);
@@ -209,8 +209,8 @@ unsigned long RandAcc::apply_rand_acc()
    // Third rule (randomization) if new velocity is equal to zero
    if (new_velocity == 0)
     {
-     const double r = dis(gen); 
-     if (r <= p_0)
+     const double r0 = dis(gen); 
+     if (r0 <= p_0)
       {
        new_velocity = std::max(int(new_velocity - 1), 0);
        //std::cerr << "NV: " << new_velocity << std::endl;
@@ -218,8 +218,8 @@ unsigned long RandAcc::apply_rand_acc()
     }
    else // (new_velocity > 0)
     {
-     const double r = dis(gen); 
-     if (r <= p_1)
+     const double r1 = dis(gen); 
+     if (r1 <= p_1)
       {
        new_velocity = std::max(int(new_velocity - 1), 0);
        //std::cerr << "NV: " << new_velocity << std::endl;
@@ -248,7 +248,7 @@ unsigned long RandAcc::apply_rand_acc()
 // ----------------------------------------------------------------
 // Update the lane status
 // ---------------------------------------------------------------- 
-void RandAcc::update()
+void RandAccPBC::update()
 {
  for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
   {
@@ -272,7 +272,7 @@ void RandAcc::update()
 // ----------------------------------------------------------------
 // Prints the lane status
 // ---------------------------------------------------------------- 
-void RandAcc::print(bool print_velocities)
+void RandAccPBC::print(bool print_velocities)
 {
  for (unsigned long i = 0; i < Lane_size; i++)
   {

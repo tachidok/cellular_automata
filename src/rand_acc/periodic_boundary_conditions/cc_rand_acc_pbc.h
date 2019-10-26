@@ -1,10 +1,11 @@
-#include "general.h"
-#include "cc_vehicle.h"
+#include "../../../src/general/general.h"
+#include "../../../src/general/cc_vehicle.h"
 
-#ifndef CC_RAND_ACC_H
-#define CC_RAND_ACC_H
+#ifndef CC_RAND_ACC_PBC_H
+#define CC_RAND_ACC_PBC_H
 
-class RandAcc
+// Implements random acceleration algorithm with periodic boundary conditions
+class RandAccPBC
 {
  
  public:
@@ -12,17 +13,17 @@ class RandAcc
  // ----------------------------------------------------------------
  // Constructor -- do nothing
  // ----------------------------------------------------------------
- RandAcc();
+ RandAccPBC();
  
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- RandAcc(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
+ RandAccPBC(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
  
  // ----------------------------------------------------------------
  // Destructor
  // ----------------------------------------------------------------
- ~RandAcc();
+ ~RandAccPBC();
  
  // ----------------------------------------------------------------
  // Initialise lane configuration
@@ -45,7 +46,7 @@ class RandAcc
  unsigned long update_vehicles_list();
  
  // ----------------------------------------------------------------
- // Update lane based on RandAcc rules
+ // Update lane based on RandAccPBC rules
  // ----------------------------------------------------------------
  unsigned long apply_rand_acc();
  
@@ -84,5 +85,5 @@ class RandAcc
  
 };
 
-#endif // #ifndef CC_RAND_ACC_H
+#endif // #ifndef CC_RAND_ACC_PBC_H
 
