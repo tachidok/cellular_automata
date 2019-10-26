@@ -1,6 +1,6 @@
 # Add source files in order of dependence, the ones with no dependency
 # first then the others
-SET(BASE_SRC_FILES cc_nasch_pbc.cpp)
+SET(BASE_SRC_FILES cc_nasch_pbc.cpp cc_nasch_npbc.cpp)
 
 SET(SRC_FILES ${BASE_SRC_FILES})
 

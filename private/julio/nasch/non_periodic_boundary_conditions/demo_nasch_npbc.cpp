@@ -1,13 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-#include <vector>
-#include <algorithm>
-
-#include "general.h"
-#include "cc_vehicle.h"
-#include "cc_nasch.h"
+#include "../../../../src/general/general.h"
+#include "../../../../src/general/cc_vehicle.h"
+#include "../../../../src/nasch/cc_nasch_npbc.h"
 
 #define MAX_MONTE_CARLO_LOOP 100000
 #define MONTE_CARLO_STAB_PHASE 10000
@@ -51,7 +44,7 @@ int main()
      
      for (double alpha = alpha_min; alpha <= alpha_max; alpha+=alpha_step)
       {
-       NaSch lane;
+       NaSchNPBC lane;
        lane.initialise(lane_size, maximum_velocity, break_probability, alpha, beta);
        
        double sum_mean_velocity = 0;
