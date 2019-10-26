@@ -1,10 +1,11 @@
-#include "general.h"
-#include "cc_vehicle.h"
+#include "../../src/general/general.h"
+#include "../../src/general/cc_vehicle.h"
 
-#ifndef CC_NASCH_H
-#define CC_NASCH_H
- 
-class NaSch
+#ifndef CC_NASCH_PBC_H
+#define CC_NASCH_PBC_H
+
+// Implements NaSch algorithm with periodic boundary conditions
+class NaSchPBC
 {
  
  public:
@@ -12,17 +13,17 @@ class NaSch
  // ----------------------------------------------------------------
  // Constructor -- do nothing
  // ----------------------------------------------------------------
- NaSch();
+ NaSchPBC();
  
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- NaSch(unsigned long lane_size, unsigned maximum_velocity, double break_probability);
+ NaSchPBC(unsigned long lane_size, unsigned maximum_velocity, double break_probability);
  
  // ----------------------------------------------------------------
  // Destructor
  // ----------------------------------------------------------------
- ~NaSch();
+ ~NaSchPBC();
  
  // ----------------------------------------------------------------
  // Initialise lane configuration
@@ -45,7 +46,7 @@ class NaSch
  unsigned long update_vehicles_list();
  
  // ----------------------------------------------------------------
- // Update lane based on NaSch rules
+ // Update lane based on NaSchPBC rules
  // ----------------------------------------------------------------
  unsigned apply_nasch(bool print);
  
@@ -81,5 +82,5 @@ class NaSch
  
 };
 
-#endif // #ifndef CC_NASCH_H
+#endif // #ifndef CC_NASCH_PBC_H
 

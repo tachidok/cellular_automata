@@ -1,9 +1,9 @@
-#include "cc_nasch.h"
+#include "cc_nasch_pbc.h"
  
 // ----------------------------------------------------------------
 // Constructor -- do nothing
 // ----------------------------------------------------------------
-NaSch::NaSch() 
+NaSchPBC::NaSchPBC() 
 {
   
 }
@@ -11,7 +11,7 @@ NaSch::NaSch()
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-NaSch::NaSch(unsigned long lane_size, unsigned maximum_velocity, double break_probability)
+NaSchPBC::NaSchPBC(unsigned long lane_size, unsigned maximum_velocity, double break_probability)
 {
  // Set lane configuration
  initialise(lane_size, maximum_velocity, break_probability); 
@@ -20,7 +20,7 @@ NaSch::NaSch(unsigned long lane_size, unsigned maximum_velocity, double break_pr
 // ----------------------------------------------------------------
 // Destructor - do nothing
 // ----------------------------------------------------------------
-NaSch::~NaSch()
+NaSchPBC::~NaSchPBC()
 {
  clear();
 }
@@ -28,7 +28,7 @@ NaSch::~NaSch()
 // ----------------------------------------------------------------
 // Initialise lane configuration
 // ----------------------------------------------------------------
-void NaSch::initialise(unsigned long lane_size, unsigned maximum_velocity, double break_probability)
+void NaSchPBC::initialise(unsigned long lane_size, unsigned maximum_velocity, double break_probability)
 {
  // Set lane configuration
  Lane_size = lane_size;
@@ -41,7 +41,7 @@ void NaSch::initialise(unsigned long lane_size, unsigned maximum_velocity, doubl
 // ----------------------------------------------------------------
 // Clear data structures
 // ----------------------------------------------------------------
-void NaSch::clear()
+void NaSchPBC::clear()
 {
  // Initialise data structures representing the lane
  Lane.clear();  
@@ -67,7 +67,7 @@ void NaSch::clear()
 // ----------------------------------------------------------------
 // Fill in vehicles
 // ----------------------------------------------------------------
-void NaSch::fill_in_vehicles(double density)
+void NaSchPBC::fill_in_vehicles(double density)
 {
  // Initialise data structures
  clear();
@@ -114,7 +114,7 @@ void NaSch::fill_in_vehicles(double density)
 // ----------------------------------------------------------------
 // Update vehicles list
 // ----------------------------------------------------------------
-unsigned long NaSch::update_vehicles_list()
+unsigned long NaSchPBC::update_vehicles_list()
 {
  // Get the new vehicles order
  unsigned long i = 0;
@@ -139,9 +139,9 @@ unsigned long NaSch::update_vehicles_list()
 }
  
 // ----------------------------------------------------------------
-// Update lane based on NaSch rules
+// Update lane based on NaSchPBC rules
 // ----------------------------------------------------------------
-unsigned NaSch::apply_nasch(bool print)
+unsigned NaSchPBC::apply_nasch(bool print)
 {
  
  // Accumulated velocity
@@ -182,7 +182,7 @@ unsigned NaSch::apply_nasch(bool print)
    //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
    
    // -----------------------------------------------------------------
-   // NaSch rules
+   // NaSchPBC rules
    // -----------------------------------------------------------------
    
    // First rule (acceleration)
@@ -225,7 +225,7 @@ unsigned NaSch::apply_nasch(bool print)
 // ----------------------------------------------------------------
 // Update the lane status
 // ---------------------------------------------------------------- 
-void NaSch::update()
+void NaSchPBC::update()
 {
  for (unsigned long i = 0; i < Number_of_vehicles; i++)
   {
@@ -249,7 +249,7 @@ void NaSch::update()
 // ----------------------------------------------------------------
 // Prints the lane status
 // ---------------------------------------------------------------- 
-void NaSch::print(bool print_velocities)
+void NaSchPBC::print(bool print_velocities)
 {
  for (unsigned long i = 0; i < Lane_size; i++)
   {

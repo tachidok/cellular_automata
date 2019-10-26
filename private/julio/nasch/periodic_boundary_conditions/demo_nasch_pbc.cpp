@@ -1,13 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-#include <vector>
-#include <algorithm>
-
-#include "general.h"
-#include "cc_vehicle.h"
-#include "cc_nasch.h"
+#include "../../../../src/general/general.h"
+#include "../../../../src/general/cc_vehicle.h"
+#include "../../../../src/nasch/cc_nasch_pbc.h"
 
 //#define MAX_MONTE_CARLO_LOOP 500
 //#define MONTE_CARLO_STAB_PHASE 100
@@ -27,8 +20,8 @@
 //#define MONTE_CARLO_STAB_PHASE    50 // %10 of MAX_MONTE_CARLO_LOOP
 //#define LANE_SIZE                 50 // %1 of MAX_MONTE_CARLO_LOOP
 
-#define N_CONFIGURATIONS          40 // Different number of initial
-                                     // vehicles positions
+#define N_CONFIGURATIONS          1 // Different number of initial
+                                    // vehicles positions
 #define MAX_MONTE_CARLO_LOOP   20000
 #define MONTE_CARLO_STAB_PHASE 15000
 #define LANE_SIZE               1000
@@ -83,7 +76,7 @@ int main()
      
      for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
       {
-       NaSch lane;
+       NaSchPBC lane;
        lane.initialise(lane_size, maximum_velocity, break_probability);
        
 #ifdef OUTPUT_CURRENT_VS_TIME
