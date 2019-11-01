@@ -1,6 +1,6 @@
 # Add source files in order of dependence, the ones with no dependency
 # first then the others
-SET(BASE_SRC_FILES cc_rand_acc_pbc.cpp cc_rand_acc_npbc.cpp)
+SET(BASE_SRC_FILES cc_rand_acc_pbc.cpp cc_rand_acc_pbcwb.cpp cc_rand_acc_npbc.cpp)
 
 SET(SRC_FILES ${BASE_SRC_FILES})
 

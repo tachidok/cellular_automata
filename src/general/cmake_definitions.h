@@ -9,8 +9,8 @@ namespace cellular_automaton
 {
  
 #define MAJOR_VERSION 0
-#define MINOR_VERSION 0
-#define PATCH_LEVEL 1
+#define MINOR_VERSION 1
+#define PATCH_LEVEL 0
  
 }
 

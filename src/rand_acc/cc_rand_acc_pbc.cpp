@@ -300,3 +300,26 @@ void RandAccPBC::print(bool print_velocities)
   
 }
 
+// ----------------------------------------------------------------
+// Output lane status
+// ---------------------------------------------------------------- 
+void RandAccPBC::output_time_space(std::ofstream &output_file)
+{
+ //std::cout << Current_number_of_vehicles << std::endl;
+ // Loop over the lane and output its state
+ for (unsigned long k = 0; k < Lane_size; k++)
+  {
+   if (Lane[k] != 0)
+    {
+     output_file << "1";
+    }
+   else
+    {
+     output_file << "0";
+    }
+  }
+ 
+ output_file << std::endl;
+ 
+}
+

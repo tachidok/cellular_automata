@@ -58,7 +58,12 @@ class RandAccPBC
  // ----------------------------------------------------------------
  // Prints the lane status
  // ---------------------------------------------------------------- 
- void print(bool print_velocities = false); 
+ void print(bool print_velocities = false);
+ 
+ // ----------------------------------------------------------------
+ // Output lane status
+ // ---------------------------------------------------------------- 
+ void output_time_space(std::ofstream &output_file);
  
  inline unsigned long lane_size() {return Lane_size;}
  inline unsigned maximum_velocity() {return Maximum_velocity;}

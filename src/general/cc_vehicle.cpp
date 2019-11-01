@@ -5,17 +5,17 @@
 // ----------------------------------------------------------------
 Vehicle::Vehicle()
 {
- // Set initial velocity and position
- initialise(0, 0);
+ // Set initial velocity, position and length
+ initialise(0, 0, 1);
 }
 
 // ----------------------------------------------------------------
 // Constructor
 // ----------------------------------------------------------------
-Vehicle::Vehicle(unsigned velocity, unsigned long position)
+Vehicle::Vehicle(unsigned velocity, unsigned long position, unsigned length)
 {
- // Set initial velocity and position
- initialise(velocity, position);
+ // Set initial velocity, position and length
+ initialise(velocity, position, length);
 }
  
 // ----------------------------------------------------------------
@@ -29,12 +29,13 @@ Vehicle::~Vehicle()
 // ----------------------------------------------------------------
 // Set the current velocity and position
 // ----------------------------------------------------------------
-void Vehicle::initialise(unsigned velocity, unsigned long position)
+void Vehicle::initialise(unsigned velocity, unsigned long position, unsigned length)
 {
  Velocity[1] = Velocity[0] = velocity;
  Position[1] = Position[0] = position;
+ Length = length;
 }
- 
+
 // ----------------------------------------------------------------
 // Update vehicles status
 // ----------------------------------------------------------------
