@@ -1,7 +1,7 @@
-#include "../../src/general/general.h"
-#include "../../src/general/cc_vehicle.h"
-#include "../../src/general/cc_bump.h"
-#include "cc_rand_acc_pbc.h"
+#include "../../../../src/general/general.h"
+#include "../../../../src/general/cc_vehicle.h"
+#include "../../../../src/general/cc_bump.h"
+#include "../../../../src/rand_acc/cc_rand_acc_pbc.h"
 
 #ifndef CC_RAND_ACC_PBCWB_H
 #define CC_RAND_ACC_PBCWB_H
@@ -47,6 +47,8 @@ class RandAccPBCwb : public RandAccPBC
  // Check whether there is a bump close to the current position
  // ----------------------------------------------------------------
  unsigned long distance_to_nearest_bump(unsigned long position);
+
+ inline const unsigned nbumps() {return Bumps_pt.size();}
  
  protected:
  

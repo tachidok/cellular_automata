@@ -307,16 +307,26 @@ void RandAccPBC::output_time_space(std::ofstream &output_file)
 {
  //std::cout << Current_number_of_vehicles << std::endl;
  // Loop over the lane and output its state
- for (unsigned long k = 0; k < Lane_size; k++)
+ for (unsigned long k = 0; k < Lane_size - 1; k++)
   {
    if (Lane[k] != 0)
     {
-     output_file << "1";
+     output_file << "1 ";
     }
    else
     {
-     output_file << "0";
+     output_file << "0 ";
     }
+  }
+
+ // The last element in the vector
+ if (Lane[Lane_size - 1] != 0)
+  {
+   output_file << "1";
+  }
+ else
+  {
+   output_file << "0";
   }
  
  output_file << std::endl;

@@ -12,13 +12,13 @@ filename = 'RESLT/current_bp_p0_0.4_p1_0.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
 ax1.plot(density, current, label=r'$p_0 = 0.4, p_1 = 0.0$', color='red', linestyle='solid', linewidth=Linewidth)
 
-filename = 'RESLT/current_bp_p0_0.4_p1_0.05.dat'
+filename = 'RESLT/current_bp_p0_0.4_p1_0.2.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.plot(density, current, label=r'$p_0 = 0.4, p_1 = 0.05$', color='blue', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$p_0 = 0.4, p_1 = 0.2$', color='blue', linestyle='solid', linewidth=Linewidth)
 
-filename = 'RESLT/current_bp_p0_0.4_p1_0.1.dat'
+filename = 'RESLT/current_bp_p0_0.4_p1_0.4.dat'
 density, current = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax1.plot(density, current, label=r'$p_0 = 0.4, p_1 = 0.1$', color='green', linestyle='solid', linewidth=Linewidth)
+ax1.plot(density, current, label=r'$p_0 = 0.4, p_1 = 0.4$', color='green', linestyle='solid', linewidth=Linewidth)
 
 ax1.grid()
 #plt.xticks(np.arange(0,10,step=1))
@@ -40,13 +40,13 @@ filename = 'RESLT/velocity_bp_p0_0.4_p1_0.dat'
 density, velocity = np.loadtxt(filename, delimiter='\t', unpack=True)
 ax2.plot(density, velocity, label=r'$p_0 = 0.4, p_1 = 0.0$', color='red', linestyle='solid', linewidth=Linewidth)
 
-filename = 'RESLT/velocity_bp_p0_0.4_p1_0.05.dat'
+filename = 'RESLT/velocity_bp_p0_0.4_p1_0.2.dat'
 density, velocity = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax2.plot(density, velocity, label=r'$p_0 = 0.4, p_1 = 0.05$', color='blue', linestyle='solid', linewidth=Linewidth)
+ax2.plot(density, velocity, label=r'$p_0 = 0.4, p_1 = 0.2$', color='blue', linestyle='solid', linewidth=Linewidth)
 
-filename = 'RESLT/velocity_bp_p0_0.4_p1_0.1.dat'
+filename = 'RESLT/velocity_bp_p0_0.4_p1_0.4.dat'
 density, velocity = np.loadtxt(filename, delimiter='\t', unpack=True)
-ax2.plot(density, velocity, label=r'$p_0 = 0.4, p_1 = 0.1$', color='green', linestyle='solid', linewidth=Linewidth)
+ax2.plot(density, velocity, label=r'$p_0 = 0.4, p_1 = 0.4$', color='green', linestyle='solid', linewidth=Linewidth)
 
 ax2.grid()
 #ax2.xticks(np.arange(0,10,step=1))

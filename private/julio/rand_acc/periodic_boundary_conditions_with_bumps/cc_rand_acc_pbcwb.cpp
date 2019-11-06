@@ -113,8 +113,9 @@ unsigned long RandAccPBCwb::apply_rand_acc()
    // Compute the randomisation parameter for the acceleration
    const double r = dis(gen);
    // Compute acceleration based on random number and as a function of
-   // the spatial headway and the maximum velocity
-   const unsigned r_acc = r * std::min(Maximum_velocity, spatial_headway);
+   // the spatial headway and the maximum velocity. Also make sure
+   // that there is at least one acceleration step
+   unsigned r_acc = std::max(static_cast<unsigned>(r * std::min(Maximum_velocity, spatial_headway)), static_cast<unsigned>(1));
    //DEB(r_acc);
    
    //const unsigned r_acc = 1;
@@ -123,21 +124,31 @@ unsigned long RandAccPBCwb::apply_rand_acc()
    unsigned new_velocity = std::min(current_velocity + r_acc, Maximum_velocity);
    
    // Second rule (deceleration)
-   // Get the distance to the closest bump
-   const unsigned long distance_to_closest_bump = distance_to_nearest_bump(current_position);
-   // If the car is already at the bump then reduce the velocity to that allowed by the bump
-   if (distance_to_closest_bump == 0)
+   // Are there bumps?
+   const unsigned n_bumps = nbumps();
+   if (n_bumps > 0)
     {
-     // This may be a function of the type of bump
-     const unsigned max_velocity_to_pass_bump = 1;
-     new_velocity = std::min(max_velocity_to_pass_bump, spatial_headway);
+     // Get the distance to the closest bump
+     const unsigned long distance_to_closest_bump = distance_to_nearest_bump(current_position);
+     // If the car is already at the bump then reduce the velocity to that allowed by the bump
+     if (distance_to_closest_bump == 0)
+      {
+       // This may be a function of the type of bump
+       const unsigned max_velocity_to_pass_bump = 1;
+       new_velocity = std::min(max_velocity_to_pass_bump, spatial_headway);
+      }
+     // If the bump is close then reduce velocity accordingly
+     else if (distance_to_closest_bump < new_velocity)
+      {
+       new_velocity = std::min(static_cast<unsigned>(distance_to_closest_bump), spatial_headway);
+      }
+     // If bump is no close enough then use new velocity
+     else
+      {
+       new_velocity = std::min(new_velocity, spatial_headway);
+      }
     }
-   // If the bump is close then reduce velocity accordingly
-   else if (distance_to_closest_bump < new_velocity)
-    {
-     new_velocity = std::min(static_cast<unsigned>(distance_to_closest_bump), spatial_headway);
-    }
-   // If bump is no close enough then use new velocity
+   // No bumps
    else
     {
      new_velocity = std::min(new_velocity, spatial_headway);
@@ -149,9 +160,9 @@ unsigned long RandAccPBCwb::apply_rand_acc()
    
    // Third rule (randomization) if new velocity is equal to zero
    if (new_velocity == 0)
-        {
-         const double r0 = dis(gen); 
-         if (r0 <= p_0)
+    {
+     const double r0 = dis(gen); 
+     if (r0 <= p_0)
           {
            new_velocity = std::max(int(new_velocity - 1), 0);
            //std::cerr << "NV: " << new_velocity << std::endl;

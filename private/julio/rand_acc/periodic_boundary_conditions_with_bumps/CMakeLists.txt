@@ -1,5 +1,5 @@
 # Indicate source files and dependencies in the files
-SET(SRC_demo_rand_acc_pbcwb demo_rand_acc_pbcwb.cpp)
+SET(SRC_demo_rand_acc_pbcwb demo_rand_acc_pbcwb.cpp cc_rand_acc_pbcwb.cpp)
 
 # Do not create executable but add them to the 'make' list
 ADD_EXECUTABLE(julio_demo_rand_acc_pbcwb EXCLUDE_FROM_ALL ${SRC_demo_rand_acc_pbcwb})

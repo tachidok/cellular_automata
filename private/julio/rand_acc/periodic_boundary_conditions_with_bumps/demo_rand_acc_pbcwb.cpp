@@ -1,5 +1,5 @@
 #include "../../../../src/general/general.h"
-#include "../../../../src/rand_acc/cc_rand_acc_pbcwb.h"
+#include "cc_rand_acc_pbcwb.h"
 
 //#define MAX_MONTE_CARLO_LOOP  200000
 //#define MONTE_CARLO_STAB_PHASE 10000 // %5 of MAX_MONTE_CARLO_LOOP
@@ -22,16 +22,18 @@
 
 #define MAX_VELOCITY 5
 
-#define MAXIMUM_BREAK_PROBABILITY_P0   0.6
-#define MAXIMUM_BREAK_PROBABILITY_P1   0.1
-#define BREAK_PROBABILITY_STEP_P0   0.1
-#define BREAK_PROBABILITY_STEP_P1   0.05
-#define DENSITY_STEP             0.01
+//#define MAXIMUM_BREAK_PROBABILITY_P0   0.6
+//#define MAXIMUM_BREAK_PROBABILITY_P1   0.1
+#define MAXIMUM_BREAK_PROBABILITY_P0   1.0
+#define MAXIMUM_BREAK_PROBABILITY_P1   1.0
+#define BREAK_PROBABILITY_STEP_P0   0.2
+#define BREAK_PROBABILITY_STEP_P1   0.2
+#define DENSITY_STEP             0.1
 //#define DENSITY_STEP           1.1
 
 #define MAX_VELOCITY 5
 
-//#define OUTPUT_TIME_SPACE
+#define OUTPUT_TIME_SPACE
 
 int main()
 { 
@@ -98,9 +100,12 @@ int main()
          std::vector<unsigned long> bumps_positions;
          // Add one bump at the center of the lane
          bumps_positions.push_back(lane_size/2);
-         bumps_positions.push_back(lane_size/3);
-         bumps_positions.push_back(2*(lane_size/3));
-         lane.set_bumps(bumps_positions); 
+         for (unsigned kk = 0; kk < bumps_positions.size(); kk++)
+          {
+           DEB(bumps_positions[kk]);
+          }
+         // No bumps
+         lane.set_bumps(bumps_positions);
          // Initial state of the lane
          //lane.print(true); 
          
@@ -156,7 +161,7 @@ int main()
          
          averaged_configurations_mean_velocity+=total_mean_velocity;
          averaged_configurations_mean_current+=total_mean_current;
-       
+         
         } // for (i_configuration < N_CONFIGURATIONS)
        
        averaged_configurations_mean_velocity=averaged_configurations_mean_velocity/double(N_CONFIGURATIONS);
