@@ -26,12 +26,12 @@ OptionRead()
 # Variables
 #====================================================================
 build_dir=build
-tmp_dir=tmp
+tmp_dir=tmp_cellular_automata
 src_dir=src
 external_src_dir=external_src
 
 # The name of the library
-lib_name=cellular_automaton
+lib_name=cellular_automata
 # The version of the library is given by whether the user choose to
 # build the DEBUG or the RELEASE version of the library
 lib_version=*
@@ -42,7 +42,7 @@ lib_version=*
 
 echo " "
 echo "============================================================= "
-echo "            "$lib_name" make clean distro script" 
+echo "        "$lib_name" make clean distro script" 
 echo "============================================================= "
 echo " "
 
@@ -53,6 +53,11 @@ echo "I am going to create a clean distro and package it"
 echo ""
 echo "============================================================= "
 echo ""
+
+#====================================================================
+# Go one directory up
+#====================================================================
+cd ..
 
 #====================================================================
 # Make a temporal directory
@@ -73,27 +78,13 @@ echo ""
 echo "============================================================= "
 echo ""
 
-echo ""
-echo "============================================================= "
-echo "************************************************************* "
-echo "============================================================= "
-echo "Copying the library into " $tmp_dir" folder ..."
-cp ../../cellular_automata/ ./
-echo ""
-echo "============================================================= "
-echo "************************************************************* "
-echo "============================================================= "
-echo ""
-echo "[COPY DONE]"
-echo ""
-
 #====================================================================
 # Making copy
 #====================================================================
 echo "============================================================= "
-echo "Copying the library into " $tmp_dir" folder ..."
+echo "Copying the library into" $tmp_dir" folder ..."
 echo "============================================================= "
-cp ../../cellular_automata/ ./cellular_automata_copy
+cp -r ../$lib_name ./cellular_automata_copy
 echo ""
 echo "[COPY DONE]"
 echo ""
@@ -105,7 +96,19 @@ echo "============================================================= "
 echo "I am going to delete .git folder"
 echo "============================================================= "
 echo ""
-rm -rf ./git
+rm -rf ./cellular_automata_copy/.git
+echo ""
+echo "[DELETE GIT FOLDER DONE]"
+echo ""
+
+#====================================================================
+# Deleting build folder
+#====================================================================
+echo "============================================================= "
+echo "I am going to delete" $build_dir " folder"
+echo "============================================================= "
+echo ""
+rm -rf ./cellular_automata_copy/$build_dir
 echo ""
 echo "[DELETE GIT FOLDER DONE]"
 echo ""
@@ -118,7 +121,7 @@ echo "I am going to delete dat and png files, ignoring those in"
 echo "demos and private folders"
 echo "============================================================= "
 echo ""
-../tools/clean_distro.py --root_folder ./cellular_automata_copy --ext dat png --ignore_in_path private
+./cellular_automata_copy/tools/clean_distro.py --root_folder ./cellular_automata_copy/ --ext dat png
 echo ""
 echo "[DELETE DAT AND PNG FILES DONE]"
 echo ""
@@ -131,7 +134,7 @@ echo "I am going to create a package with the new clean"
 echo "distribution"
 echo "============================================================= "
 echo ""
-tar cvfz cellular_automata_copy.tar.gz ./cellular_automata_copy
+tar cvfz cellular_automata_copy.tar.gz ./cellular_automata_copy/
 echo ""
 echo "[PACKAGE DONE]"
 echo ""

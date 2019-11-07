@@ -80,7 +80,7 @@ def main():
         if user_input.lower() == 'y':
             for item in files_found:
                 print(f"Deleting {item}")
-#                os.unlink(item)
+                os.unlink(item)
         else:
             print("No files deleted\n")
     else:
