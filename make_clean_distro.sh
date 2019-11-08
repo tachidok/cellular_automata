@@ -48,20 +48,21 @@ echo "============================================================= "
 echo ""
 
 #====================================================================
-# Go one directory up
+# Remove previous distros packages
 #====================================================================
-current_folder=$(pwd)
+rm -i $lib_name.tar.gz
+
+#====================================================================
+# Get working folder
+#====================================================================
+working_folder=$(pwd)
 
 #====================================================================
 # Make a temporal directory
 #====================================================================
 tmp_dir=$(mktemp -d -t tachidok-XXXXXXXXXX)
+echo ""
 echo $tmp_dir
-echo ""
-echo ""
-
-echo ""
-echo "============================================================= "
 echo ""
 
 #====================================================================
@@ -70,7 +71,7 @@ echo ""
 echo "============================================================= "
 echo "Copying the library into" $tmp_dir" folder ..."
 echo "============================================================= "
-cp -r $current_folder $tmp_dir
+cp -r $working_folder $tmp_dir
 echo ""
 echo "[COPY DONE]"
 echo ""
@@ -81,8 +82,7 @@ echo ""
 echo "============================================================= "
 echo "I am going to delete .git folder"
 echo "============================================================= "
-echo ""
-rm -rf $tmp_dir/.git
+rm -rf $tmp_dir/$lib_name/.git
 echo ""
 echo "[DELETE GIT FOLDER DONE]"
 echo ""
@@ -91,12 +91,11 @@ echo ""
 # Deleting build folder
 #====================================================================
 echo "============================================================= "
-echo "I am going to delete" $build_dir " folder"
+echo "I am going to delete" $build_dir "folder"
 echo "============================================================= "
+rm -rf $tmp_dir/$lib_name/$build_dir
 echo ""
-rm -rf $tmp_dir/$build_dir
-echo ""
-echo "[DELETE GIT FOLDER DONE]"
+echo "[DELETE BUILD FOLDER DONE]"
 echo ""
 
 #====================================================================
@@ -107,7 +106,7 @@ echo "I am going to delete [dat,png] files, ignoring those in"
 echo "[demos] folders"
 echo "============================================================= "
 echo ""
-$tmp_dir/tools/clean_distro.py --root_folder $tmp_dir --ext dat png --ignore_in_path demos
+$tmp_dir/$lib_name/tools/clean_distro.py --root_folder $tmp_dir/$lib_name --ext dat png --ignore_in_path demos
 echo ""
 echo "[DELETE DAT AND PNG FILES DONE]"
 echo ""
@@ -120,21 +119,8 @@ echo "I am going to create a package with the new clean"
 echo "distribution and delete temporal folder"
 echo "============================================================= "
 echo ""
-tar cvfz cellular_automata.tar.gz $tmp_dir
+tar cvfz $lib_name.tar.gz $tmp_dir/$lib_name
 rm -rf $tmp_dir
 echo ""
 echo "[PACKAGE/DELETE TMP FOLDER DONE]"
-echo ""
-
-
-#====================================================================
-# Copy back the to original project folder
-#====================================================================
-echo "============================================================= "
-echo "Copy the packaged distribution to the project folder"
-echo "============================================================= "
-echo ""
-cp cellular_automata.tar.gz $current_folder
-echo ""
-echo "[COPY PACKAGE DONE]"
 echo ""

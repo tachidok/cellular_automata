@@ -1,9 +1,11 @@
+import os
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
 Linewidth = 2;
 # Break probability
-break_probability = 0.2
+break_probability = float(sys.argv[1])
 
 # -------------------------------------------------------------------------------------
 # Density vs Current plots

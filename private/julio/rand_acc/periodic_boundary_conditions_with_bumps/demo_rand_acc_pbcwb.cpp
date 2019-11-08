@@ -100,10 +100,6 @@ int main()
          std::vector<unsigned long> bumps_positions;
          // Add one bump at the center of the lane
          bumps_positions.push_back(lane_size/2);
-         for (unsigned kk = 0; kk < bumps_positions.size(); kk++)
-          {
-           DEB(bumps_positions[kk]);
-          }
          // No bumps
          lane.set_bumps(bumps_positions);
          // Initial state of the lane
@@ -143,7 +139,10 @@ int main()
              // Output lane status
              if (i_configuration == 0)
               {
-               lane.output_time_space(lane_status_file);
+               if ((int(density * 100)) % 10 == 0)
+                {
+                 lane.output_time_space(lane_status_file);
+                }
               }
 #endif // #ifdef OUTPUT_TIME_SPACE 
              

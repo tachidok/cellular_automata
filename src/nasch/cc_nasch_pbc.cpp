@@ -141,7 +141,7 @@ unsigned long NaSchPBC::update_vehicles_list()
 // ----------------------------------------------------------------
 // Update lane based on NaSchPBC rules
 // ----------------------------------------------------------------
-unsigned NaSchPBC::apply_nasch(bool print)
+unsigned NaSchPBC::apply_nasch()
 {
  
  // Accumulated velocity
@@ -196,10 +196,6 @@ unsigned NaSchPBC::apply_nasch(bool print)
    if (r <= Break_probability)
     {
      new_velocity = std::max(int(new_velocity - 1), 0);
-     if (print && (fabs(Density - 0.05) < 1.0e-2 || fabs(Density - 0.06) < 1.0e-2))
-      {
-       std::cerr << r << " cv: " << current_velocity << " nv: " << new_velocity << " rho: " << Density << " i: " << i << " nv: " << Number_of_vehicles << " cp: " << current_position << " sh: " << spatial_headway << std::endl;
-      }
      //std::cerr << "NV: " << new_velocity << std::endl;
     }
    
@@ -275,5 +271,38 @@ void NaSchPBC::print(bool print_velocities)
 
  std::cerr << std::endl;
   
+}
+
+// ----------------------------------------------------------------
+// Output lane status
+// ---------------------------------------------------------------- 
+void NaSchPBC::output_time_space(std::ofstream &output_file)
+{
+ //std::cout << Current_number_of_vehicles << std::endl;
+ // Loop over the lane and output its state
+ for (unsigned long k = 0; k < Lane_size - 1; k++)
+  {
+   if (Lane[k] != 0)
+    {
+     output_file << "1 ";
+    }
+   else
+    {
+     output_file << "0 ";
+    }
+  }
+
+ // The last element in the vector
+ if (Lane[Lane_size - 1] != 0)
+  {
+   output_file << "1";
+  }
+ else
+  {
+   output_file << "0";
+  }
+ 
+ output_file << std::endl;
+ 
 }
 

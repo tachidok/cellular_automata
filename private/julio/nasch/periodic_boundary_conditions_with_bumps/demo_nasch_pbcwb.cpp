@@ -1,6 +1,5 @@
 #include "../../../../src/general/general.h"
-#include "../../../../src/general/cc_vehicle.h"
-#include "../../../../src/nasch/cc_nasch_pbc.h"
+#include "cc_nasch_pbcwb.h"
 
 //#define MAX_MONTE_CARLO_LOOP 500
 //#define MONTE_CARLO_STAB_PHASE 100
@@ -24,10 +23,12 @@
                                     // vehicles positions
 #define MAX_MONTE_CARLO_LOOP   20000
 #define MONTE_CARLO_STAB_PHASE 15000
-#define LANE_SIZE               1000
+#define LANE_SIZE               1500
 // ----------------------------------------------------------------------
 
 #define MAX_VELOCITY 5
+
+#define OUTPUT_TIME_SPACE
 
 #define BREAK_PROBABILITY_STEP   0.1
 #define DENSITY_STEP             0.01
@@ -68,7 +69,11 @@ int main()
    // Loop over density
    while (density <= maximum_density)
     {
-     
+#ifdef OUTPUT_TIME_SPACE 
+     std::ostringstream lane_status_filename;
+     lane_status_filename << "RESLT/lane_" << "bp" << break_probability << "_rho_" << density << ".dat";
+     std::ofstream lane_status_file((lane_status_filename.str()).c_str(), std::ios_base::out);
+#endif // #ifdef OUTPUT_TIME_SPACE
      // Averaged configurations mean velocity
      double averaged_configurations_mean_velocity = 0;
      // Averaged configurations mean current
@@ -76,7 +81,7 @@ int main()
      
      for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
       {
-       NaSchPBC lane;
+       NaSchPBCwb lane;
        lane.initialise(lane_size, maximum_velocity, break_probability);
        
 #ifdef OUTPUT_CURRENT_VS_TIME
@@ -90,7 +95,13 @@ int main()
        
        // Add vehicles to the lane based on the given density
        lane.fill_in_vehicles(density);
-       //lane.print(true); 
+       
+       // Add bumps to the lane
+       std::vector<unsigned long> bumps_positions;
+       // Add one bump at the center of the lane
+       bumps_positions.push_back(lane_size/2);
+       // With bump at middle of the lane
+       lane.set_bumps(bumps_positions);
        
        const unsigned long monte_carlo_max_loop = MAX_MONTE_CARLO_LOOP;
        const unsigned long monte_carlo_stabilization_phase = MONTE_CARLO_STAB_PHASE;
@@ -104,10 +115,7 @@ int main()
          // Apply NaSch rules
          unsigned long sum_velocity = lane.apply_nasch();
          // Update lane status
-         lane.update();
-         
-         //lane.print(true);
-         //lane.print(false); 
+         lane.update(); 
          
 #ifdef OUTPUT_CURRENT_VS_TIME
          double mean_current = double(sum_velocity) / double(lane.lane_size());
@@ -124,6 +132,18 @@ int main()
            mean_current = double(sum_velocity) / double(lane.lane_size());
 #endif // #ifdef OUTPUT_CURRENT_VS_TIME
            sum_mean_current+=mean_current;
+           
+#ifdef OUTPUT_TIME_SPACE
+           // Output lane status
+           if (i_configuration == 0)
+            {
+             if ((int(density * 1000)) % 10 == 0)
+              {
+               lane.output_time_space(lane_status_file);
+              }
+            }
+#endif // #ifdef OUTPUT_TIME_SPACE 
+           
           }
          
 #ifdef OUTPUT_CURRENT_VS_TIME
@@ -159,9 +179,13 @@ int main()
      
      // Increase density
      density+=density_step;
-      
+     
+#ifdef OUTPUT_TIME_SPACE
+     lane_status_file.close();
+#endif // #ifdef OUTPUT_TIME_SPACE 
+     
     } // while (density <= maximum_density)
-       
+   
    // Increase density
    break_probability+=break_probability_step;
    
