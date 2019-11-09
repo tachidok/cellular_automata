@@ -7,20 +7,16 @@ import numpy as np
 def main():
     Linewidth = 1
     
-    if len(sys.argv) < 2:
-        print("Usage: plot_multiple_break_probability.py [--RESLT_folder]")
-        sys.exit()
-        
     # Create the parser to deal with the arguments
     parser = argparse.ArgumentParser("Plot density vs current and velocity using the files in the given folder")
         
     # Set the positional arguments
-    parser.add_argument("--RESLT_folder", type=str, help="The RESLT folder", required=True)
+    parser.add_argument("RESLT_folder", type=str, help="The RESLT folder")
     
     # parse args
     args = parser.parse_args()
-
-    # Break probability
+    
+    # RESLT folder
     RESLT = args.RESLT_folder
 
     # Create two list with the break probabilities and colors to plot
