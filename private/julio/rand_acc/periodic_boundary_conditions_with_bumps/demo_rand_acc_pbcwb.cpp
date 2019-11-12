@@ -33,6 +33,8 @@
 
 #define MAX_VELOCITY 5
 
+#define N_BUMPS 10
+
 #define OUTPUT_TIME_SPACE
 
 int main()
@@ -98,8 +100,12 @@ int main()
          
          // Add bumps to the lane
          std::vector<unsigned long> bumps_positions;
-         // Add one bump at the center of the lane
-         bumps_positions.push_back(lane_size/2);
+         const unsigned h_bump = lane_size / (N_BUMPS + 1);
+         for (unsigned kk = 1; kk <= N_BUMPS; kk++)
+          {
+           // Add bump at the center of the lane
+           bumps_positions.push_back(h_bump*kk);
+          }
          // No bumps
          lane.set_bumps(bumps_positions);
          // Initial state of the lane
@@ -129,11 +135,11 @@ int main()
      
            // Apply only after stabilization phase
            if (i > monte_carlo_stabilization_phase)
-            {
-             double mean_velocity = double(sum_velocity) / double(lane.current_number_of_vehicles());
-             sum_mean_velocity+=mean_velocity;
-             double mean_current = double(sum_velocity) / double(lane.lane_size());
-             sum_mean_current+=mean_current;
+                 {
+                  double mean_velocity = double(sum_velocity) / double(lane.current_number_of_vehicles());
+                  sum_mean_velocity+=mean_velocity;
+                  double mean_current = double(sum_velocity) / double(lane.lane_size());
+                  sum_mean_current+=mean_current;
 
 #ifdef OUTPUT_TIME_SPACE
              // Output lane status
