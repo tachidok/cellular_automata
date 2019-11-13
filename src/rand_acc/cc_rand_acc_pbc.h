@@ -88,6 +88,13 @@ class RandAccPBC
  std::vector<Vehicle*> Lane;
  std::vector<Vehicle*> Vehicles_pt;
  
+ // A counter that sum up the travel time vehicles take to traverse
+ // the lane
+ unsigned long Travel_time;
+ // Keep track of the number of vehicles that have leave the lane
+ // (used to compute travel time)
+ unsigned N_vehicles_complete_travel;
+ 
 };
 
 #endif // #ifndef CC_RAND_ACC_PBC_H

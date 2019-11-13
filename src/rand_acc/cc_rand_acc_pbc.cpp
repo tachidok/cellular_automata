@@ -36,6 +36,11 @@ void RandAccPBC::initialise(unsigned long lane_size, unsigned maximum_velocity, 
  Maximum_velocity = maximum_velocity;
  P_0 = p0;
  P_1 = p1;
+
+ // Initialise travel time to zero
+ Travel_time = 0.0;
+ // No vehicle has traverse the lane
+ N_vehicles_complete_travel = 0;
  
  // Initialise data structures
  clear();
@@ -261,10 +266,10 @@ void RandAccPBC::update()
    // Update the pointer on the lane
    Lane[old_position] = 0; // Delete the pointer from the old position
    Lane[new_position] = vehicle_pt;
-    
+   
    // Update vehicle
    vehicle_pt->update();
-    
+   
   } // (for i < Current_number_of_vehicles)
  
 }

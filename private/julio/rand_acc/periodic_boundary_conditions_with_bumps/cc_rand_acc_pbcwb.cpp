@@ -67,10 +67,14 @@ void RandAccPBCwb::set_bumps(std::vector<unsigned long> &bumps_positions)
 // ----------------------------------------------------------------
 // Update lane based on RandAccPBCwb rules
 // ----------------------------------------------------------------
-unsigned long RandAccPBCwb::apply_rand_acc()
+void RandAccPBCwb::apply_rand_acc(Real &mean_velocity, Real &mean_current, unsigned &mean_travel_time, unsigned &mean_delay)
 {
  // Accumulated velocity
- unsigned long sum_velocity = 0;
+ unsigned sum_velocity = 0;
+ // Accumulated travel time
+ unsigned sum_travel_time = 0;
+ // Accumulated delay
+ unsigned sum_delay = 0;
  
  // Used to get a seed for the random number engine
  std::random_device rd;
@@ -101,29 +105,29 @@ unsigned long RandAccPBCwb::apply_rand_acc()
    else
     {
      Vehicle *next_vehicle_pt = Vehicles_pt[i+1];
-     spatial_headway = next_vehicle_pt->position() - current_position - 1;
-    }
+      spatial_headway = next_vehicle_pt->position() - current_position - 1;
+     }
    
-   //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
+    //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
    
-   // -----------------------------------------------------------------
-   // Random acceleration rules
-   // -----------------------------------------------------------------
+    // -----------------------------------------------------------------
+    // Random acceleration rules
+    // -----------------------------------------------------------------
    
-   // Compute the randomisation parameter for the acceleration
-   const double r = dis(gen);
-   // Compute acceleration based on random number and as a function of
-   // the spatial headway and the maximum velocity. Also make sure
-   // that there is at least one acceleration step
-   unsigned r_acc = std::max(static_cast<unsigned>(r * std::min(Maximum_velocity, spatial_headway)), static_cast<unsigned>(1));
-   //DEB(r_acc);
+    // Compute the randomisation parameter for the acceleration
+    const double r = dis(gen);
+    // Compute acceleration based on random number and as a function of
+    // the spatial headway and the maximum velocity. Also make sure
+    // that there is at least one acceleration step
+    unsigned r_acc = std::max(static_cast<unsigned>(r * std::min(Maximum_velocity, spatial_headway)), static_cast<unsigned>(1));
+    //DEB(r_acc);
    
-   //const unsigned r_acc = 1;
+    //const unsigned r_acc = 1;
    
-   // First rule (acceleration)
-   unsigned new_velocity = std::min(current_velocity + r_acc, Maximum_velocity);
+    // First rule (acceleration)
+    unsigned new_velocity = std::min(current_velocity + r_acc, Maximum_velocity);
    
-   // Second rule (deceleration)
+    // Second rule (deceleration)
    // Are there bumps?
    const unsigned n_bumps = nbumps();
    if (n_bumps > 0)
@@ -163,11 +167,11 @@ unsigned long RandAccPBCwb::apply_rand_acc()
     {
      const double r0 = dis(gen); 
      if (r0 <= p_0)
-          {
-           new_velocity = std::max(int(new_velocity - 1), 0);
-           //std::cerr << "NV: " << new_velocity << std::endl;
-          }
-        }
+      {
+       new_velocity = std::max(int(new_velocity - 1), 0);
+       //std::cerr << "NV: " << new_velocity << std::endl;
+      }
+    }
    else // (new_velocity > 0)
     {
      const double r1 = dis(gen); 
@@ -182,9 +186,22 @@ unsigned long RandAccPBCwb::apply_rand_acc()
    unsigned long new_position = current_position + new_velocity;
    if (new_position >= Lane_size)
     {
+     // Increase the number of vehicles that have traverse the lane
+     N_vehicles_complete_travel++;
+     // Compute new average travel time
+     Travel_time+=current_vehicle_pt->travel_time(); 
+     
+     // Prepare to clear statistics at next update
+     current_vehicle_pt->enable_clear_statistics_at_next_update();
+     
+     // Set new position for vehicle
      new_position = new_position - Lane_size;
+     
+     // Get the current travel time of the vehicle and add it up to
+     // the travel time of the lane
+     sum_delay+=current_vehicle_pt->delay();
     }
-
+   
    // Update velocity and positon of vehicle
    current_vehicle_pt->velocity(1) = new_velocity;
    current_vehicle_pt->position(1) = new_position;
@@ -193,13 +210,23 @@ unsigned long RandAccPBCwb::apply_rand_acc()
    
   } // for (i < Current_number_of_vehicles)
  
- return sum_velocity;
- 
-}
+ mean_velocity=static_cast<Real>(sum_velocity)/static_cast<Real>(Current_number_of_vehicles);
+ mean_current=static_cast<Real>(sum_velocity)/static_cast<Real>(Lane_size);
+ if (N_vehicles_complete_travel>0)
+  {
+   mean_travel_time=static_cast<Real>(Travel_time)/static_cast<Real>(N_vehicles_complete_travel);
+  }
+ mean_travel_time = 0;
+ mean_delay=
+  // The waiting time should be the sum of the current dealys of each
+  // vehicle divided by the number of vehicles, there is no need for
+  // history of delays
+  
+  }
 
-// ----------------------------------------------------------------
-// Compute the distance to the nearest bump
-// ----------------------------------------------------------------
+  // ----------------------------------------------------------------
+  // Compute the distance to the nearest bump
+  // ----------------------------------------------------------------
 unsigned long RandAccPBCwb::distance_to_nearest_bump(unsigned long position)
 {
  // Get the number of bumps in the lane
@@ -209,10 +236,13 @@ unsigned long RandAccPBCwb::distance_to_nearest_bump(unsigned long position)
  for (unsigned i = 0; i < n_bumps; i++)
   {
    const unsigned long i_bump_position = Bumps_pt[i]->position();
-   const int long distance = i_bump_position - position;
-   if (distance < static_cast<int long>(gap_to_nearest_bump))
+   if (i_bump_position >= position)
     {
-     gap_to_nearest_bump = distance;
+     const int long distance = i_bump_position - position;
+     if (distance < static_cast<int long>(gap_to_nearest_bump))
+      {
+       gap_to_nearest_bump = distance;
+      }
     }
    
   }

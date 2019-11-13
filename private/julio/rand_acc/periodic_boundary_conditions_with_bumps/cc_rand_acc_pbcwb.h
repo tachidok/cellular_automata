@@ -41,8 +41,8 @@ class RandAccPBCwb : public RandAccPBC
  // ----------------------------------------------------------------
  // Update lane based on RandAccPBCwb rules
  // ----------------------------------------------------------------
- unsigned long apply_rand_acc();
-  
+ void apply_rand_acc(Real &mean_velocity, Real &mean_current, unsigned &mean_travel_time, unsigned &mean_delay);
+ 
  // ----------------------------------------------------------------
  // Check whether there is a bump close to the current position
  // ----------------------------------------------------------------

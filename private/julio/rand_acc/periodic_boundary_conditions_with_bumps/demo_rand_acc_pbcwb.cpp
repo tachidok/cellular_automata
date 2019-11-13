@@ -105,6 +105,7 @@ int main()
           {
            // Add bump at the center of the lane
            bumps_positions.push_back(h_bump*kk);
+           //DEB(h_bump*kk);
           }
          // No bumps
          lane.set_bumps(bumps_positions);
@@ -135,12 +136,12 @@ int main()
      
            // Apply only after stabilization phase
            if (i > monte_carlo_stabilization_phase)
-                 {
-                  double mean_velocity = double(sum_velocity) / double(lane.current_number_of_vehicles());
-                  sum_mean_velocity+=mean_velocity;
-                  double mean_current = double(sum_velocity) / double(lane.lane_size());
-                  sum_mean_current+=mean_current;
-
+            {
+             double mean_velocity = double(sum_velocity) / double(lane.current_number_of_vehicles());
+             sum_mean_velocity+=mean_velocity;
+             double mean_current = double(sum_velocity) / double(lane.lane_size());
+             sum_mean_current+=mean_current;
+             
 #ifdef OUTPUT_TIME_SPACE
              // Output lane status
              if (i_configuration == 0)
