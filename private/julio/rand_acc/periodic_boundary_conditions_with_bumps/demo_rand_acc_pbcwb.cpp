@@ -33,46 +33,52 @@
 
 #define MAX_VELOCITY 5
 
-#define N_BUMPS 10
+#define N_BUMPS 0
 
 #define OUTPUT_TIME_SPACE
+
+// Use the namespace of the framework
+using namespace CA;
 
 int main()
 { 
  const unsigned long lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
- const double maximum_break_probability_p0 = MAXIMUM_BREAK_PROBABILITY_P0;
- const double break_probability_step_p0 = BREAK_PROBABILITY_STEP_P0;
- double break_probability_p0 = 0.0;
+ const Real maximum_break_probability_p0 = MAXIMUM_BREAK_PROBABILITY_P0;
+ const Real break_probability_step_p0 = BREAK_PROBABILITY_STEP_P0;
+ Real break_probability_p0 = 0.0;
  
  // Loop over break probability
  while (break_probability_p0 <= maximum_break_probability_p0)
   {
-   double maximum_break_probability_p1 = break_probability_p0;
+   Real maximum_break_probability_p1 = break_probability_p0;
    if (break_probability_p0 > MAXIMUM_BREAK_PROBABILITY_P1)
     {
      maximum_break_probability_p1 = MAXIMUM_BREAK_PROBABILITY_P1;
     }
    
-   const double break_probability_step_p1 = BREAK_PROBABILITY_STEP_P1;
-   double break_probability_p1 = 0.0;
+   const Real break_probability_step_p1 = BREAK_PROBABILITY_STEP_P1;
+   Real break_probability_p1 = 0.0;
    
    // Loop over break probability
    while (break_probability_p1 <= maximum_break_probability_p1)
     {
      // Output for testing/validation
-     std::ostringstream velocity_filename;
-     std::ostringstream current_filename;
-     velocity_filename << "RESLT/velocity_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << ".dat";
-     current_filename << "RESLT/current_" << "bp_p0_" << break_probability_p0 << "_p1_" << break_probability_p1 << ".dat";
+     std::ostringstream output_filename;
+     output_filename << "RESLT/output_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << ".dat";
      // Output for testing/validation
-     std::ofstream velocity_file((velocity_filename.str()).c_str(), std::ios_base::out);
-     std::ofstream current_file((current_filename.str()).c_str(), std::ios_base::out);
+     std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
+     output_file << "density" << "\t"
+                 << "mean_velocity" << "\t"
+                 << "mean_current" << "\t"
+                 << "mean_delay" << "\t"
+                 << "mean_travel_time" << "\t"
+                 << "mean_queue_length" << std::endl;
      
-     const double maximum_density = 1.0;
-     const double density_step = DENSITY_STEP;
-     double density = 0.0;
+     const Real maximum_density = 1.0;
+     const Real density_step = DENSITY_STEP;
+     Real density = 0.0;
      
      while (density <= maximum_density)
       {
@@ -83,18 +89,21 @@ int main()
 #endif // #ifdef OUTPUT_TIME_SPACE
        
        // Averaged configurations mean velocity
-       double averaged_configurations_mean_velocity = 0;
+       Real averaged_configurations_mean_velocity = 0;
        // Averaged configurations mean current
-       double averaged_configurations_mean_current = 0;
+       Real averaged_configurations_mean_current = 0;
+       // Averaged configurations mean delay
+       Real averaged_configurations_mean_delay = 0;
+       // Averaged configurations mean travel time
+       Real averaged_configurations_mean_travel_time = 0;
+       // Averaged configurations mean queue length
+       Real averaged_configurations_mean_queue_length = 0;
        
        for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
         {
          RandAccPBCwb lane;
          lane.initialise(lane_size, maximum_velocity, break_probability_p0, break_probability_p1);
          
-         double sum_mean_velocity = 0;
-         double sum_mean_current = 0;
-     
          // Add vehicles to the lane based on the given density
          lane.fill_in_vehicles(density);
          
@@ -111,71 +120,126 @@ int main()
          lane.set_bumps(bumps_positions);
          // Initial state of the lane
          //lane.print(true); 
+
+         Real sum_mean_velocity = 0;
+         Real sum_mean_current = 0;
+         Real sum_mean_delay = 0;
+         Real sum_mean_travel_time = 0;
+         unsigned sum_travel_time = 0;
+         Real sum_mean_queue_length = 0;
+         
+         bool first_time_reset_travel_time = false;
          
          const unsigned monte_carlo_max_loop = MAX_MONTE_CARLO_LOOP;
          const unsigned monte_carlo_stabilization_phase = MONTE_CARLO_STAB_PHASE;
          // Monte-Carlo loop
          for (unsigned i = 0; i < monte_carlo_max_loop; i++)
-          {
-           // Compute the occupancy index
-           lane.update_vehicles_list();
+         {
+          // Compute the occupancy index
+          lane.update_vehicles_list();
+          
+          Real mean_velocity = 0;
+          Real mean_current = 0;
+          Real mean_delay = 0;
+          Real mean_travel_time = 0; 
+          Real mean_queue_length = 0;
+          
+          // Apply Rand-Acc rules
+          lane.apply_rand_acc(mean_velocity, mean_current, mean_delay, sum_travel_time, mean_travel_time, mean_queue_length);
+          //unsigned long sum_velocity = lane.apply_rand_acc();
+          //DEB(sum_velocity);
+          //DEB(alpha);
+          // Update lane status
+          lane.update();
+          
+          //lane.print(true);
+          //lane.print(false);
+          
+          //const Real density = lane.density();
+          //DEB(density);
+          //std::cerr << lane.current_number_of_vehicles() << " " << sum_velocity << std::endl;
      
-           // Apply Rand-Acc rules
-           unsigned long sum_velocity = lane.apply_rand_acc();
-           //DEB(sum_velocity);
-           //DEB(alpha);
-           // Update lane status
-           lane.update();
-         
-           //lane.print(true);
-           //lane.print(false);
-           
-           //const double density = lane.density();
-           //DEB(density);
-           //std::cerr << lane.current_number_of_vehicles() << " " << sum_velocity << std::endl;
-     
-           // Apply only after stabilization phase
-           if (i > monte_carlo_stabilization_phase)
-            {
-             double mean_velocity = double(sum_velocity) / double(lane.current_number_of_vehicles());
-             sum_mean_velocity+=mean_velocity;
-             double mean_current = double(sum_velocity) / double(lane.lane_size());
-             sum_mean_current+=mean_current;
-             
+          // Apply only after stabilization phase
+          if (i > monte_carlo_stabilization_phase)
+           {
+            // Reset statistics after stabilisation phase
+            if (!first_time_reset_travel_time)
+             {
+              sum_travel_time = 0;
+              lane.reset_n_vehicles_complete_travel();
+              mean_travel_time=0;
+              first_time_reset_travel_time = true;
+             }
+            
+            //Real mean_velocity = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.current_number_of_vehicles());
+            sum_mean_velocity+=mean_velocity;
+            //Real mean_current = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.lane_size());
+            sum_mean_current+=mean_current;
+            sum_mean_delay+=mean_delay;
+            sum_mean_travel_time+=mean_travel_time;
+            sum_mean_queue_length+=mean_queue_length;
+            
 #ifdef OUTPUT_TIME_SPACE
-             // Output lane status
-             if (i_configuration == 0)
-              {
-               if ((int(density * 100)) % 10 == 0)
-                {
-                 lane.output_time_space(lane_status_file);
-                }
-              }
+            // Output lane status
+            if (i_configuration == 0)
+             {
+              if ((int(density * 100)) % 10 == 0)
+               {
+                lane.output_time_space(lane_status_file);
+               }
+             }
 #endif // #ifdef OUTPUT_TIME_SPACE 
-             
-            }
-           
-          } // for (i < monte_carlo_max_loop)
+            
+           }
+          
+         } // for (i < monte_carlo_max_loop)
          
-         const double total_number_of_instances =
+         const Real total_number_of_instances =
           monte_carlo_max_loop - monte_carlo_stabilization_phase - 1;
          
          // Total mean velocity
-         const double total_mean_velocity = sum_mean_velocity / total_number_of_instances;
+         const Real total_mean_velocity = sum_mean_velocity / total_number_of_instances;
          // Total mean current
-         const double total_mean_current = sum_mean_current / total_number_of_instances;
+         const Real total_mean_current = sum_mean_current / total_number_of_instances;
+         // Total mean delay
+         const Real total_mean_delay = sum_mean_delay / total_number_of_instances;
+         // Total mean travel time
+         const Real total_mean_travel_time = sum_mean_travel_time / total_number_of_instances;
+         // Total mean queue length
+         const Real total_mean_queue_length = sum_mean_queue_length / total_number_of_instances;
          
          averaged_configurations_mean_velocity+=total_mean_velocity;
          averaged_configurations_mean_current+=total_mean_current;
+         averaged_configurations_mean_delay+=total_mean_delay;
+         averaged_configurations_mean_travel_time+=total_mean_travel_time;
+         averaged_configurations_mean_queue_length+=total_mean_queue_length;
          
         } // for (i_configuration < N_CONFIGURATIONS)
        
-       averaged_configurations_mean_velocity=averaged_configurations_mean_velocity/double(N_CONFIGURATIONS);
-       averaged_configurations_mean_current=averaged_configurations_mean_current/double(N_CONFIGURATIONS);
+       averaged_configurations_mean_velocity=averaged_configurations_mean_velocity/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_current=averaged_configurations_mean_current/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_delay=averaged_configurations_mean_delay/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_travel_time=averaged_configurations_mean_travel_time/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_queue_length=averaged_configurations_mean_queue_length/static_cast<Real>(N_CONFIGURATIONS);
        
-       std::cerr << "p0: " << break_probability_p0 << "\tp1: " << break_probability_p1 << "\trho: " << density << "\tavcmJ: " << averaged_configurations_mean_current << "\tavcmV: " << averaged_configurations_mean_velocity << std::endl;
-       velocity_file << density << "\t" << averaged_configurations_mean_velocity << std::endl;
-       current_file << density << "\t" << averaged_configurations_mean_current << std::endl;
+       std::cerr << "p0: " << break_probability_p0
+                 << "\tp1: " << break_probability_p1
+                 << "\trho: " << density
+                 << "\tmJ: " << averaged_configurations_mean_current
+                 << "\tmV: " << averaged_configurations_mean_velocity
+                 << "\tmDelay: " <<averaged_configurations_mean_delay
+                 << "\tmTript: " <<averaged_configurations_mean_travel_time
+                 << "\tmQlen: " <<averaged_configurations_mean_queue_length << std::endl;
+       
+       // -----------------------------------------------------------------------------------------
+       // Output data
+       // -----------------------------------------------------------------------------------------
+       output_file << density << "\t"
+                   << averaged_configurations_mean_velocity << "\t"
+                   << averaged_configurations_mean_current << "\t"
+                   << averaged_configurations_mean_delay << "\t"
+                   << averaged_configurations_mean_travel_time << "\t"
+                   << averaged_configurations_mean_queue_length << std::endl;
        
        // Increase density
        density+=density_step;
@@ -189,8 +253,7 @@ int main()
      // Increase break probability p1
      break_probability_p1+=break_probability_step_p1;
      
-     velocity_file.close();
-     current_file.close(); 
+     output_file.close();
      
     } // while (break_probability_p1 <= maximum_break_probability_p1)
    
