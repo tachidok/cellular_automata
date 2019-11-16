@@ -5,13 +5,13 @@
 // cmake_definitions.h, the variables in between "@"s are substituted
 // for values assigned in the "CMakeLists.txt" files
 
-namespace cellular_automaton
+namespace CA
 {
  
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
 #define PATCH_LEVEL 0
- 
-}
 
+} // namespace CA
+ 
 #endif // #ifdef CMAKE_DEFINITIONS_H
