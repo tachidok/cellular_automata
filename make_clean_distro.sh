@@ -106,7 +106,7 @@ echo "I am going to delete [dat,png] files, ignoring those in"
 echo "[demos] folders"
 echo "============================================================= "
 echo ""
-$tmp_dir/$lib_name/tools/clean_distro.py --root_folder $tmp_dir/$lib_name --ext dat png --ignore_in_path demos
+$tmp_dir/$lib_name/bin/clean_distro.py --root_folder $tmp_dir/$lib_name --ext dat png --ignore_in_path demos
 echo ""
 echo "[DELETE DAT AND PNG FILES DONE]"
 echo ""

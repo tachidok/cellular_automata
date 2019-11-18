@@ -72,16 +72,23 @@ namespace CA
  // ----------------------------------------------------------------
  void RandAccPBCwb::apply_rand_acc(Real &mean_velocity, Real &mean_current, Real &mean_delay,
                                    unsigned &sum_travel_time, Real &mean_travel_time,
-                                   Real &mean_queue_length)
+                                   Real &mean_queue_length,
+                                   Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm)
  {
   // Accumulated velocity
   unsigned sum_velocity = 0;
   // Accumulated delay
   unsigned sum_delay = 0;
- 
+  
+  // Emissions
+  Real sum_co2 = 0.0;
+  Real sum_nox = 0.0;
+  Real sum_voc = 0.0;
+  Real sum_pm = 0.0;
+  
   std::vector<unsigned> queues_length;
   unsigned current_queue_length = 0;
- 
+  
   // Used to get a seed for the random number engine
   std::random_device rd;
   // Standard mersenne_twister_engine seeded with rd()
@@ -90,7 +97,7 @@ namespace CA
   // Use dist to generate a random number into a double in the range
   // [0,1)
   std::uniform_real_distribution<> dis(0.0, 1.0);
- 
+  
   for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
@@ -207,19 +214,19 @@ namespace CA
     // Update velocity and positon of vehicle
     current_vehicle_pt->velocity(1) = new_velocity;
     current_vehicle_pt->position(1) = new_position;
-   
+    
     // Add up the velocity
     sum_velocity+=new_velocity;
-   
+    
     // Get the current travel time of the vehicle and add it up to
     // the travel time of the lane
     sum_delay+=current_vehicle_pt->delay();
-   
+    
     // Check the length of the queue
     if (spatial_headway==0)
      {
-      // Increase the size of the queue if there are no free space at
-      // the front
+      // Increase counter for the size of the queue if there are no
+      // free space at the front
       current_queue_length++;
      }
     else 
@@ -232,9 +239,22 @@ namespace CA
         current_queue_length = 0;
        }
      }
-   
+    
+    // Emissions
+    Real tmp_co2 = 0.0;
+    Real tmp_nox = 0.0;
+    Real tmp_voc = 0.0;
+    Real tmp_pm = 0.0;
+    current_vehicle_pt->compute_emissions(tmp_co2, tmp_nox, tmp_voc, tmp_pm);
+    
+    // Add up emissions of current vehicle
+    sum_co2+=tmp_co2;
+    sum_nox+=tmp_nox;
+    sum_voc+=tmp_voc;
+    sum_pm+=tmp_pm;
+    
    } // for (i < Current_number_of_vehicles)
- 
+  
   if (Current_number_of_vehicles > 0)
    {
     mean_velocity=static_cast<Real>(sum_velocity)/static_cast<Real>(Current_number_of_vehicles);
@@ -256,7 +276,7 @@ namespace CA
    {
     mean_travel_time = 0;
    }
- 
+  
   unsigned sum_queue_size = 0;
   // Get the number of queues 
   const unsigned n_queues = queues_length.size();
@@ -273,7 +293,23 @@ namespace CA
    {
     mean_queue_length = 0;
    }
- 
+
+  // Emssions
+  if (Current_number_of_vehicles > 0)
+   {
+    mean_co2=static_cast<Real>(sum_co2)/static_cast<Real>(Current_number_of_vehicles);
+    mean_nox=static_cast<Real>(sum_nox)/static_cast<Real>(Current_number_of_vehicles);
+    mean_voc=static_cast<Real>(sum_voc)/static_cast<Real>(Current_number_of_vehicles);
+    mean_pm=static_cast<Real>(sum_pm)/static_cast<Real>(Current_number_of_vehicles);
+   }
+  else
+   {
+    mean_co2=0;
+    mean_nox=0;
+    mean_voc=0;
+    mean_pm=0;
+   }
+  
  }
 
  // ----------------------------------------------------------------

@@ -41,7 +41,7 @@
 using namespace CA;
 
 int main()
-{ 
+{
  const unsigned long lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
@@ -74,7 +74,11 @@ int main()
                  << "mean_current" << "\t"
                  << "mean_delay" << "\t"
                  << "mean_travel_time" << "\t"
-                 << "mean_queue_length" << std::endl;
+                 << "mean_queue_length" << "\t"
+                 << "mean_CO2" << "\t"
+                 << "mean_NOx" << "\t"
+                 << "mean_VOC" << "\t"
+                 << "mean_PM" << std::endl;
      
      const Real maximum_density = 1.0;
      const Real density_step = DENSITY_STEP;
@@ -98,6 +102,14 @@ int main()
        Real averaged_configurations_mean_travel_time = 0;
        // Averaged configurations mean queue length
        Real averaged_configurations_mean_queue_length = 0;
+       // Averaged configurations mean CO2
+       Real averaged_configurations_mean_CO2 = 0;
+       // Averaged configurations mean NOx
+       Real averaged_configurations_mean_NOx = 0;
+       // Averaged configurations mean VOC
+       Real averaged_configurations_mean_VOC = 0;
+       // Averaged configurations mean PM
+       Real averaged_configurations_mean_PM = 0;
        
        for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
         {
@@ -127,6 +139,10 @@ int main()
          Real sum_mean_travel_time = 0;
          unsigned sum_travel_time = 0;
          Real sum_mean_queue_length = 0;
+         Real sum_mean_co2 = 0;
+         Real sum_mean_nox = 0;
+         Real sum_mean_voc = 0;
+         Real sum_mean_pm = 0;
          
          bool first_time_reset_travel_time = false;
          
@@ -143,9 +159,15 @@ int main()
           Real mean_delay = 0;
           Real mean_travel_time = 0; 
           Real mean_queue_length = 0;
+          Real mean_co2 = 0.0;
+          Real mean_nox = 0.0;
+          Real mean_voc = 0.0;
+          Real mean_pm = 0.0;
           
           // Apply Rand-Acc rules
-          lane.apply_rand_acc(mean_velocity, mean_current, mean_delay, sum_travel_time, mean_travel_time, mean_queue_length);
+          lane.apply_rand_acc(mean_velocity, mean_current,
+                              mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
+                              mean_co2, mean_nox, mean_voc, mean_pm);
           //unsigned long sum_velocity = lane.apply_rand_acc();
           //DEB(sum_velocity);
           //DEB(alpha);
@@ -158,7 +180,7 @@ int main()
           //const Real density = lane.density();
           //DEB(density);
           //std::cerr << lane.current_number_of_vehicles() << " " << sum_velocity << std::endl;
-     
+          
           // Apply only after stabilization phase
           if (i > monte_carlo_stabilization_phase)
            {
@@ -178,6 +200,12 @@ int main()
             sum_mean_delay+=mean_delay;
             sum_mean_travel_time+=mean_travel_time;
             sum_mean_queue_length+=mean_queue_length;
+            
+            // Emissions
+            sum_mean_co2+=mean_co2;
+            sum_mean_nox+=mean_nox;
+            sum_mean_voc+=mean_voc;
+            sum_mean_pm+=mean_pm;
             
 #ifdef OUTPUT_TIME_SPACE
             // Output lane status
@@ -207,12 +235,24 @@ int main()
          const Real total_mean_travel_time = sum_mean_travel_time / total_number_of_instances;
          // Total mean queue length
          const Real total_mean_queue_length = sum_mean_queue_length / total_number_of_instances;
+         // Total mean CO2
+         const Real total_mean_CO2 = sum_mean_co2 / total_number_of_instances;
+         // Total mean NOx
+         const Real total_mean_NOx = sum_mean_nox / total_number_of_instances;
+         // Total mean VOC
+         const Real total_mean_VOC = sum_mean_voc / total_number_of_instances;
+         // Total mean PM
+         const Real total_mean_PM = sum_mean_pm / total_number_of_instances;
          
          averaged_configurations_mean_velocity+=total_mean_velocity;
          averaged_configurations_mean_current+=total_mean_current;
          averaged_configurations_mean_delay+=total_mean_delay;
          averaged_configurations_mean_travel_time+=total_mean_travel_time;
          averaged_configurations_mean_queue_length+=total_mean_queue_length;
+         averaged_configurations_mean_CO2+=total_mean_CO2;
+         averaged_configurations_mean_NOx+=total_mean_NOx;
+         averaged_configurations_mean_VOC+=total_mean_VOC;
+         averaged_configurations_mean_PM+=total_mean_PM;
          
         } // for (i_configuration < N_CONFIGURATIONS)
        
@@ -221,6 +261,10 @@ int main()
        averaged_configurations_mean_delay=averaged_configurations_mean_delay/static_cast<Real>(N_CONFIGURATIONS);
        averaged_configurations_mean_travel_time=averaged_configurations_mean_travel_time/static_cast<Real>(N_CONFIGURATIONS);
        averaged_configurations_mean_queue_length=averaged_configurations_mean_queue_length/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_CO2=averaged_configurations_mean_CO2/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_NOx=averaged_configurations_mean_NOx/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_VOC=averaged_configurations_mean_VOC/static_cast<Real>(N_CONFIGURATIONS);
+       averaged_configurations_mean_PM=averaged_configurations_mean_PM/static_cast<Real>(N_CONFIGURATIONS);
        
        std::cerr << "p0: " << break_probability_p0
                  << "\tp1: " << break_probability_p1
@@ -229,7 +273,11 @@ int main()
                  << "\tmV: " << averaged_configurations_mean_velocity
                  << "\tmDelay: " <<averaged_configurations_mean_delay
                  << "\tmTript: " <<averaged_configurations_mean_travel_time
-                 << "\tmQlen: " <<averaged_configurations_mean_queue_length << std::endl;
+                 << "\tmQlen: " <<averaged_configurations_mean_queue_length
+                 << "\tmCO2: " <<averaged_configurations_mean_CO2
+                 << "\tmNOx: " <<averaged_configurations_mean_NOx
+                 << "\tmVOC: " <<averaged_configurations_mean_VOC
+                 << "\tmPM: " <<averaged_configurations_mean_PM << std::endl;
        
        // -----------------------------------------------------------------------------------------
        // Output data
@@ -239,7 +287,11 @@ int main()
                    << averaged_configurations_mean_current << "\t"
                    << averaged_configurations_mean_delay << "\t"
                    << averaged_configurations_mean_travel_time << "\t"
-                   << averaged_configurations_mean_queue_length << std::endl;
+                   << averaged_configurations_mean_queue_length << "\t"
+                   << averaged_configurations_mean_CO2 << "\t"
+                   << averaged_configurations_mean_NOx << "\t"
+                   << averaged_configurations_mean_VOC << "\t"
+                   << averaged_configurations_mean_PM << std::endl;
        
        // Increase density
        density+=density_step;

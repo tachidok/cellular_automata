@@ -46,8 +46,9 @@ namespace CA
   // ----------------------------------------------------------------
   void apply_rand_acc(Real &mean_velocity, Real &mean_current, Real &mean_delay,
                       unsigned &sum_travel_time, Real &mean_travel_time,
-                      Real &mean_queue_length);
- 
+                      Real &mean_queue_length,
+                      Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm);
+  
   // ----------------------------------------------------------------
   // Check whether there is a bump close to the current position
   // ----------------------------------------------------------------
