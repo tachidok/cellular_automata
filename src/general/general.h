@@ -8,6 +8,11 @@
 #include <random>
 #include <set>
 
+#ifndef GENERAL_H
+#define GENERAL_H
+
+#include "../../external_src/argparse/argparse.hpp"
+
 namespace CA
 {
 #define DEB(x)  std::cout << "[" << #x << "]: "  << x << std::endl
@@ -17,5 +22,7 @@ namespace CA
 #else
  typedef float Real;
 #endif // #ifdef TYPEDEF_REAL_IS_DOUBLE
- 
+
 } // namespace CA
+
+#endif // #ifndef GENERAL_H

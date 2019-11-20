@@ -405,11 +405,11 @@ namespace CA
  // ----------------------------------------------------------------
  // In charge of computing all emissions and transform
  // ----------------------------------------------------------------
- Real Vehicle::compute_emissions(Real &CO2, Real &NOx, Real &VOC, Real &PM)
+ void Vehicle::compute_emissions(Real &CO2, Real &NOx, Real &VOC, Real &PM)
  {
   // Trasformed velocity and acceleration, considering occupancy ratio
   const Real v = Velocity[0] * Eta;
-  const Real a = (Velocity[0] - Velocity[1]) * Eta;
+  const Real a = (static_cast<Real>(Velocity[0]) - static_cast<Real>(Velocity[1])) * Eta;
   
   // Based on vehicle's type
   unsigned TypeNew = 0;

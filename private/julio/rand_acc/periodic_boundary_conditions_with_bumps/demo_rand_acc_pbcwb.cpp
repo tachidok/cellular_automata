@@ -40,8 +40,24 @@
 // Use the namespace of the framework
 using namespace CA;
 
-int main()
+int main(int argc, const char** argv)
 {
+ // Make ArgumentParser
+ ArgumentParser parser;
+ 
+ // Add some arguments to search for
+ parser.addArgument("--ln", "--lane_size", 1);
+ parser.addArgument("--with_bumps");
+
+ parser.parse(argc, argv);
+ 
+ parser.appName("Random Acceleration demo with/without bumps");
+ const int this_lane_size = parser.retrieve<const int>("lane_size");
+ DEB(parser.exists("with_bumps"));
+ DEB(this_lane_size);
+ 
+ return 1;
+ 
  const unsigned long lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
@@ -51,45 +67,45 @@ int main()
  
  // Loop over break probability
  while (break_probability_p0 <= maximum_break_probability_p0)
-  {
-   Real maximum_break_probability_p1 = break_probability_p0;
-   if (break_probability_p0 > MAXIMUM_BREAK_PROBABILITY_P1)
-    {
-     maximum_break_probability_p1 = MAXIMUM_BREAK_PROBABILITY_P1;
-    }
-   
-   const Real break_probability_step_p1 = BREAK_PROBABILITY_STEP_P1;
-   Real break_probability_p1 = 0.0;
-   
-   // Loop over break probability
-   while (break_probability_p1 <= maximum_break_probability_p1)
-    {
-     // Output for testing/validation
-     std::ostringstream output_filename;
-     output_filename << "RESLT/output_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << ".dat";
-     // Output for testing/validation
-     std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
-     output_file << "density" << "\t"
-                 << "mean_velocity" << "\t"
-                 << "mean_current" << "\t"
-                 << "mean_delay" << "\t"
-                 << "mean_travel_time" << "\t"
-                 << "mean_queue_length" << "\t"
-                 << "mean_CO2" << "\t"
-                 << "mean_NOx" << "\t"
-                 << "mean_VOC" << "\t"
-                 << "mean_PM" << std::endl;
-     
-     const Real maximum_density = 1.0;
-     const Real density_step = DENSITY_STEP;
-     Real density = 0.0;
-     
-     while (density <= maximum_density)
       {
+       Real maximum_break_probability_p1 = break_probability_p0;
+       if (break_probability_p0 > MAXIMUM_BREAK_PROBABILITY_P1)
+        {
+         maximum_break_probability_p1 = MAXIMUM_BREAK_PROBABILITY_P1;
+        }
+   
+       const Real break_probability_step_p1 = BREAK_PROBABILITY_STEP_P1;
+       Real break_probability_p1 = 0.0;
+   
+       // Loop over break probability
+       while (break_probability_p1 <= maximum_break_probability_p1)
+        {
+         // Output for testing/validation
+         std::ostringstream output_filename;
+         output_filename << "RESLT/output_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << ".dat";
+         // Output for testing/validation
+         std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
+         output_file << "density" << "\t"
+                     << "mean_velocity" << "\t"
+                     << "mean_current" << "\t"
+                     << "mean_delay" << "\t"
+                     << "mean_travel_time" << "\t"
+                     << "mean_queue_length" << "\t"
+                     << "mean_CO2" << "\t"
+                     << "mean_NOx" << "\t"
+                     << "mean_VOC" << "\t"
+                     << "mean_PM" << std::endl;
+     
+         const Real maximum_density = 1.0;
+         const Real density_step = DENSITY_STEP;
+         Real density = 0.0;
+     
+         while (density <= maximum_density)
+          {
 #ifdef OUTPUT_TIME_SPACE 
-       std::ostringstream lane_status_filename;
-       lane_status_filename << "RESLT/lane_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << "_rho_" << density << ".dat";
-       std::ofstream lane_status_file((lane_status_filename.str()).c_str(), std::ios_base::out);
+           std::ostringstream lane_status_filename;
+           lane_status_filename << "RESLT/lane_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << "_rho_" << density << ".dat";
+           std::ofstream lane_status_file((lane_status_filename.str()).c_str(), std::ios_base::out);
 #endif // #ifdef OUTPUT_TIME_SPACE
        
        // Averaged configurations mean velocity
@@ -150,77 +166,78 @@ int main()
          const unsigned monte_carlo_stabilization_phase = MONTE_CARLO_STAB_PHASE;
          // Monte-Carlo loop
          for (unsigned i = 0; i < monte_carlo_max_loop; i++)
-         {
-          // Compute the occupancy index
-          lane.update_vehicles_list();
+          {
+           // Compute the occupancy index
+           lane.update_vehicles_list();
           
-          Real mean_velocity = 0;
-          Real mean_current = 0;
-          Real mean_delay = 0;
-          Real mean_travel_time = 0; 
-          Real mean_queue_length = 0;
-          Real mean_co2 = 0.0;
-          Real mean_nox = 0.0;
-          Real mean_voc = 0.0;
-          Real mean_pm = 0.0;
+           Real mean_velocity = 0;
+           Real mean_current = 0;
+           Real mean_delay = 0;
+           Real mean_travel_time = 0; 
+           Real mean_queue_length = 0;
+           Real mean_co2 = 0.0;
+           Real mean_nox = 0.0;
+           Real mean_voc = 0.0;
+           Real mean_pm = 0.0;
           
-          // Apply Rand-Acc rules
-          lane.apply_rand_acc(mean_velocity, mean_current,
-                              mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
-                              mean_co2, mean_nox, mean_voc, mean_pm);
-          //unsigned long sum_velocity = lane.apply_rand_acc();
-          //DEB(sum_velocity);
-          //DEB(alpha);
-          // Update lane status
-          lane.update();
+           // Apply Rand-Acc rules
+           lane.apply_rand_acc(mean_velocity, mean_current,
+                               mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
+                               mean_co2, mean_nox, mean_voc, mean_pm);
+           //unsigned long sum_velocity = lane.apply_rand_acc();
+           //DEB(sum_velocity);
+           //DEB(alpha);
+           // Update lane status
+           lane.update();
           
-          //lane.print(true);
-          //lane.print(false);
+           //lane.print(true);
+           //lane.print(false);
           
-          //const Real density = lane.density();
-          //DEB(density);
-          //std::cerr << lane.current_number_of_vehicles() << " " << sum_velocity << std::endl;
+           //const Real density = lane.density();
+           //DEB(density);
+           //std::cerr << lane.current_number_of_vehicles() << " " << sum_velocity << std::endl;
           
-          // Apply only after stabilization phase
-          if (i > monte_carlo_stabilization_phase)
-           {
-            // Reset statistics after stabilisation phase
-            if (!first_time_reset_travel_time)
-             {
-              sum_travel_time = 0;
-              lane.reset_n_vehicles_complete_travel();
-              mean_travel_time=0;
-              first_time_reset_travel_time = true;
-             }
+           // Apply only after stabilization phase
+           if (i > monte_carlo_stabilization_phase)
+            {
+             // Reset statistics after stabilisation phase
+             if (!first_time_reset_travel_time)
+              {
+               sum_travel_time = 0;
+               lane.reset_n_vehicles_complete_travel();
+               mean_travel_time=0;
+               first_time_reset_travel_time = true;
+              
+              }
             
-            //Real mean_velocity = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.current_number_of_vehicles());
-            sum_mean_velocity+=mean_velocity;
-            //Real mean_current = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.lane_size());
-            sum_mean_current+=mean_current;
-            sum_mean_delay+=mean_delay;
-            sum_mean_travel_time+=mean_travel_time;
-            sum_mean_queue_length+=mean_queue_length;
+             //Real mean_velocity = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.current_number_of_vehicles());
+             sum_mean_velocity+=mean_velocity;
+             //Real mean_current = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.lane_size());
+             sum_mean_current+=mean_current;
+             sum_mean_delay+=mean_delay;
+             sum_mean_travel_time+=mean_travel_time;
+             sum_mean_queue_length+=mean_queue_length;
             
-            // Emissions
-            sum_mean_co2+=mean_co2;
-            sum_mean_nox+=mean_nox;
-            sum_mean_voc+=mean_voc;
-            sum_mean_pm+=mean_pm;
+             // Emissions
+             sum_mean_co2+=mean_co2;
+             sum_mean_nox+=mean_nox;
+             sum_mean_voc+=mean_voc;
+             sum_mean_pm+=mean_pm;
             
 #ifdef OUTPUT_TIME_SPACE
-            // Output lane status
-            if (i_configuration == 0)
-             {
-              if ((int(density * 100)) % 10 == 0)
-               {
-                lane.output_time_space(lane_status_file);
-               }
-             }
+             // Output lane status
+             if (i_configuration == 0)
+              {
+               if ((int(density * 100)) % 10 == 0)
+                {
+                 lane.output_time_space(lane_status_file);
+                }
+              }
 #endif // #ifdef OUTPUT_TIME_SPACE 
             
-           }
+            }
           
-         } // for (i < monte_carlo_max_loop)
+          } // for (i < monte_carlo_max_loop)
          
          const Real total_number_of_instances =
           monte_carlo_max_loop - monte_carlo_stabilization_phase - 1;

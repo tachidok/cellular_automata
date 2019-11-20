@@ -93,7 +93,7 @@ namespace CA
   inline Vehicle_type type() const {return Type;}
   
   // In charge of computing all emissions and transform 
-  Real compute_emissions(Real &CO2, Real &NOx, Real &VOC, Real &PM);
+  void compute_emissions(Real &CO2, Real &NOx, Real &VOC, Real &PM);
   
  protected:
  
