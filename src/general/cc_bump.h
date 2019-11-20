@@ -12,13 +12,13 @@ namespace CA
  public:
  
   // Constructor
-  CCBump(const unsigned long position, bool enabled = true);
+  CCBump(const unsigned position, bool enabled = true);
  
   // Destructor (empty)
   virtual ~CCBump();
  
   // Get position
-  inline unsigned long position() const {return Position;}
+  inline unsigned position() const {return Position;}
  
   // Enable bump
   inline void enable(){Enabled = true;}
@@ -31,7 +31,7 @@ namespace CA
  
  protected:
  
-  const unsigned long Position;
+  const unsigned Position;
   bool Enabled;
  
  };

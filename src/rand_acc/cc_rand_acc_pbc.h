@@ -21,7 +21,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Constructor
   // ----------------------------------------------------------------
-  RandAccPBC(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
+  RandAccPBC(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
  
   // ----------------------------------------------------------------
   // Destructor
@@ -31,7 +31,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Initialise lane configuration
   // ----------------------------------------------------------------
-  void initialise(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
+  void initialise(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
  
   // ----------------------------------------------------------------
   // Clear data structures
@@ -46,12 +46,12 @@ namespace CA
   // ----------------------------------------------------------------
   // Update vehicles list
   // ----------------------------------------------------------------
-  unsigned long update_vehicles_list();
+  unsigned update_vehicles_list();
  
   // ----------------------------------------------------------------
   // Update lane based on RandAccPBC rules
   // ----------------------------------------------------------------
-  unsigned long apply_rand_acc();
+  unsigned apply_rand_acc();
  
   // ----------------------------------------------------------------
   // Update the lane status
@@ -68,17 +68,17 @@ namespace CA
   // ---------------------------------------------------------------- 
   void output_time_space(std::ofstream &output_file);
  
-  inline unsigned long lane_size() {return Lane_size;}
+  inline unsigned lane_size() {return Lane_size;}
   inline unsigned maximum_velocity() {return Maximum_velocity;}
   inline double density() const {return Density;}
-  inline unsigned long current_number_of_vehicles() const {return Current_number_of_vehicles;}
-  inline unsigned long nvehicles_complete_travel() const {return N_vehicles_complete_travel;}
+  inline unsigned current_number_of_vehicles() const {return Current_number_of_vehicles;}
+  inline unsigned nvehicles_complete_travel() const {return N_vehicles_complete_travel;}
  
   inline void reset_n_vehicles_complete_travel() {N_vehicles_complete_travel = 0;}
  
  protected:
  
-  unsigned long Lane_size;
+  unsigned Lane_size;
   unsigned Maximum_velocity;
   double P_0;
   double P_1;
@@ -87,14 +87,14 @@ namespace CA
   double Density;
  
   // Current number of vehicles (less or equal than the Lane size)
-  unsigned long Current_number_of_vehicles;
+  unsigned Current_number_of_vehicles;
  
   std::vector<Vehicle*> Lane;
   std::vector<Vehicle*> Vehicles_pt; 
  
   // Keep track of the number of vehicles that have leave the lane
   // (used to compute travel time)
-  unsigned long N_vehicles_complete_travel;
+  unsigned N_vehicles_complete_travel;
  
  };
  

@@ -24,7 +24,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Constructor
   // ----------------------------------------------------------------
-  RandAccPBCwb(unsigned long lane_size, unsigned maximum_velocity, double p_0, double p_1);
+  RandAccPBCwb(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
  
   // ----------------------------------------------------------------
   // Destructor
@@ -39,7 +39,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Set bumps
   // ----------------------------------------------------------------
-  void set_bumps(std::vector<unsigned long> &bumps_positions);
+  void set_bumps(std::vector<unsigned> &bumps_positions);
  
   // ----------------------------------------------------------------
   // Update lane based on RandAccPBCwb rules
@@ -52,7 +52,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Check whether there is a bump close to the current position
   // ----------------------------------------------------------------
-  unsigned long distance_to_nearest_bump(unsigned long position);
+  unsigned distance_to_nearest_bump(unsigned position);
 
   // Get the number of bumps
   inline const unsigned nbumps() {return Bumps_pt.size();}

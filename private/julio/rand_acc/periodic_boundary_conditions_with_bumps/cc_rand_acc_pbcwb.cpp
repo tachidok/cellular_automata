@@ -15,7 +15,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- RandAccPBCwb::RandAccPBCwb(unsigned long lane_size, unsigned maximum_velocity,
+ RandAccPBCwb::RandAccPBCwb(unsigned lane_size, unsigned maximum_velocity,
                             double p0, double p1)
   : RandAccPBC(lane_size, maximum_velocity, p0, p1)
  {
@@ -55,7 +55,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Set bumps
  // ----------------------------------------------------------------
- void RandAccPBCwb::set_bumps(std::vector<unsigned long> &bumps_positions)
+ void RandAccPBCwb::set_bumps(std::vector<unsigned> &bumps_positions)
  {
   const unsigned n_bumps = bumps_positions.size();
   for (unsigned i = 0; i < n_bumps; i++)
@@ -98,11 +98,11 @@ namespace CA
   // [0,1)
   std::uniform_real_distribution<> dis(0.0, 1.0);
   
-  for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
+  for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
     Vehicle *current_vehicle_pt = Vehicles_pt[i];
-    const unsigned long current_position = current_vehicle_pt->position();
+    const unsigned current_position = current_vehicle_pt->position();
     const unsigned current_velocity = current_vehicle_pt->velocity();
    
     // -----------------------------------------------------------------
@@ -146,7 +146,7 @@ namespace CA
     if (n_bumps > 0)
      {
       // Get the distance to the closest bump
-      const unsigned long distance_to_closest_bump = distance_to_nearest_bump(current_position);
+      const unsigned distance_to_closest_bump = distance_to_nearest_bump(current_position);
       // If the car is already at the bump then reduce the velocity to that allowed by the bump
       if (distance_to_closest_bump == 0)
        {
@@ -157,7 +157,11 @@ namespace CA
       // If the bump is close then reduce velocity accordingly
       else if (distance_to_closest_bump < new_velocity)
        {
-        new_velocity = std::min(static_cast<unsigned>(distance_to_closest_bump), spatial_headway);
+        // Compute a random value to capture the behaviour of drivers
+        // when encountering a bump
+        const double r_d = dis(gen);
+        const unsigned r_velocity_due_to_distance_to_bump = std::max(static_cast<unsigned>(r_d * distance_to_closest_bump), static_cast<unsigned>(1));
+        new_velocity = std::min(r_velocity_due_to_distance_to_bump, spatial_headway);
        }
       // If bump is no close enough then use new velocity
       else
@@ -196,7 +200,7 @@ namespace CA
      }
 
     // Fourth rule (movement)
-    unsigned long new_position = current_position + new_velocity;
+    unsigned new_position = current_position + new_velocity;
     if (new_position >= Lane_size)
      {     
       // Set new position for vehicle
@@ -315,15 +319,15 @@ namespace CA
  // ----------------------------------------------------------------
  // Compute the distance to the nearest bump
  // ----------------------------------------------------------------
- unsigned long RandAccPBCwb::distance_to_nearest_bump(unsigned long position)
+ unsigned RandAccPBCwb::distance_to_nearest_bump(unsigned position)
  {
   // Get the number of bumps in the lane
   const unsigned n_bumps = Bumps_pt.size();
-  unsigned long gap_to_nearest_bump = this->lane_size();
+  unsigned gap_to_nearest_bump = this->lane_size();
   // Loop over the bumps and compute the distance to the nearest bump
   for (unsigned i = 0; i < n_bumps; i++)
    {
-    const unsigned long i_bump_position = Bumps_pt[i]->position();
+    const unsigned i_bump_position = Bumps_pt[i]->position();
     if (i_bump_position >= position)
      {
       const int long distance = i_bump_position - position;

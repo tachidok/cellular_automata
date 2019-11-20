@@ -14,7 +14,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- RandAccPBC::RandAccPBC(unsigned long lane_size, unsigned maximum_velocity,
+ RandAccPBC::RandAccPBC(unsigned lane_size, unsigned maximum_velocity,
                         double p0, double p1)
  {
   // Set lane configuration
@@ -32,7 +32,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Initialise lane configuration
  // ----------------------------------------------------------------
- void RandAccPBC::initialise(unsigned long lane_size, unsigned maximum_velocity, double p0, double p1)
+ void RandAccPBC::initialise(unsigned lane_size, unsigned maximum_velocity, double p0, double p1)
  {
   // Set lane configuration
   Lane_size = lane_size;
@@ -57,7 +57,7 @@ namespace CA
   Lane.resize(Lane_size, 0);
 
   // Free vehicles in lane memory
-  for (unsigned long i = 0; i < Lane_size; i++)
+  for (unsigned i = 0; i < Lane_size; i++)
    {
     if (Lane[i] != 0)
      {
@@ -96,19 +96,19 @@ namespace CA
   // Compute the number of vehicles to be added to the lane
   Current_number_of_vehicles = Density * Lane_size;
  
-  unsigned long i = 0;
+  unsigned i = 0;
   // Add vehicles in the lane randomly
   while(i < Current_number_of_vehicles)
    {
     // Random position to add a vehicle
     const double r = dis(gen);
-    unsigned long k = r * Lane_size;
+    unsigned k = r * Lane_size;
     // Check whether there is a vehicle in the k lane position
     if (Lane[k] == 0)
      {
       // Create a new vehicle
       unsigned initial_velocity = 0;
-      unsigned long initial_position = k;
+      unsigned initial_position = k;
       Vehicle *new_vehicle_pt = new Vehicle(initial_velocity, initial_position); 
       // Add a vehicle
       Lane[k] = new_vehicle_pt;
@@ -123,11 +123,11 @@ namespace CA
  // ----------------------------------------------------------------
  // Update vehicles list
  // ----------------------------------------------------------------
- unsigned long RandAccPBC::update_vehicles_list()
+ unsigned RandAccPBC::update_vehicles_list()
  {
   // Get the new vehicles order
-  unsigned long i = 0;
-  for (unsigned long k = 0; k < Lane_size; k++)
+  unsigned i = 0;
+  for (unsigned k = 0; k < Lane_size; k++)
    {
     if (Lane[k] != 0)
      {
@@ -150,10 +150,10 @@ namespace CA
  // ----------------------------------------------------------------
  // Update lane based on RandAccPBC rules
  // ----------------------------------------------------------------
- unsigned long RandAccPBC::apply_rand_acc()
+ unsigned RandAccPBC::apply_rand_acc()
  {
   // Accumulated velocity
-  unsigned long sum_velocity = 0;
+  unsigned sum_velocity = 0;
  
   // Used to get a seed for the random number engine
   std::random_device rd;
@@ -164,11 +164,11 @@ namespace CA
   // [0,1)
   std::uniform_real_distribution<> dis(0.0, 1.0);
  
-  for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
+  for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
     Vehicle *current_vehicle_pt = Vehicles_pt[i];
-    const unsigned long current_position = current_vehicle_pt->position();
+    const unsigned current_position = current_vehicle_pt->position();
     const unsigned current_velocity = current_vehicle_pt->velocity();
    
     // -----------------------------------------------------------------
@@ -233,7 +233,7 @@ namespace CA
      }
 
     // Fourth rule (movement)
-    unsigned long new_position = current_position + new_velocity;
+    unsigned new_position = current_position + new_velocity;
     if (new_position >= Lane_size)
      {
       new_position = new_position - Lane_size;
@@ -256,13 +256,13 @@ namespace CA
  // ---------------------------------------------------------------- 
  void RandAccPBC::update()
  {
-  for (unsigned long i = 0; i < Current_number_of_vehicles; i++)
+  for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
     Vehicle *vehicle_pt = Vehicles_pt[i];
     
-    const unsigned long old_position = vehicle_pt->position(0);
-    const unsigned long new_position = vehicle_pt->position(1);
+    const unsigned old_position = vehicle_pt->position(0);
+    const unsigned new_position = vehicle_pt->position(1);
     
     // Update the pointer on the lane
     Lane[old_position] = 0; // Delete the pointer from the old position
@@ -280,7 +280,7 @@ namespace CA
  // ---------------------------------------------------------------- 
  void RandAccPBC::print(bool print_velocities)
  {
-  for (unsigned long i = 0; i < Lane_size; i++)
+  for (unsigned i = 0; i < Lane_size; i++)
    {
     Vehicle *vehicle_pt = Lane[i];
     if (vehicle_pt != 0)
@@ -313,7 +313,7 @@ namespace CA
  {
   //std::cout << Current_number_of_vehicles << std::endl;
   // Loop over the lane and output its state
-  for (unsigned long k = 0; k < Lane_size - 1; k++)
+  for (unsigned k = 0; k < Lane_size - 1; k++)
    {
     if (Lane[k] != 0)
      {

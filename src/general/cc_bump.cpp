@@ -6,7 +6,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Constructor
  // ----------------------------------------------------------------
- CCBump::CCBump(const unsigned long position, bool enabled)
+ CCBump::CCBump(const unsigned position, bool enabled)
   : Position(position)
  {
   Enabled = enabled;

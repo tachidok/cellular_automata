@@ -17,7 +17,7 @@ namespace CA
  // vehicle occupies in the Cellular Automata, the length is the car
  // size in meters)
  // ----------------------------------------------------------------
- Vehicle::Vehicle(unsigned velocity, unsigned long position,
+ Vehicle::Vehicle(unsigned velocity, unsigned position,
                   unsigned occupancy, Real length, Vehicle_type type)
  {
   // Set initial velocity, position and length
@@ -37,7 +37,7 @@ namespace CA
  // the number of cells the vehicle occupies in the Cellular
  // Automata, the length is the car size in meters)
  // ----------------------------------------------------------------
- void Vehicle::initialise(unsigned velocity, unsigned long position,
+ void Vehicle::initialise(unsigned velocity, unsigned position,
                           unsigned occupancy, Real length, Vehicle_type type)
  {
   Velocity[1] = Velocity[0] = velocity;

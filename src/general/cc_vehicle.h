@@ -37,7 +37,7 @@ namespace CA
   // vehicle occupies in the Cellular Automata, the length is the car
   // size in meters)
   // ----------------------------------------------------------------
-  Vehicle(unsigned velocity, unsigned long position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
+  Vehicle(unsigned velocity, unsigned position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
           Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
   
   // ----------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace CA
   // the number of cells the vehicle occupies in the Cellular
   // Automata, the length is the car size in meters)
   // ----------------------------------------------------------------
-  void initialise(unsigned velocity, unsigned long position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
+  void initialise(unsigned velocity, unsigned position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
                   Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
   
   // ----------------------------------------------------------------
@@ -63,9 +63,9 @@ namespace CA
   // Get velocity
   inline unsigned velocity(unsigned i = 0) const {return Velocity[i];}
   // Set position
-  inline unsigned long &position(unsigned long i = 0) {return Position[i];}
+  inline unsigned &position(unsigned i = 0) {return Position[i];}
   // Get position
-  inline unsigned long position(unsigned long i = 0) const {return Position[i];}
+  inline unsigned position(unsigned i = 0) const {return Position[i];}
   // Set occupancy
   inline unsigned &occupancy() {return Occupancy;}
   // Get occupancy
@@ -107,7 +107,7 @@ namespace CA
   // Velocity (index 0 is current time, other index is at time i-th)
   unsigned Velocity[2];
   // Position (index 0 is current time, other index is at time i-th)
-  unsigned long Position[2];
+  unsigned Position[2];
   // Occupancy, number of cells the vehicle uses in the CA
   unsigned Occupancy;
   // Length of vehicle, in meters

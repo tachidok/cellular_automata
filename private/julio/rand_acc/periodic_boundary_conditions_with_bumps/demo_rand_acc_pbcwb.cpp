@@ -33,7 +33,7 @@
 
 #define MAX_VELOCITY 5
 
-#define N_BUMPS 0
+#define N_BUMPS 1
 
 #define OUTPUT_TIME_SPACE
 
@@ -41,24 +41,8 @@
 using namespace CA;
 
 int main(int argc, const char** argv)
-{
- // Make ArgumentParser
- ArgumentParser parser;
- 
- // Add some arguments to search for
- parser.addArgument("--ln", "--lane_size", 1);
- parser.addArgument("--with_bumps");
-
- parser.parse(argc, argv);
- 
- parser.appName("Random Acceleration demo with/without bumps");
- const int this_lane_size = parser.retrieve<const int>("lane_size");
- DEB(parser.exists("with_bumps"));
- DEB(this_lane_size);
- 
- return 1;
- 
- const unsigned long lane_size = LANE_SIZE;
+{ 
+ const unsigned lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
  const Real maximum_break_probability_p0 = MAXIMUM_BREAK_PROBABILITY_P0;
@@ -67,25 +51,25 @@ int main(int argc, const char** argv)
  
  // Loop over break probability
  while (break_probability_p0 <= maximum_break_probability_p0)
-      {
-       Real maximum_break_probability_p1 = break_probability_p0;
-       if (break_probability_p0 > MAXIMUM_BREAK_PROBABILITY_P1)
-        {
-         maximum_break_probability_p1 = MAXIMUM_BREAK_PROBABILITY_P1;
-        }
+  {
+   Real maximum_break_probability_p1 = break_probability_p0;
+   if (break_probability_p0 > MAXIMUM_BREAK_PROBABILITY_P1)
+    {
+     maximum_break_probability_p1 = MAXIMUM_BREAK_PROBABILITY_P1;
+    }
    
-       const Real break_probability_step_p1 = BREAK_PROBABILITY_STEP_P1;
-       Real break_probability_p1 = 0.0;
+   const Real break_probability_step_p1 = BREAK_PROBABILITY_STEP_P1;
+   Real break_probability_p1 = 0.0;
    
-       // Loop over break probability
-       while (break_probability_p1 <= maximum_break_probability_p1)
-        {
-         // Output for testing/validation
-         std::ostringstream output_filename;
-         output_filename << "RESLT/output_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << ".dat";
-         // Output for testing/validation
-         std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
-         output_file << "density" << "\t"
+   // Loop over break probability
+   while (break_probability_p1 <= maximum_break_probability_p1)
+    {
+     // Output for testing/validation
+     std::ostringstream output_filename;
+     output_filename << "RESLT/output_" << "bp_p0_" << break_probability_p0 << "_p1_"<< break_probability_p1 << ".dat";
+     // Output for testing/validation
+     std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
+     output_file << "density" << "\t"
                      << "mean_velocity" << "\t"
                      << "mean_current" << "\t"
                      << "mean_delay" << "\t"
@@ -136,7 +120,7 @@ int main(int argc, const char** argv)
          lane.fill_in_vehicles(density);
          
          // Add bumps to the lane
-         std::vector<unsigned long> bumps_positions;
+         std::vector<unsigned> bumps_positions;
          const unsigned h_bump = lane_size / (N_BUMPS + 1);
          for (unsigned kk = 1; kk <= N_BUMPS; kk++)
           {
@@ -184,7 +168,7 @@ int main(int argc, const char** argv)
            lane.apply_rand_acc(mean_velocity, mean_current,
                                mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
                                mean_co2, mean_nox, mean_voc, mean_pm);
-           //unsigned long sum_velocity = lane.apply_rand_acc();
+           //unsigned sum_velocity = lane.apply_rand_acc();
            //DEB(sum_velocity);
            //DEB(alpha);
            // Update lane status
