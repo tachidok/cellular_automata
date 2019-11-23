@@ -34,37 +34,49 @@
 #define DENSITY_STEP             0.01
 //#define DENSITY_STEP           1.1
 
+#define OUTPUT_TIME_SPACE
+
 //#define OUTPUT_CURRENT_VS_TIME // If you want to get this output then
 // fix the density and set the density
 // step to some number larger than one
 // such that the density loop be
 // performed only once
 
-int main()
+// Use the namespace of the framework
+using namespace CA;
+
+int main(int argc, const char** argv)
 { 
  const unsigned long lane_size = LANE_SIZE;
  const unsigned maximum_velocity = MAX_VELOCITY;
  
- const double maximum_break_probability = 1.0;
- const double break_probability_step = BREAK_PROBABILITY_STEP;
- double break_probability = 0.0;
+ const Real maximum_break_probability = 1.0;
+ const Real break_probability_step = BREAK_PROBABILITY_STEP;
+ Real break_probability = 0.0;
  
  // Loop over break probability
  while (break_probability <= maximum_break_probability)
   {
    // Output for testing/validation
-   std::ostringstream velocity_filename;
-   std::ostringstream current_filename;
-   velocity_filename << "RESLT/velocity_" << "bp" << break_probability << ".dat";
-   current_filename << "RESLT/current_" << "bp" << break_probability << ".dat";
+   std::ostringstream output_filename;
+   output_filename << "RESLT/output_" << "bp_" << break_probability << ".dat";
    // Output for testing/validation
-   std::ofstream velocity_file((velocity_filename.str()).c_str(), std::ios_base::out);
-   std::ofstream current_file((current_filename.str()).c_str(), std::ios_base::out);
+   std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
+   output_file << "density" << "\t"
+               << "mean_velocity" << "\t"
+               << "mean_current" << "\t"
+               << "mean_delay" << "\t"
+               << "mean_travel_time" << "\t"
+               << "mean_queue_length" << "\t"
+               << "mean_CO2" << "\t"
+               << "mean_NOx" << "\t"
+               << "mean_VOC" << "\t"
+               << "mean_PM" << std::endl; 
    
-   const double maximum_density = 1.0;
-   const double density_step = DENSITY_STEP;
-   double density = 0.0;
-   //double density = 0.8;
+   const Real maximum_density = 1.0;
+   const Real density_step = DENSITY_STEP;
+   Real density = 0.0;
+   //Real density = 0.8;
    
    // Loop over density
    while (density <= maximum_density)
@@ -74,10 +86,25 @@ int main()
      lane_status_filename << "RESLT/lane_" << "bp" << break_probability << "_rho_" << density << ".dat";
      std::ofstream lane_status_file((lane_status_filename.str()).c_str(), std::ios_base::out);
 #endif // #ifdef OUTPUT_TIME_SPACE
-     // Averaged configurations mean velocity
-     double averaged_configurations_mean_velocity = 0;
+
+       // Averaged configurations mean velocity
+     Real averaged_configurations_mean_velocity = 0;
      // Averaged configurations mean current
-     double averaged_configurations_mean_current = 0;
+     Real averaged_configurations_mean_current = 0;
+     // Averaged configurations mean delay
+     Real averaged_configurations_mean_delay = 0;
+     // Averaged configurations mean travel time
+     Real averaged_configurations_mean_travel_time = 0;
+     // Averaged configurations mean queue length
+     Real averaged_configurations_mean_queue_length = 0;
+     // Averaged configurations mean CO2
+     Real averaged_configurations_mean_CO2 = 0;
+     // Averaged configurations mean NOx
+     Real averaged_configurations_mean_NOx = 0;
+     // Averaged configurations mean VOC
+     Real averaged_configurations_mean_VOC = 0;
+     // Averaged configurations mean PM
+     Real averaged_configurations_mean_PM = 0; 
      
      for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
       {
@@ -90,14 +117,24 @@ int main()
        std::ofstream current_vs_time_file((current_vs_time_filename.str()).c_str(), std::ios_base::out);
 #endif // #ifdef OUTPUT_CURRENT_VS_TIME
        
-       double sum_mean_velocity = 0;
-       double sum_mean_current = 0;
-       
        // Add vehicles to the lane based on the given density
        lane.fill_in_vehicles(density);
+
+       Real sum_mean_velocity = 0;
+       Real sum_mean_current = 0;
+       Real sum_mean_delay = 0;
+       Real sum_mean_travel_time = 0;
+       unsigned sum_travel_time = 0;
+       Real sum_mean_queue_length = 0;
+       Real sum_mean_co2 = 0;
+       Real sum_mean_nox = 0;
+       Real sum_mean_voc = 0;
+       Real sum_mean_pm = 0;
+         
+       bool first_time_reset_travel_time = false;
        
        // Add bumps to the lane
-       std::vector<unsigned long> bumps_positions;
+       std::vector<unsigned> bumps_positions;
        // Add one bump at the center of the lane
        bumps_positions.push_back(lane_size/2);
        // With bump at middle of the lane
@@ -112,26 +149,69 @@ int main()
          // Compute the occupancy index
          lane.update_vehicles_list();
          
+         Real mean_velocity = 0;
+         Real mean_current = 0;
+         Real mean_delay = 0;
+         Real mean_travel_time = 0; 
+         Real mean_queue_length = 0;
+         Real mean_co2 = 0.0;
+         Real mean_nox = 0.0;
+         Real mean_voc = 0.0;
+         Real mean_pm = 0.0;
+
          // Apply NaSch rules
-         unsigned long sum_velocity = lane.apply_nasch();
+         lane.apply_nasch(mean_velocity, mean_current,
+                          mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
+                          mean_co2, mean_nox, mean_voc, mean_pm);
+         
          // Update lane status
          lane.update(); 
          
 #ifdef OUTPUT_CURRENT_VS_TIME
-         double mean_current = double(sum_velocity) / double(lane.lane_size());
+         Real mean_current = Real(sum_velocity) / Real(lane.lane_size());
 #endif // #ifdef OUTPUT_CURRENT_VS_TIME
          
          // Apply only after stabilization phase
          if (i > monte_carlo_stabilization_phase)
           {
-           //std::cerr << lane.number_of_vehicles() << " " << sum_velocity << std::endl;
-           double mean_velocity = double(sum_velocity) / double(lane.number_of_vehicles());
+           // Reset statistics after stabilisation phase
+           if (!first_time_reset_travel_time)
+            {
+             sum_travel_time = 0;
+             lane.reset_n_vehicles_complete_travel();
+             mean_travel_time=0;
+             first_time_reset_travel_time = true;
+               
+            }
+
+           //Real mean_velocity = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.current_number_of_vehicles());
            sum_mean_velocity+=mean_velocity;
-           double mean_current = double(sum_velocity) / double(lane.lane_size());
-#ifdef OUTPUT_CURRENT_VS_TIME
-           mean_current = double(sum_velocity) / double(lane.lane_size());
-#endif // #ifdef OUTPUT_CURRENT_VS_TIME
+           //Real mean_current = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.lane_size());
            sum_mean_current+=mean_current;
+           sum_mean_delay+=mean_delay;
+           sum_mean_travel_time+=mean_travel_time;
+           sum_mean_queue_length+=mean_queue_length;
+            
+           // Emissions
+           sum_mean_co2+=mean_co2;
+           sum_mean_nox+=mean_nox;
+           sum_mean_voc+=mean_voc;
+           sum_mean_pm+=mean_pm;
+
+#ifdef OUTPUT_TIME_SPACE
+           // Output lane status
+           if (i_configuration == 0)
+            {
+             if ((int(density * 100)) % 10 == 0)
+              {
+               lane.output_time_space(lane_status_file);
+              }
+            }
+#endif // #ifdef OUTPUT_TIME_SPACE 
+           
+#ifdef OUTPUT_CURRENT_VS_TIME
+           mean_current = Real(sum_velocity) / Real(lane.lane_size());
+#endif // #ifdef OUTPUT_CURRENT_VS_TIME
            
 #ifdef OUTPUT_TIME_SPACE
            // Output lane status
@@ -156,26 +236,77 @@ int main()
        current_vs_time_file.close();
 #endif // #ifdef OUTPUT_CURRENT_VS_TIME
        
-       const double total_number_of_instances =
+       const Real total_number_of_instances =
         monte_carlo_max_loop - monte_carlo_stabilization_phase - 1;
-       
+
        // Total mean velocity
-       const double total_mean_velocity = sum_mean_velocity / total_number_of_instances;
+       const Real total_mean_velocity = sum_mean_velocity / total_number_of_instances;
        // Total mean current
-       const double total_mean_current = sum_mean_current / total_number_of_instances;
-       
+       const Real total_mean_current = sum_mean_current / total_number_of_instances;
+       // Total mean delay
+       const Real total_mean_delay = sum_mean_delay / total_number_of_instances;
+       // Total mean travel time
+       const Real total_mean_travel_time = sum_mean_travel_time / total_number_of_instances;
+       // Total mean queue length
+       const Real total_mean_queue_length = sum_mean_queue_length / total_number_of_instances;
+       // Total mean CO2
+       const Real total_mean_CO2 = sum_mean_co2 / total_number_of_instances;
+       // Total mean NOx
+       const Real total_mean_NOx = sum_mean_nox / total_number_of_instances;
+       // Total mean VOC
+       const Real total_mean_VOC = sum_mean_voc / total_number_of_instances;
+       // Total mean PM
+       const Real total_mean_PM = sum_mean_pm / total_number_of_instances;
+         
        averaged_configurations_mean_velocity+=total_mean_velocity;
        averaged_configurations_mean_current+=total_mean_current;
+       averaged_configurations_mean_delay+=total_mean_delay;
+       averaged_configurations_mean_travel_time+=total_mean_travel_time;
+       averaged_configurations_mean_queue_length+=total_mean_queue_length;
+       averaged_configurations_mean_CO2+=total_mean_CO2;
+       averaged_configurations_mean_NOx+=total_mean_NOx;
+       averaged_configurations_mean_VOC+=total_mean_VOC;
+       averaged_configurations_mean_PM+=total_mean_PM; 
        
       } // for (i_configuration < N_CONFIGURATIONS)
-     
-     averaged_configurations_mean_velocity=averaged_configurations_mean_velocity/double(N_CONFIGURATIONS);
-     averaged_configurations_mean_current=averaged_configurations_mean_current/double(N_CONFIGURATIONS);
+
+     averaged_configurations_mean_velocity=averaged_configurations_mean_velocity/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_current=averaged_configurations_mean_current/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_delay=averaged_configurations_mean_delay/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_travel_time=averaged_configurations_mean_travel_time/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_queue_length=averaged_configurations_mean_queue_length/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_CO2=averaged_configurations_mean_CO2/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_NOx=averaged_configurations_mean_NOx/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_VOC=averaged_configurations_mean_VOC/static_cast<Real>(N_CONFIGURATIONS);
+     averaged_configurations_mean_PM=averaged_configurations_mean_PM/static_cast<Real>(N_CONFIGURATIONS); 
+
+     std::cerr << "bp: " << break_probability
+               << "\trho: " << density
+               << "\tmJ: " << averaged_configurations_mean_current
+               << "\tmV: " << averaged_configurations_mean_velocity
+               << "\tmDelay: " <<averaged_configurations_mean_delay
+               << "\tmTript: " <<averaged_configurations_mean_travel_time
+               << "\tmQlen: " <<averaged_configurations_mean_queue_length
+               << "\tmCO2: " <<averaged_configurations_mean_CO2
+               << "\tmNOx: " <<averaged_configurations_mean_NOx
+               << "\tmVOC: " <<averaged_configurations_mean_VOC
+               << "\tmPM: " <<averaged_configurations_mean_PM << std::endl;
      
      //std::cerr << "bp: " << break_probability << "\trho: " << density << "\tavcmJ: " << averaged_configurations_mean_current << "\tavcmV: " << averaged_configurations_mean_velocity << "\tSmJ: " << sum_mean_current << "\tSmv: " << sum_mean_velocity << "\tTNI: " << total_number_of_instances << std::endl;
-     std::cerr << "bp: " << break_probability << "\trho: " << density << "\tavcmJ: " << averaged_configurations_mean_current << "\tavcmV: " << averaged_configurations_mean_velocity << std::endl;
-     current_file << density << "\t" << averaged_configurations_mean_current << std::endl;
-     velocity_file << density << "\t" << averaged_configurations_mean_velocity << std::endl;
+
+     // -----------------------------------------------------------------------------------------
+     // Output data
+     // -----------------------------------------------------------------------------------------
+     output_file << density << "\t"
+                 << averaged_configurations_mean_velocity << "\t"
+                 << averaged_configurations_mean_current << "\t"
+                 << averaged_configurations_mean_delay << "\t"
+                 << averaged_configurations_mean_travel_time << "\t"
+                 << averaged_configurations_mean_queue_length << "\t"
+                 << averaged_configurations_mean_CO2 << "\t"
+                 << averaged_configurations_mean_NOx << "\t"
+                 << averaged_configurations_mean_VOC << "\t"
+                 << averaged_configurations_mean_PM << std::endl; 
      
      // Increase density
      density+=density_step;
@@ -188,9 +319,8 @@ int main()
    
    // Increase density
    break_probability+=break_probability_step;
-   
-   velocity_file.close();
-   current_file.close();
+
+   output_file.close();
    
   } // while (break_probability <= maximum_break_probability)
  

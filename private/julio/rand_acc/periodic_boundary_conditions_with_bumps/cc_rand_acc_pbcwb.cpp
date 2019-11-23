@@ -16,7 +16,7 @@ namespace CA
  // Constructor
  // ----------------------------------------------------------------
  RandAccPBCwb::RandAccPBCwb(unsigned lane_size, unsigned maximum_velocity,
-                            double p0, double p1)
+                            Real p0, Real p1)
   : RandAccPBC(lane_size, maximum_velocity, p0, p1)
  {
  
@@ -94,7 +94,7 @@ namespace CA
   // Standard mersenne_twister_engine seeded with rd()
   std::mt19937 gen(rd());
  
-  // Use dist to generate a random number into a double in the range
+  // Use dist to generate a random number into a Real in the range
   // [0,1)
   std::uniform_real_distribution<> dis(0.0, 1.0);
   
@@ -128,7 +128,7 @@ namespace CA
     // -----------------------------------------------------------------
    
     // Compute the randomisation parameter for the acceleration
-    const double r = dis(gen);
+    const Real r = dis(gen);
     // Compute acceleration based on random number and as a function of
     // the spatial headway and the maximum velocity. Also make sure
     // that there is at least one acceleration step
@@ -159,7 +159,7 @@ namespace CA
        {
         // Compute a random value to capture the behaviour of drivers
         // when encountering a bump
-        const double r_d = dis(gen);
+        const Real r_d = dis(gen);
         const unsigned r_velocity_due_to_distance_to_bump = std::max(static_cast<unsigned>(r_d * distance_to_closest_bump), static_cast<unsigned>(1));
         new_velocity = std::min(r_velocity_due_to_distance_to_bump, spatial_headway);
        }
@@ -176,13 +176,13 @@ namespace CA
      }
    
     // Delay probability
-    const double p_0 = P_0;
-    const double p_1 = P_1;
+    const Real p_0 = P_0;
+    const Real p_1 = P_1;
    
     // Third rule (randomization) if new velocity is equal to zero
     if (new_velocity == 0)
      {
-      const double r0 = dis(gen); 
+      const Real r0 = dis(gen); 
       if (r0 <= p_0)
        {
         new_velocity = std::max(int(new_velocity - 1), 0);
@@ -191,7 +191,7 @@ namespace CA
      }
     else // (new_velocity > 0)
      {
-      const double r1 = dis(gen); 
+      const Real r1 = dis(gen); 
       if (r1 <= p_1)
        {
         new_velocity = std::max(int(new_velocity - 1), 0);

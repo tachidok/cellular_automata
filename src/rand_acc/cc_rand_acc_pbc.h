@@ -1,8 +1,8 @@
 #ifndef CC_RAND_ACC_PBC_H
 #define CC_RAND_ACC_PBC_H
 
-#include "../../src/general/general.h"
-#include "../../src/general/cc_vehicle.h"
+#include "../general/general.h"
+#include "../general/cc_vehicle.h"
 
 namespace CA
 {
@@ -21,7 +21,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Constructor
   // ----------------------------------------------------------------
-  RandAccPBC(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
+  RandAccPBC(unsigned lane_size, unsigned maximum_velocity, Real p_0, Real p_1);
  
   // ----------------------------------------------------------------
   // Destructor
@@ -31,7 +31,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Initialise lane configuration
   // ----------------------------------------------------------------
-  void initialise(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
+  void initialise(unsigned lane_size, unsigned maximum_velocity, Real p_0, Real p_1);
  
   // ----------------------------------------------------------------
   // Clear data structures
@@ -41,7 +41,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Fill in vehicles
   // ----------------------------------------------------------------
-  void fill_in_vehicles(double density);
+  void fill_in_vehicles(Real density);
  
   // ----------------------------------------------------------------
   // Update vehicles list
@@ -51,8 +51,11 @@ namespace CA
   // ----------------------------------------------------------------
   // Update lane based on RandAccPBC rules
   // ----------------------------------------------------------------
-  unsigned apply_rand_acc();
- 
+  void apply_rand_acc(Real &mean_velocity, Real &mean_current, Real &mean_delay,
+                      unsigned &sum_travel_time, Real &mean_travel_time,
+                      Real &mean_queue_length,
+                      Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm);
+  
   // ----------------------------------------------------------------
   // Update the lane status
   // ---------------------------------------------------------------- 
@@ -62,7 +65,7 @@ namespace CA
   // Prints the lane status
   // ---------------------------------------------------------------- 
   void print(bool print_velocities = false);
- 
+  
   // ----------------------------------------------------------------
   // Output lane status
   // ---------------------------------------------------------------- 
@@ -70,21 +73,21 @@ namespace CA
  
   inline unsigned lane_size() {return Lane_size;}
   inline unsigned maximum_velocity() {return Maximum_velocity;}
-  inline double density() const {return Density;}
+  inline Real density() const {return Density;}
   inline unsigned current_number_of_vehicles() const {return Current_number_of_vehicles;}
   inline unsigned nvehicles_complete_travel() const {return N_vehicles_complete_travel;}
- 
+  
   inline void reset_n_vehicles_complete_travel() {N_vehicles_complete_travel = 0;}
- 
+  
  protected:
- 
+  
   unsigned Lane_size;
   unsigned Maximum_velocity;
-  double P_0;
-  double P_1;
- 
+  Real P_0;
+  Real P_1;
+  
   // Density associated with the number of vehicles in the lane
-  double Density;
+  Real Density;
  
   // Current number of vehicles (less or equal than the Lane size)
   unsigned Current_number_of_vehicles;

@@ -24,7 +24,7 @@ namespace CA
   // ----------------------------------------------------------------
   // Constructor
   // ----------------------------------------------------------------
-  RandAccPBCwb(unsigned lane_size, unsigned maximum_velocity, double p_0, double p_1);
+  RandAccPBCwb(unsigned lane_size, unsigned maximum_velocity, Real p_0, Real p_1);
  
   // ----------------------------------------------------------------
   // Destructor

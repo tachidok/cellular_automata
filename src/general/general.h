@@ -14,6 +14,9 @@
 namespace CA
 {
 #define DEB(x)  std::cout << "[" << #x << "]: "  << x << std::endl
+
+#define KMH_TO_MS 0.2778
+#define MS_TO_KMH 3.6
  
 #ifdef TYPEDEF_REAL_IS_DOUBLE
  typedef double Real;

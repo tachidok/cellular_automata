@@ -15,9 +15,9 @@
 
 #define N_CONFIGURATIONS          1 // Different number of initial
 // vehicles positions
-#define MAX_MONTE_CARLO_LOOP   20000
-#define MONTE_CARLO_STAB_PHASE 15000
-#define LANE_SIZE               1500
+#define MAX_MONTE_CARLO_LOOP   2000
+#define MONTE_CARLO_STAB_PHASE 1500
+#define LANE_SIZE               150
 // ----------------------------------------------------------------------
 
 #define MAX_VELOCITY 5
@@ -28,12 +28,12 @@
 #define MAXIMUM_BREAK_PROBABILITY_P1   1.0
 #define BREAK_PROBABILITY_STEP_P0   0.2
 #define BREAK_PROBABILITY_STEP_P1   0.2
-#define DENSITY_STEP             0.1
+#define DENSITY_STEP             0.01
 //#define DENSITY_STEP           1.1
 
 #define MAX_VELOCITY 5
 
-#define N_BUMPS 1
+#define N_BUMPS 0
 
 #define OUTPUT_TIME_SPACE
 
@@ -164,7 +164,7 @@ int main(int argc, const char** argv)
            Real mean_voc = 0.0;
            Real mean_pm = 0.0;
           
-           // Apply Rand-Acc rules
+           // Apply Rand-Acc WB rules
            lane.apply_rand_acc(mean_velocity, mean_current,
                                mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
                                mean_co2, mean_nox, mean_voc, mean_pm);

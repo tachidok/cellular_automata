@@ -44,7 +44,7 @@ namespace CA
   // Destructor
   // ----------------------------------------------------------------
   virtual ~Vehicle();
- 
+  
   // ----------------------------------------------------------------
   // Set the current velocity and position (the occupancy considers
   // the number of cells the vehicle occupies in the Cellular
@@ -62,6 +62,8 @@ namespace CA
   inline unsigned &velocity(unsigned i = 0) {return Velocity[i];}
   // Get velocity
   inline unsigned velocity(unsigned i = 0) const {return Velocity[i];}
+  inline Real velocity_in_ms_per_second(unsigned i = 0) const {return Velocity[i] * Eta;}
+  inline Real velocity_in_km_per_hour(unsigned i = 0) const {return Velocity[i] * Eta * MS_TO_KMH;}
   // Set position
   inline unsigned &position(unsigned i = 0) {return Position[i];}
   // Get position
