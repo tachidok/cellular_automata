@@ -82,8 +82,10 @@ int main(int argc, const char** argv)
      const Real maximum_density = 1.0;
      const Real density_step = DENSITY_STEP;
      Real density = 0.0;
+     const unsigned n_steps = (maximum_density/density_step) + 1;
+     unsigned i_step = 0;
      
-     while (density <= maximum_density)
+     while (i_step < n_steps)
       {
 #ifdef OUTPUT_TIME_SPACE 
        std::ostringstream lane_status_filename;
@@ -284,12 +286,15 @@ int main(int argc, const char** argv)
        
        // Increase density
        density+=density_step;
-
+       
+       // Increase i_step
+       i_step++;
+       
 #ifdef OUTPUT_TIME_SPACE
        lane_status_file.close();
 #endif // #ifdef OUTPUT_TIME_SPACE
        
-      } // while (density <= maximum_density) 
+      } // while (i_step < n_steps)
      
      // Increase break probability p1
      break_probability_p1+=break_probability_step_p1;

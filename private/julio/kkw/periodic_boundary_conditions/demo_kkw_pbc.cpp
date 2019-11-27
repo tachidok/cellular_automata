@@ -22,9 +22,9 @@
 
 #define N_CONFIGURATIONS          1 // Different number of initial
                                     // vehicles positions
-#define MAX_MONTE_CARLO_LOOP   2000
-#define MONTE_CARLO_STAB_PHASE 1500
-#define LANE_SIZE               100
+#define MAX_MONTE_CARLO_LOOP   20000
+#define MONTE_CARLO_STAB_PHASE 15000
+#define LANE_SIZE               1000
 // ----------------------------------------------------------------------
 
 #define MAX_VELOCITY 5
@@ -297,7 +297,7 @@ int main(int argc, const char** argv)
        
        i_step++;
        
-    } // while (i_step <= n_steps)
+    } // while (i_step < n_steps)
 
    std::cout << std::endl;
    std::cout << "[ALMOST DONE]"<< std::endl;

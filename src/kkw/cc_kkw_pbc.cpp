@@ -146,31 +146,53 @@ namespace CA
  
   // Compute the number of vehicles to be added to the lane
   Current_number_of_vehicles = Density * Lane_size;
-  
+
   unsigned i = 0;
-  // Add vehicles in the lane randomly
-  while(i < Current_number_of_vehicles)
+  // If the number of vehicles is equal or greater than the lane size
+  // then fill it with vehicles
+  if (Current_number_of_vehicles >= Lane_size)
    {
-    // Random position to add a vehicle
-    const Real r = dis(gen);
-    unsigned k = r * Lane_size;
-    // Check whether there is a vehicle in the k lane position
-    if (Lane[k] == 0)
+    // Add vehicles in the lane randomly
+    while(i < Current_number_of_vehicles)
      {
       // Create a new vehicle
       unsigned initial_velocity = 0;
-      unsigned initial_position = k;
+      unsigned initial_position = i;
       Vehicle *new_vehicle_pt = new Vehicle(initial_velocity, initial_position); 
       // Add a vehicle
-      Lane[k] = new_vehicle_pt;
+      Lane[i] = new_vehicle_pt;
       // Increase the number of added vehicles to the lane
       i++;
-     }
+      
+     } // while(i < Current_number_of_vehicles)
+   }
+  else
+   {
+    // Add vehicles in the lane randomly
+    while(i < Current_number_of_vehicles)
+     {
+      // Random position to add a vehicle
+      const Real r = dis(gen);
+      unsigned k = r * Lane_size;
+      // Check whether there is a vehicle in the k lane position
+      if (Lane[k] == 0)
+       {
+        // Create a new vehicle
+        unsigned initial_velocity = 0;
+        unsigned initial_position = k;
+        Vehicle *new_vehicle_pt = new Vehicle(initial_velocity, initial_position); 
+        // Add a vehicle
+        Lane[k] = new_vehicle_pt;
+        // Increase the number of added vehicles to the lane
+        i++;
+       }
+      
+     } // while(i < Current_number_of_vehicles)
     
-   } // while(i < Current_number_of_vehicles)
-  
+   }
+
  }
- 
+  
  // ----------------------------------------------------------------
  // Update vehicles list
  // ----------------------------------------------------------------

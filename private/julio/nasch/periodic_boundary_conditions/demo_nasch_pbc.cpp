@@ -22,15 +22,15 @@
 
 #define N_CONFIGURATIONS          1 // Different number of initial
                                     // vehicles positions
-#define MAX_MONTE_CARLO_LOOP   20000
-#define MONTE_CARLO_STAB_PHASE 15000
-#define LANE_SIZE               1000
+#define MAX_MONTE_CARLO_LOOP   2000
+#define MONTE_CARLO_STAB_PHASE 1500
+#define LANE_SIZE               100
 // ----------------------------------------------------------------------
 
 #define MAX_VELOCITY 5
 
 #define BREAK_PROBABILITY_STEP   0.1
-#define DENSITY_STEP             0.01
+#define DENSITY_STEP             0.1
 //#define DENSITY_STEP           1.1
 
 #define OUTPUT_TIME_SPACE
@@ -80,7 +80,7 @@ int main(int argc, const char** argv)
    //Real density = 0.8;
    
    // Loop over density
-   while (i_step <= n_steps)
+   while (i_step < n_steps)
     {
 #ifdef OUTPUT_TIME_SPACE 
      std::ostringstream lane_status_filename;
@@ -289,12 +289,15 @@ int main(int argc, const char** argv)
        
        // Increase density
        density+=density_step;
-
+       
+       // Increase i_step
+       i_step++;
+       
 #ifdef OUTPUT_TIME_SPACE
        lane_status_file.close();
 #endif // #ifdef OUTPUT_TIME_SPACE
        
-    } // while (i_step <= n_steps)
+    } // while (i_step < n_steps)
    
    // Increase density
    break_probability+=break_probability_step;
