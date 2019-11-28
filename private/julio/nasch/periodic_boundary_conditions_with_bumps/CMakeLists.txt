@@ -1,11 +1,11 @@
 # Indicate source files and dependencies in the files
-SET(SRC_demo_nasch_pbcwb demo_nasch_pbc.cpp)
+SET(SRC_demo_nasch_pbcwb demo_nasch_pbcwb.cpp)
 
 # Do not create executable but add them to the 'make' list
 ADD_EXECUTABLE(julio_demo_nasch_pbcwb EXCLUDE_FROM_ALL ${SRC_demo_nasch_pbcwb})
 
 # Indicate linking libraries
-SET(LIB_demo_nasch_pbcwb nasch_lib general_lib)
+SET(LIB_demo_nasch_pbcwb nasch_lib argparse_lib general_lib)
 
 # ... and link againts them  
 TARGET_LINK_LIBRARIES(julio_demo_nasch_pbcwb ${LIB_demo_nasch_pbcwb})

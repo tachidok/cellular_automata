@@ -22,17 +22,17 @@
 
 #define N_CONFIGURATIONS          1 // Different number of initial
                                     // vehicles positions
-#define MAX_MONTE_CARLO_LOOP   20000
-#define MONTE_CARLO_STAB_PHASE 15000
-#define LANE_SIZE               1000
+#define MAX_MONTE_CARLO_LOOP   2000
+#define MONTE_CARLO_STAB_PHASE 1500
+#define LANE_SIZE               100
 // ----------------------------------------------------------------------
 
-#define MAX_VELOCITY 4
+//#define MAX_VELOCITY 4
 
-#define N_BUMPS 10
+//#define N_BUMPS 10
 
 #define BREAK_PROBABILITY_STEP   0.1
-#define DENSITY_STEP             0.1
+//#define DENSITY_STEP             0.1
 //#define DENSITY_STEP           1.1
 
 #define OUTPUT_TIME_SPACE
@@ -46,10 +46,46 @@
 // Use the namespace of the framework
 using namespace CA;
 
+// Used to define arguments
+struct Args {
+ argparse::ArgValue<unsigned> vmax;
+ argparse::ArgValue<Real> rho_h;
+ argparse::ArgValue<unsigned> n_bumps;
+ argparse::ArgValue<std::vector<unsigned> > bumps_positions;
+};
+
 int main(int argc, const char** argv)
-{ 
+{
+ // Instantiate parser
+ Args args;
+ auto parser = argparse::ArgumentParser(argv[0], "NaSch algorithm");
+ 
+ // Add arguments
+ 
+ // Optional
+ parser.add_argument<unsigned>(args.vmax, "--vmax")
+  .help("Maximum velocity, in cells numbers")
+  .default_value("5");
+ 
+ parser.add_argument<Real>(args.rho_h, "--rho_h")
+  .help("Density step")
+  .default_value("0.1");
+ 
+ parser.add_argument<unsigned>(args.n_bumps, "--nbumps")
+  .help("Number of bumps")
+  .default_value("0");
+ 
+ // One or more unsigned arguments with default values
+ parser.add_argument(args.bumps_positions, "--bumps_positions")
+  .help("Positions of bumps")
+  .nargs('*')
+  .default_value({});
+ 
+ // Parse the input arguments
+ parser.parse_args(argc, argv);
+ 
  const unsigned long lane_size = LANE_SIZE;
- const unsigned maximum_velocity = MAX_VELOCITY;
+ const unsigned maximum_velocity = args.vmax;
  
  const Real maximum_break_probability = 1.0;
  const Real break_probability_step = BREAK_PROBABILITY_STEP;
@@ -75,7 +111,7 @@ int main(int argc, const char** argv)
                << "mean_PM" << std::endl;
    
    const Real maximum_density = 1.0;
-   const Real density_step = DENSITY_STEP;
+   const Real density_step = args.rho_h;
    Real density = 0.0;
    const unsigned n_steps = (maximum_density/density_step) + 1;
    unsigned i_step = 0;
@@ -126,18 +162,35 @@ int main(int argc, const char** argv)
          
        // Add bumps to the lane, if any
        std::vector<unsigned> bumps_positions;
-       if (N_BUMPS > 0 )
+       if (args.n_bumps > 0 )
         {
-         const unsigned h_bump = lane_size / (N_BUMPS + 1);
-         for (unsigned kk = 1; kk <= N_BUMPS; kk++)
+         // Check whether bumps positions are given, if that is not
+         // the case then create as many equidistant bumps as
+         // indicated by args.n_bumps
+         DEB(args.bumps_positions.value().size());
+         if (args.bumps_positions.value().size() == args.n_bumps)
           {
-           // Add bump at the center of the lane
-           bumps_positions.push_back(h_bump*kk);
+           for (unsigned kk = 0; kk < args.n_bumps; kk++)
+            {
+             DEB(args.bumps_positions.value()[kk]);
+             // Add bump at the center of the lane
+             bumps_positions.push_back(args.bumps_positions.value()[kk]);
+            }
           }
-         // No bumps
+         else
+          {
+           // Equidistance bumps
+           const unsigned h_bump = lane_size / (args.n_bumps + 1);
+           for (unsigned kk = 1; kk <= args.n_bumps; kk++)
+            {
+             // Add bump at the center of the lane
+             DEB(h_bump*kk);
+             bumps_positions.push_back(h_bump*kk);
+            }
+          }
          lane.set_bumps(bumps_positions);
         }
-         
+       
        Real sum_mean_velocity = 0;
        Real sum_mean_current = 0;
        Real sum_mean_delay = 0;

@@ -3,17 +3,13 @@
 // Use the namespace of the framework
 using namespace CA;
 
-// Define arguments
-using argparse::ArgValue;
-using argparse::ConvertedValue;
-
 struct Args {
- ArgValue<bool> boolean_argument;
- ArgValue<std::string> string_argument;
- ArgValue<size_t> verbosity;
- ArgValue<Real> real_argument;
- ArgValue<std::vector<Real> > vector_real_arguments_one_or_more;
- ArgValue<std::vector<Real> > vector_real_arguments_none_or_more;
+ argparse::ArgValue<bool> boolean_argument;
+ argparse::ArgValue<std::string> string_argument;
+ argparse::ArgValue<size_t> verbosity;
+ argparse::ArgValue<Real> real_argument;
+ argparse::ArgValue<std::vector<Real> > vector_real_arguments_one_or_more;
+ argparse::ArgValue<std::vector<Real> > vector_real_arguments_none_or_more;
 };
 
 int main(int argc, const char** argv)

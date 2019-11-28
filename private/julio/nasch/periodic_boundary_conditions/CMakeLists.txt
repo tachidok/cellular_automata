@@ -5,7 +5,7 @@ SET(SRC_demo_nasch_pbc demo_nasch_pbc.cpp)
 ADD_EXECUTABLE(julio_demo_nasch_pbc EXCLUDE_FROM_ALL ${SRC_demo_nasch_pbc})
 
 # Indicate linking libraries
-SET(LIB_demo_nasch_pbc nasch_lib general_lib)
+SET(LIB_demo_nasch_pbc nasch_lib argparse_lib general_lib)
 
 # ... and link againts them  
 TARGET_LINK_LIBRARIES(julio_demo_nasch_pbc ${LIB_demo_nasch_pbc})

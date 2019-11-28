@@ -12,7 +12,7 @@
 #include <set>
 
 // Include ArgParse
-#include "../../external_src/libargparse/src/argparse.hpp"
+#include "../../external_src/argparse/src/argparse.hpp"
 
 namespace CA
 {
