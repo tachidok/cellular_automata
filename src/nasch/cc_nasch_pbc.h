@@ -1,8 +1,9 @@
 #ifndef CC_NASCH_PBC_H
 #define CC_NASCH_PBC_H
 
-#include "../general/general.h"
+#include "../general/common_includes.h"
 #include "../general/cc_vehicle.h"
+#include "../general/cc_bump.h"
 
 namespace CA
 {
@@ -37,7 +38,12 @@ namespace CA
   // Clear data structures
   // ----------------------------------------------------------------
   void clear();
- 
+
+  // ----------------------------------------------------------------
+  // Set bumps
+  // ----------------------------------------------------------------
+  void set_bumps(std::vector<unsigned> &bumps_positions);
+  
   // ----------------------------------------------------------------
   // Fill in vehicles
   // ----------------------------------------------------------------
@@ -60,7 +66,17 @@ namespace CA
   // Update the lane status
   // ---------------------------------------------------------------- 
   void update();
- 
+
+  // ----------------------------------------------------------------
+  // Check whether there is a bump close to the current position
+  // ----------------------------------------------------------------
+  unsigned distance_to_nearest_bump(unsigned position);
+  
+  // ----------------------------------------------------------------
+  // Get the number of bumps
+  // ----------------------------------------------------------------
+  inline const unsigned nbumps() {return Bumps_pt.size();}
+  
   // ----------------------------------------------------------------
   // Prints the lane status
   // ---------------------------------------------------------------- 
@@ -92,9 +108,13 @@ namespace CA
   
   // Current number of vehicles (less or equal than the Lane size)
   unsigned Current_number_of_vehicles; 
- 
+  
+  // Keep track of the lane status and vehicles
   std::vector<Vehicle*> Lane;
   std::vector<Vehicle*> Vehicles_pt;
+  
+  // Keep track of the bumps, if any
+  std::vector<CCBump*> Bumps_pt;
   
   // Keep track of the number of vehicles that have leave the lane
   // (used to compute travel time)

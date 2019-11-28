@@ -1,7 +1,7 @@
 #ifndef CC_RAND_ACC_PBC_H
 #define CC_RAND_ACC_PBC_H
 
-#include "../general/general.h"
+#include "../general/common_includes.h"
 #include "../general/cc_vehicle.h"
 
 namespace CA

@@ -1,8 +1,8 @@
 #ifndef CC_NASCH_NPBC_H
 #define CC_NASCH_NPBC_H
 
-#include "../../src/general/general.h"
-#include "../../src/general/cc_vehicle.h"
+#include "../general/common_includes.h"
+#include "../general/cc_vehicle.h"
 
 namespace CA
 {

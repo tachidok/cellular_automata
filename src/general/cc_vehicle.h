@@ -1,7 +1,7 @@
 #ifndef CC_VEHICLE_H
 #define CC_VEHICLE_H
 
-#include "general.h"
+#include "common_includes.h"
 
 namespace CA
 {
@@ -20,7 +20,7 @@ namespace CA
 #define N_FUNCTIONS 6 // Functions of the model by Panis et. al.
 
 #define TYPICAL_VEHICLES_OCCUPANCY 1
-#define TYPICAL_VEHICLES_LENGTH 5.0
+#define TYPICAL_VEHICLES_LENGTH 7.5
  
  class Vehicle
  {

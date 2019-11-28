@@ -121,7 +121,7 @@ MESSAGE( STATUS "CMAKE_VERBOSE_MAKEFILE:       " ${CMAKE_VERBOSE_MAKEFILE} )
 MESSAGE( STATUS "-----------------------------------------------------------------------" )
 
 # Add external source files sub-directories
-#ADD_SUBDIRECTORY(external_src)
+ADD_SUBDIRECTORY(external_src)
 
 # Add sub-directories with source files
 ADD_SUBDIRECTORY(src)
@@ -131,7 +131,7 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(private)
 
 # Once all source code has been compiled add sub-directories for demos
-#ADD_SUBDIRECTORY(demos)
+ADD_SUBDIRECTORY(demos)
 
 MESSAGE( STATUS "" )
 MESSAGE( STATUS "-----------------------------------------------------------------------" )

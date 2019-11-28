@@ -1,7 +1,7 @@
 #ifndef CC_BUMP_H
 #define CC_BUMP_H
 
-#include "general.h"
+#include "common_includes.h"
 
 namespace CA
 {

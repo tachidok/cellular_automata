@@ -65,12 +65,39 @@ namespace CA
    }
  
   Vehicles_pt.resize(Lane_size, 0);
- 
+  
+  // Get the number of bumps
+  const unsigned n_bumps = Bumps_pt.size();
+  // Clear bumps
+  for (unsigned i = 0; i < n_bumps; i++)
+   {
+    if (Bumps_pt[i] != 0)
+     {
+      delete Bumps_pt[i];
+      Bumps_pt[i] = 0;
+     }
+   }
+  
   // Reset lane configuration
   Current_number_of_vehicles = 0;
   Density = 0;
  }
-
+ 
+ // ----------------------------------------------------------------
+ // Set bumps
+ // ----------------------------------------------------------------
+ void NaSchPBC::set_bumps(std::vector<unsigned> &bumps_positions)
+ {
+  const unsigned n_bumps = bumps_positions.size();
+  for (unsigned i = 0; i < n_bumps; i++)
+   {
+    // Create a bump
+    CCBump* bump_pt = new CCBump(bumps_positions[i]);
+    Bumps_pt.push_back(bump_pt);
+   }
+ 
+ }
+ 
  // ----------------------------------------------------------------
  // Fill in vehicles
  // ----------------------------------------------------------------
@@ -223,7 +250,7 @@ namespace CA
      }
    
     //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
-   
+    
     // -----------------------------------------------------------------
     // NaSchPBC rules
     // -----------------------------------------------------------------
@@ -232,8 +259,42 @@ namespace CA
     unsigned new_velocity = std::min(current_velocity + 1, Maximum_velocity);
    
     // Second rule (deceleration)
-    new_velocity = std::min(new_velocity, spatial_headway);
-   
+    // Second rule (deceleration)
+    // Are there bumps?
+    const unsigned n_bumps = nbumps();
+    if (n_bumps > 0)
+     {
+      // Get the distance to the closest bump
+      const unsigned distance_to_closest_bump = distance_to_nearest_bump(current_position);
+      // If the car is already at the bump then reduce the velocity to that allowed by the bump
+      if (distance_to_closest_bump == 0)
+       {
+        // This may be a function of the type of bump
+        const unsigned max_velocity_to_pass_bump = 1;
+        new_velocity = std::min(max_velocity_to_pass_bump, spatial_headway);
+       }
+      // If the bump is close then reduce velocity accordingly
+      else if (distance_to_closest_bump < new_velocity)
+       {
+        // Compute a random value to capture the behaviour of drivers
+        // when encountering a bump
+        const Real r_d = dis(gen);
+        const unsigned r_velocity_due_to_distance_to_bump = std::max(static_cast<unsigned>(r_d * distance_to_closest_bump), static_cast<unsigned>(1));
+        
+        new_velocity = std::min(r_velocity_due_to_distance_to_bump, spatial_headway);
+       }
+      // If bump is no close enough then use new velocity
+      else
+       {
+        new_velocity = std::min(new_velocity, spatial_headway);
+       }
+     }
+    // No bumps
+    else
+     {
+      new_velocity = std::min(new_velocity, spatial_headway);
+     }
+    
     // Third rule (randomization)
     const Real r = dis(gen); 
     if (r <= Break_probability)
@@ -378,6 +439,33 @@ namespace CA
     
    }
   
+ }
+
+ // ----------------------------------------------------------------
+ // Compute the distance to the nearest bump
+ // ----------------------------------------------------------------
+ unsigned NaSchPBC::distance_to_nearest_bump(unsigned position)
+ {
+  // Get the number of bumps in the lane
+  const unsigned n_bumps = Bumps_pt.size();
+  unsigned gap_to_nearest_bump = this->lane_size();
+  // Loop over the bumps and compute the distance to the nearest bump
+  for (unsigned i = 0; i < n_bumps; i++)
+   {
+    const unsigned i_bump_position = Bumps_pt[i]->position();
+    if (i_bump_position >= position)
+     {
+      const int long distance = i_bump_position - position;
+      if (distance < static_cast<int long>(gap_to_nearest_bump))
+       {
+        gap_to_nearest_bump = distance;
+       }
+     }
+    
+   }
+ 
+  return gap_to_nearest_bump;
+ 
  }
  
  // ----------------------------------------------------------------
