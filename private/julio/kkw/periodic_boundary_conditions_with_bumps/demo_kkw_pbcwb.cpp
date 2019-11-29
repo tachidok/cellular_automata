@@ -46,13 +46,15 @@ using namespace CA;
 struct Args {
  argparse::ArgValue<unsigned> vmax;
  argparse::ArgValue<Real> rho_h;
+ argparse::ArgValue<unsigned> n_bumps;
+ argparse::ArgValue<std::vector<unsigned> > bumps_positions;
 };
 
 int main(int argc, const char** argv)
 {
  // Instantiate parser
  Args args;
- auto parser = argparse::ArgumentParser(argv[0], "KKW algorithm");
+ auto parser = argparse::ArgumentParser(argv[0], "NaSch algorithm");
  
  // Add arguments
  
@@ -64,6 +66,16 @@ int main(int argc, const char** argv)
  parser.add_argument<Real>(args.rho_h, "--rho_h")
   .help("Density step")
   .default_value("0.1");
+ 
+ parser.add_argument<unsigned>(args.n_bumps, "--nbumps")
+  .help("Number of bumps")
+  .default_value("0");
+ 
+ // One or more unsigned arguments with default values
+ parser.add_argument(args.bumps_positions, "--bumps_positions")
+  .help("Positions of bumps")
+  .nargs('*')
+  .default_value({});
  
  // Parse the input arguments
  parser.parse_args(argc, argv);
@@ -136,6 +148,37 @@ int main(int argc, const char** argv)
      // Add vehicles to the lane based on the given density
      lane.fill_in_vehicles(density);
      //lane.print(true); 
+     
+     // Add bumps to the lane, if any
+     std::vector<unsigned> bumps_positions;
+     if (args.n_bumps > 0 )
+      {
+       // Check whether bumps positions are given, if that is not
+       // the case then create as many equidistant bumps as
+       // indicated by args.n_bumps
+       DEB(args.bumps_positions.value().size());
+       if (args.bumps_positions.value().size() == args.n_bumps)
+        {
+         for (unsigned kk = 0; kk < args.n_bumps; kk++)
+          {
+           DEB(args.bumps_positions.value()[kk]);
+           // Add bump at the center of the lane
+           bumps_positions.push_back(args.bumps_positions.value()[kk]);
+          }
+        }
+       else
+        {
+         // Equidistance bumps
+         const unsigned h_bump = lane_size / (args.n_bumps + 1);
+         for (unsigned kk = 1; kk <= args.n_bumps; kk++)
+          {
+           // Add bump at the center of the lane
+           DEB(h_bump*kk);
+           bumps_positions.push_back(h_bump*kk);
+          }
+        }
+       lane.set_bumps(bumps_positions);
+      }
      
      Real sum_mean_velocity = 0;
      Real sum_mean_current = 0;
