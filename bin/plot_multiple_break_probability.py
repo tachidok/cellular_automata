@@ -22,9 +22,10 @@ def main():
     RESLT = args.RESLT_folder
 
     # Create two list with the break probabilities and colors to plot
-    bp_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    #bp_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    bp_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     bp_colors = ["red", "blue", "green", "violet", "orange", "cyan", "yellow", "pink", "black", "lime", "saddlebrown"]
-
+    
     # -------------------------------------------------------------------------------------
     # Create axis objects
     # -------------------------------------------------------------------------------------
@@ -53,31 +54,31 @@ def main():
         density, velocity, current, delay, travel_time, queue_length, CO2, NOx, VOC, PM = np.loadtxt(filename, delimiter='\t', unpack=True, skiprows=1)
         
         # Density - velocity plot
-        ax1.plot(density, velocity, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax1.plot(density, velocity, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
         # Density - current plot
-        ax2.plot(density, current, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax2.plot(density, current, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
         # Density - delay plot
-        ax3.plot(density, delay, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax3.plot(density, delay, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
         
         # Density - travel time plot
-        ax4.plot(density, travel_time, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax4.plot(density, travel_time, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
         # Density - queue length plot
-        ax5.plot(density, queue_length, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax5.plot(density, queue_length, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
         
         # Density - CO2 plot
-        ax6.plot(density, CO2, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax6.plot(density, CO2, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
         # Density - NOx plot
-        ax7.plot(density, NOx, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax7.plot(density, NOx, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
         # Density - VOC plot
-        ax8.plot(density, VOC, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax8.plot(density, VOC, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
         # Density - PM plot
-        ax9.plot(density, PM, label=rf'$bp = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
+        ax9.plot(density, PM, label=rf'$P = {bp_list[i]}$', color=bp_colors[i], linestyle='solid', linewidth=Linewidth)
 
     ax1.grid()
     ax1.set_xlabel(r'Density $( \rho )$')
@@ -111,25 +112,25 @@ def main():
     
     ax6.grid()
     ax6.set_xlabel(r'Density $( \rho )$')
-    ax6.set_ylabel(r'$CO_2$ (kg)')
+    ax6.set_ylabel(r'$CO_2$ (g/s)')
     ax6.set_title(rf'Density vs $CO_{2}$')
     ax6.legend()
         
     ax7.grid()
     ax7.set_xlabel(r'Density $( \rho )$')
-    ax7.set_ylabel(r'$NO_x$ (kg)')
+    ax7.set_ylabel(r'$NO_x$ (g/s)')
     ax7.set_title(rf'Density vs $NO_x$')
     ax7.legend()
     
     ax8.grid()
     ax8.set_xlabel(r'Density $( \rho )$')
-    ax8.set_ylabel(r'VOC (kg)')
+    ax8.set_ylabel(r'VOC (g/s)')
     ax8.set_title(rf'Density vs VOC')
     ax8.legend()
     
     ax9.grid()
     ax9.set_xlabel(r'Density $( \rho )$')
-    ax9.set_ylabel(r'PM (kg)')
+    ax9.set_ylabel(r'PM (g/s)')
     ax9.set_title(rf'Density vs PM')
     ax9.legend()
     

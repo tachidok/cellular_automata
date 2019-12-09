@@ -109,25 +109,25 @@ def main():
     
     ax6.grid()
     ax6.set_xlabel(r'Density $( \rho )$')
-    ax6.set_ylabel(r'$CO_2$ (kg)')
+    ax6.set_ylabel(r'$CO_2$ (g/s)')
     ax6.set_title(rf'Density vs $CO_{2}$')
     ax6.legend()
         
     ax7.grid()
     ax7.set_xlabel(r'Density $( \rho )$')
-    ax7.set_ylabel(r'$NO_x$ (kg)')
+    ax7.set_ylabel(r'$NO_x$ (g/s)')
     ax7.set_title(rf'Density vs $NO_x$')
     ax7.legend()
     
     ax8.grid()
     ax8.set_xlabel(r'Density $( \rho )$')
-    ax8.set_ylabel(r'VOC (kg)')
+    ax8.set_ylabel(r'VOC (g/s)')
     ax8.set_title(rf'Density vs VOC')
     ax8.legend()
     
     ax9.grid()
     ax9.set_xlabel(r'Density $( \rho )$')
-    ax9.set_ylabel(r'PM (kg)')
+    ax9.set_ylabel(r'PM (g/s)')
     ax9.set_title(rf'Density vs PM')
     ax9.legend()
     

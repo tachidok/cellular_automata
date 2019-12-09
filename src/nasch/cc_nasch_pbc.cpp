@@ -276,12 +276,7 @@ namespace CA
       // If the bump is close then reduce velocity accordingly
       else if (distance_to_closest_bump < new_velocity)
        {
-        // Compute a random value to capture the behaviour of drivers
-        // when encountering a bump
-        const Real r_d = dis(gen);
-        const unsigned r_velocity_due_to_distance_to_bump = std::max(static_cast<unsigned>(r_d * distance_to_closest_bump), static_cast<unsigned>(1));
-        
-        new_velocity = std::min(r_velocity_due_to_distance_to_bump, spatial_headway);
+        new_velocity = std::min(distance_to_closest_bump, spatial_headway);
        }
       // If bump is no close enough then use new velocity
       else
