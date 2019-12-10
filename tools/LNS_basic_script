@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -J real_rand_acc_pbcwb      # The job name
-#SBATCH -o real_rand_acc_pbcwb.o%j     # output and error file name (%j expands to jobID)
+#SBATCH -J job_name      # The job name
+#SBATCH -o job_name.o%j     # output and error file name (%j expands to jobID)
 #SBATCH -n 1            # number of MPI tasks (cores) requested
 #SBATCH --ntasks-per-node=1  # task (cores) per node (maximum 24)
 #SBATCH -p comp              # SLURM queue (partition)
@@ -14,4 +14,4 @@ echo $SLURM_JOB_NUM_NODES
 #module load tools/openmpi/gnu/1.8.4
 
 # Run your task here
-./bin/julio_demo_rand_acc_pbcwb
+./bin/executable

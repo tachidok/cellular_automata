@@ -13,6 +13,8 @@
 
 // Include ArgParse
 #include "../../external_src/argparse/src/argparse.hpp"
+// CA Utilities
+#include "utilities.h"
 
 namespace CA
 {

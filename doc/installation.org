@@ -1,3 +1,7 @@
+#+STARTUP: showall
+#+TITLE: Scripts for plotting
+#+AUTHOR: Julio C.
+
 * Include the =bin= folder of the project to your =PATH= variable
 
 Add the following lines at the end of your =.bashrc= file in your home
