@@ -49,6 +49,7 @@ struct Args {
  argparse::ArgValue<Real> bp;
  argparse::ArgValue<unsigned> n_bumps_min;
  argparse::ArgValue<unsigned> n_bumps_max;
+ argparse::ArgValue<unsigned> bumps_step;
 };
 
 int main(int argc, const char** argv)
@@ -80,6 +81,10 @@ int main(int argc, const char** argv)
   .help("Maximum number of bumps")
   .default_value("2");
  
+ parser.add_argument<unsigned>(args.bumps_step, "--bumps_step")
+  .help("The step to increment the number of bumps")
+  .default_value("1");
+ 
  // Parse the input arguments
  parser.parse_args(argc, argv);
  
@@ -88,7 +93,8 @@ int main(int argc, const char** argv)
  const Real density = args.rho;
  const Real break_probability = args.bp;
  const unsigned min_nbumps = args.n_bumps_min;
- const unsigned max_nbumps = args.n_bumps_max; 
+ const unsigned max_nbumps = args.n_bumps_max;
+ const unsigned bumps_step = args.bumps_step;
  
  // Check whether minimum number of bumps is smaller than maximum 
  // numbe of bumps
@@ -167,10 +173,13 @@ int main(int argc, const char** argv)
      // Add bumps to the lane, if any
      std::vector<unsigned> bumps_positions;
      // Equidistance bumps
-     const unsigned h_bump = lane_size / (n_bumps + 1);
+     //const unsigned h_bump = std::ceil((double)lane_size / (double)(n_bumps + 1));
+     const double h_bump = (double)lane_size / (double)(n_bumps + 1);
+     DEB(h_bump);
      for (unsigned kk = 1; kk <= n_bumps; kk++)
       {
        // Add bump
+       DEB(kk);
        DEB(h_bump*kk);
        bumps_positions.push_back(h_bump*kk);
       }
@@ -345,7 +354,7 @@ int main(int argc, const char** argv)
 #endif // #ifdef OUTPUT_TIME_SPACE
    
    // Increase the number of bumps
-   n_bumps++;
+   n_bumps+=bumps_step;
    
   } // while (n_bumps <= max_nbumps) 
  
