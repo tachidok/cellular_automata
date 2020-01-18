@@ -24,7 +24,7 @@
                                     // vehicles positions
 #define MAX_MONTE_CARLO_LOOP   20000
 #define MONTE_CARLO_STAB_PHASE 15000
-#define LANE_SIZE               1000
+#define LANE_SIZE               1500
 // ----------------------------------------------------------------------
 
 //#define MAX_VELOCITY 4
@@ -87,7 +87,7 @@ int main(int argc, const char** argv)
  const unsigned long lane_size = LANE_SIZE;
  const unsigned maximum_velocity = args.vmax;
  
- const Real maximum_break_probability = 0.1;
+ const Real maximum_break_probability = 0.3;
  const Real break_probability_step = BREAK_PROBABILITY_STEP;
  Real break_probability = 0.0;
  
@@ -180,7 +180,7 @@ int main(int argc, const char** argv)
          else
           {
            // Equidistance bumps
-           const unsigned h_bump = lane_size / (args.n_bumps + 1);
+           const Real h_bump = (Real)lane_size / (Real)(args.n_bumps + 1);
            for (unsigned kk = 1; kk <= args.n_bumps; kk++)
             {
              // Add bump at the center of the lane

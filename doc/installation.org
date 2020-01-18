@@ -1,6 +1,6 @@
 #+STARTUP: showall
 #+TITLE: Scripts for plotting
-#+AUTHOR: Julio C.
+#+AUTHOR: Julio C.1
 
 * Include the =bin= folder of the project to your =PATH= variable
 

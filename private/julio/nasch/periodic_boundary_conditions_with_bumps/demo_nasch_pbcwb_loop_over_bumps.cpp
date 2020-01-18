@@ -174,7 +174,7 @@ int main(int argc, const char** argv)
      std::vector<unsigned> bumps_positions;
      // Equidistance bumps
      //const unsigned h_bump = std::ceil((double)lane_size / (double)(n_bumps + 1));
-     const double h_bump = (double)lane_size / (double)(n_bumps + 1);
+     const Real h_bump = (Real)lane_size / (Real)(n_bumps + 1);
      DEB(h_bump);
      for (unsigned kk = 1; kk <= n_bumps; kk++)
       {

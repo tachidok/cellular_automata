@@ -4,30 +4,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 
+EXTRA_SMALL_SIZE = 8
+SMALL_SIZE = 10
+MEDIUM_SIZE = 12
+BIG_SIZE = 14
+EXTRA_BIG_SIZE = 16
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=EXTRA_BIG_SIZE)    # fontsize of the axes title
+plt.rc('axes', labelsize=BIG_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=EXTRA_BIG_SIZE)   # legend fontsize
+plt.rc('figure', titlesize=MEDIUM_SIZE)  # fontsize of the figure title
+
 Linewidth = 1;
-
-def construct_filename(p0, p1, rho):
-    # Construct filename
-    filename = 'RESLT/current_bp_p0_'
-    if p0 == 0:
-        filename = filename + '0'
-    else:
-        filename = filename + str(p0)
-
-    filename = filename + '_p1_'
-    if p1 == 0:
-        filename = filename + '0'
-    else:
-        filename = filename + str(p1)
-
-    filename = filename + '_rho_'
-    if rho == 0:
-        filename = filename + '0'
-    else:
-        filename = filename + str(rho)
-
-    filename = filename + '.dat'
-    return filename
 
 def main():
         
@@ -71,18 +62,19 @@ def main():
     #ax1.imshow(matrix, interpolation='none')
     #ax1.set_axis_off()
     #ax1.scatter(x_space, matrix[0], color='black')
-    ax1.set_xlabel(r'Space $(s)$')
+    ax1.set_xlabel(r'Space $(x)$')
     ax1.set_ylabel(r'Time $(t)$')
     
-    title_string = "Time vs Space : " + filename
+    title_string = "Time vs Space"
     ax1.set_title(title_string)
+    ax1.set_xticks(np.arange(0,1600,step=200))
     #ax1.set_title(r'Time vs Space {filename}')
     #ax1.legend()
     plt.show()
     
     # Save plot to file
-    img_filename = filename + '.png'
-    fig1.savefig(img_filename)
+    #img_filename = filename + '.png'
+    #fig1.savefig(img_filename)
     #fig1.savefig('my_image.png', transparent=True)
     
     plt.close()
