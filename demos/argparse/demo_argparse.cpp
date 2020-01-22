@@ -14,6 +14,9 @@ struct Args {
 
 int main(int argc, const char** argv)
 {
+ // Output for testing/validation
+ std::ofstream output_test("output_test.dat", std::ios_base::out);
+ 
  // Instantiate parser
  Args args;
  auto parser = argparse::ArgumentParser(argv[0], "Description of application");
@@ -63,6 +66,16 @@ int main(int argc, const char** argv)
  std::cout << "args.vector_real_arguments_one_or_more: " << argparse::join(args.vector_real_arguments_one_or_more.value(), ", ") << "\n";
  std::cout << "args.vector_real_arguments_none_or_more: " << argparse::join(args.vector_real_arguments_none_or_more.value(), ", ") << "\n";
  std::cout << "\n";
+
+ output_test << "args.string_argument: " << args.string_argument << "\n";
+ output_test << "args.boolean_argument: " << args.boolean_argument << "\n";
+ output_test << "args.verbosity: " << args.verbosity << "\n";
+ output_test << "args.real_argument: " << args.real_argument << "\n";
+ output_test << "args.vector_real_arguments_one_or_more: " << argparse::join(args.vector_real_arguments_one_or_more.value(), ", ") << "\n";
+ output_test << "args.vector_real_arguments_none_or_more: " << argparse::join(args.vector_real_arguments_none_or_more.value(), ", ") << "\n";
+ 
+ // Close the output for test
+ output_test.close();
  
  return 0;
  
