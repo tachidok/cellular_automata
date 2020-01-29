@@ -51,7 +51,6 @@ include/*
 # ==============================================================
 doc/**/*.html
 doc/**/*.htm
-doc/*doxy_doc
 
 # ==============================================================
 # Ignore tar files, compressed versions
@@ -223,6 +222,9 @@ doc/**/TSWLatexianTemp*
 
 # Kile
 doc/**/*.kilepr
+
+# Doxygen generated files
+doc/*doxy_doc
 
 # ==============================================================
 # C++
