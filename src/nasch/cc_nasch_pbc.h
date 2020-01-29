@@ -60,7 +60,9 @@ namespace CA
   void apply_nasch(Real &mean_velocity, Real &mean_current, Real &mean_delay,
                    unsigned &sum_travel_time, Real &mean_travel_time,
                    Real &mean_queue_length,
-                   Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm);
+                   Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm,
+                   Real &std_velocity,
+                   Real &std_co2, Real &std_nox, Real &std_voc, Real &std_pm);
  
   // ----------------------------------------------------------------
   // Update the lane status

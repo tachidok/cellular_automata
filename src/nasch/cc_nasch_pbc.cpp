@@ -200,11 +200,21 @@ namespace CA
  void NaSchPBC::apply_nasch(Real &mean_velocity, Real &mean_current, Real &mean_delay,
                             unsigned &sum_travel_time, Real &mean_travel_time,
                             Real &mean_queue_length,
-                            Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm)
+                            Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm,
+                            Real &std_velocity,
+                            Real &std_co2, Real &std_nox, Real &std_voc, Real &std_pm)
  {
+  // Temporarly store the new values for each vehicle so we can
+  // compute standard deviations
+  std::vector<unsigned> tmp_vector_velocity(Current_number_of_vehicles, 0);
+  std::vector<unsigned> tmp_vector_co2(Current_number_of_vehicles, 0);
+  std::vector<unsigned> tmp_vector_nox(Current_number_of_vehicles, 0);
+  std::vector<unsigned> tmp_vector_voc(Current_number_of_vehicles, 0);
+  std::vector<unsigned> tmp_vector_pm(Current_number_of_vehicles, 0);
+  
   // Accumulated velocity
   unsigned sum_velocity = 0;
-
+  
   // Accumulated delay
   unsigned sum_delay = 0;
   
@@ -221,11 +231,11 @@ namespace CA
   std::random_device rd;
   // Standard mersenne_twister_engine seeded with rd()
   std::mt19937 gen(rd());
- 
+  
   // Use dist to generate a random number into a Real in the range
   // [0,1)
   std::uniform_real_distribution<> dis(0.0, 1.0);
- 
+  
   for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
@@ -248,7 +258,7 @@ namespace CA
       Vehicle *next_vehicle_pt = Vehicles_pt[i+1];
       spatial_headway = next_vehicle_pt->position() - current_position - 1;
      }
-   
+    
     //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
     
     // -----------------------------------------------------------------
@@ -315,10 +325,10 @@ namespace CA
     // Update velocity and positon of vehicle
     current_vehicle_pt->velocity(1) = new_velocity;
     current_vehicle_pt->position(1) = new_position;
-      
+    
     sum_velocity+=new_velocity;
-
-     // Get the current travel time of the vehicle and add it up to
+    
+    // Get the current travel time of the vehicle and add it up to
     // the travel time of the lane
     sum_delay+=current_vehicle_pt->delay();
     
@@ -353,8 +363,15 @@ namespace CA
     sum_voc+=tmp_voc;
     sum_pm+=tmp_pm;
     
+    // Keep track of each vehicles associated values
+    tmp_vector_velocity[i] = new_velocity;
+    tmp_vector_co2[i] = tmp_co2;
+    tmp_vector_nox[i] = tmp_nox;
+    tmp_vector_voc[i] = tmp_voc;
+    tmp_vector_pm[i] = tmp_pm;
+    
    } // for (i < Current_number_of_vehicles)
-
+  
   if (Current_number_of_vehicles > 0)
    {
     mean_velocity=static_cast<Real>(sum_velocity)/static_cast<Real>(Current_number_of_vehicles);
@@ -365,9 +382,9 @@ namespace CA
     mean_velocity=0;
     mean_delay=0;
    }
- 
+  
   mean_current=static_cast<Real>(sum_velocity)/static_cast<Real>(Lane_size);
- 
+  
   if (N_vehicles_complete_travel > 0)
    {
     mean_travel_time=static_cast<Real>(sum_travel_time)/static_cast<Real>(N_vehicles_complete_travel);
@@ -384,7 +401,7 @@ namespace CA
    {
     sum_queue_size+=queues_length[i];
    }
-
+  
   if (n_queues > 0)
    {
     mean_queue_length = static_cast<Real>(sum_queue_size)/static_cast<Real>(n_queues);
@@ -393,7 +410,7 @@ namespace CA
    {
     mean_queue_length = 0;
    }
-
+  
   // Emssions
   if (Current_number_of_vehicles > 0)
    {
@@ -409,6 +426,28 @@ namespace CA
     mean_voc=0;
     mean_pm=0;
    } 
+  
+  // Compute standard deviations
+  std_velocity = 0;
+  std_co2 = 0;
+  std_nox = 0;
+  std_voc = 0;
+  std_pm = 0;
+  
+  for (unsigned i = 0; i < Current_number_of_vehicles; i++)
+   {
+    std_velocity+=(tmp_vector_velocity[i] - mean_velocity)*(tmp_vector_velocity[i] - mean_velocity);
+    std_co2+=(tmp_vector_co2[i] - mean_co2)*(tmp_vector_co2[i] - mean_co2);
+    std_nox+=(tmp_vector_nox[i] - mean_nox)*(tmp_vector_nox[i] - mean_nox);
+    std_voc+=(tmp_vector_voc[i] - mean_voc)*(tmp_vector_voc[i] - mean_voc);
+    std_pm+=(tmp_vector_pm[i] - mean_pm)*(tmp_vector_pm[i] - mean_pm);
+   }
+  
+  std_velocity=sqrt(std_velocity/static_cast<Real>(Current_number_of_vehicles));
+  std_co2=sqrt(std_co2/static_cast<Real>(Current_number_of_vehicles));
+  std_nox=sqrt(std_nox/static_cast<Real>(Current_number_of_vehicles));
+  std_voc=sqrt(std_voc/static_cast<Real>(Current_number_of_vehicles));
+  std_pm=(std_pm/static_cast<Real>(Current_number_of_vehicles));
   
  }
  

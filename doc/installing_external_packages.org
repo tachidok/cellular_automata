@@ -1,0 +1,25 @@
+#+STARTUP: showall
+#+TITLE: Installing external packages
+#+AUTHOR: Julio C.
+
+We have tested [[https://github.com/tachidok/cellular_automata][cellular_automata]] to work in the following =OS=:
+ - =Ubuntu 16.04 LTS 64 bits=,
+ - =Ubuntu 18.04.2 LTS 64 bits=.
+If you find any problem or something in this guide makes no sense
+please contact the authors.
+
+* Requirements
+- We have tested with the following versions of the external packages,
+  you may find it work with previous or later versions as well
+
+ * =Ubuntu 16.04 LTS 64 bits=
+   - cmake (=cmake 3.5.1-1ubuntu3=)
+ * =Ubuntu 18.04.2 LTS 64 bits=
+   - cmake (=cmake 3.10.2=)
+
+* Optional
+If you want to create the documentation then install doxygen and
+graphviz.
+ * Tested versions with =Ubuntu 18.04.2 LTS 64 bits=
+  - =doxygen 1.8.13-10= (installed from package manager synaptic)
+  - =graphviz 2.40.1-2= (installed from package manager synaptic)

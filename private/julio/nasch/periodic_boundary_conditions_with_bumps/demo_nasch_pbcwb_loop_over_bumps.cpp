@@ -154,6 +154,16 @@ int main(int argc, const char** argv)
    Real averaged_configurations_mean_VOC = 0;
    // Averaged configurations mean PM
    Real averaged_configurations_mean_PM = 0;
+   // Averaged configurations std velocity
+   Real averaged_configurations_std_velocity = 0;
+   // Averaged configurations std CO2
+   Real averaged_configurations_std_CO2 = 0;
+   // Averaged configurations std NOx
+   Real averaged_configurations_std_NOx = 0;
+   // Averaged configurations std VOC
+   Real averaged_configurations_std_VOC = 0;
+   // Averaged configurations std PM
+   Real averaged_configurations_std_PM = 0;
    
    for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
     {
@@ -175,12 +185,12 @@ int main(int argc, const char** argv)
      // Equidistance bumps
      //const unsigned h_bump = std::ceil((double)lane_size / (double)(n_bumps + 1));
      const Real h_bump = (Real)lane_size / (Real)(n_bumps + 1);
-     DEB(h_bump);
+     //DEB(h_bump);
      for (unsigned kk = 1; kk <= n_bumps; kk++)
       {
        // Add bump
-       DEB(kk);
-       DEB(h_bump*kk);
+       //DEB(kk);
+       //DEB(h_bump*kk);
        bumps_positions.push_back(h_bump*kk);
       }
      lane.set_bumps(bumps_positions);
@@ -195,6 +205,11 @@ int main(int argc, const char** argv)
      Real sum_mean_nox = 0;
      Real sum_mean_voc = 0;
      Real sum_mean_pm = 0;
+     Real sum_std_velocity = 0;
+     Real sum_std_co2 = 0;
+     Real sum_std_nox = 0;
+     Real sum_std_voc = 0;
+     Real sum_std_pm = 0;
      
      bool first_time_reset_travel_time = false;
      
@@ -216,11 +231,19 @@ int main(int argc, const char** argv)
        Real mean_nox = 0.0;
        Real mean_voc = 0.0;
        Real mean_pm = 0.0;
-         
+       Real std_velocity = 0.0;
+       Real std_co2 = 0.0;
+       Real std_nox = 0.0;
+       Real std_voc = 0.0;
+       Real std_pm = 0.0;
+       
        // Apply NaSch rules
        lane.apply_nasch(mean_velocity, mean_current,
                         mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
-                        mean_co2, mean_nox, mean_voc, mean_pm);
+                        mean_co2, mean_nox, mean_voc, mean_pm,
+                        std_velocity,
+                        std_co2, std_nox, std_voc, std_pm);
+       
        // Update lane status
        lane.update();
          
@@ -253,6 +276,13 @@ int main(int argc, const char** argv)
          sum_mean_nox+=mean_nox;
          sum_mean_voc+=mean_voc;
          sum_mean_pm+=mean_pm;
+
+         // Standard deviation
+         sum_std_velocity+=std_velocity;
+         sum_std_co2+=std_co2;
+         sum_std_nox+=std_nox;
+         sum_std_voc+=std_voc;
+         sum_std_pm+=std_pm;
 
 #ifdef OUTPUT_TIME_SPACE
          // Output lane status
@@ -298,6 +328,16 @@ int main(int argc, const char** argv)
      const Real total_mean_VOC = sum_mean_voc / total_number_of_instances;
      // Total mean PM
      const Real total_mean_PM = sum_mean_pm / total_number_of_instances;
+     // Total std velocity
+     const Real total_std_velocity = sum_std_velocity / total_number_of_instances;
+     // Total std CO2
+     const Real total_std_co2 = sum_std_co2 / total_number_of_instances;
+     // Total std NOx
+     const Real total_std_nox = sum_std_nox / total_number_of_instances;
+     // Total std VOC
+     const Real total_std_voc = sum_std_voc / total_number_of_instances;
+     // Total std PM
+     const Real total_std_pm = sum_std_pm / total_number_of_instances;
      
      averaged_configurations_mean_velocity+=total_mean_velocity;
      averaged_configurations_mean_current+=total_mean_current;
@@ -307,7 +347,12 @@ int main(int argc, const char** argv)
      averaged_configurations_mean_CO2+=total_mean_CO2;
      averaged_configurations_mean_NOx+=total_mean_NOx;
      averaged_configurations_mean_VOC+=total_mean_VOC;
-     averaged_configurations_mean_PM+=total_mean_PM; 
+     averaged_configurations_mean_PM+=total_mean_PM;
+     averaged_configurations_std_velocity+=total_std_velocity;
+     averaged_configurations_std_CO2+=total_std_co2;
+     averaged_configurations_std_NOx+=total_std_nox;
+     averaged_configurations_std_VOC+=total_std_voc;
+     averaged_configurations_std_PM+=total_std_pm;
      
     } // for (i_configuration < N_CONFIGURATIONS)
    
@@ -319,7 +364,12 @@ int main(int argc, const char** argv)
    averaged_configurations_mean_CO2=averaged_configurations_mean_CO2/static_cast<Real>(N_CONFIGURATIONS);
    averaged_configurations_mean_NOx=averaged_configurations_mean_NOx/static_cast<Real>(N_CONFIGURATIONS);
    averaged_configurations_mean_VOC=averaged_configurations_mean_VOC/static_cast<Real>(N_CONFIGURATIONS);
-   averaged_configurations_mean_PM=averaged_configurations_mean_PM/static_cast<Real>(N_CONFIGURATIONS); 
+   averaged_configurations_mean_PM=averaged_configurations_mean_PM/static_cast<Real>(N_CONFIGURATIONS);
+   averaged_configurations_std_velocity=averaged_configurations_std_velocity/static_cast<Real>(N_CONFIGURATIONS);
+   averaged_configurations_std_CO2=averaged_configurations_std_CO2/static_cast<Real>(N_CONFIGURATIONS);
+   averaged_configurations_std_NOx=averaged_configurations_std_NOx/static_cast<Real>(N_CONFIGURATIONS);
+   averaged_configurations_std_VOC=averaged_configurations_std_VOC/static_cast<Real>(N_CONFIGURATIONS);
+   averaged_configurations_std_PM=averaged_configurations_std_PM/static_cast<Real>(N_CONFIGURATIONS); 
    
    std::cerr << "bp: " << break_probability
              << "\trho: " << density
@@ -332,7 +382,12 @@ int main(int argc, const char** argv)
              << "\tmCO2: " <<averaged_configurations_mean_CO2
              << "\tmNOx: " <<averaged_configurations_mean_NOx
              << "\tmVOC: " <<averaged_configurations_mean_VOC
-             << "\tmPM: " <<averaged_configurations_mean_PM << std::endl; 
+             << "\tmPM: " <<averaged_configurations_mean_PM
+             << "\tstdV: " <<averaged_configurations_std_velocity
+             << "\tstdCO2: " <<averaged_configurations_std_CO2
+             << "\tstdNOx: " <<averaged_configurations_std_NOx
+             << "\tstdVOC: " <<averaged_configurations_std_VOC
+             << "\tstdPM: " <<averaged_configurations_std_PM << std::endl; 
    
    // -----------------------------------------------------------------------------------------
    // Output data
@@ -347,7 +402,12 @@ int main(int argc, const char** argv)
                << averaged_configurations_mean_CO2 << "\t"
                << averaged_configurations_mean_NOx << "\t"
                << averaged_configurations_mean_VOC << "\t"
-               << averaged_configurations_mean_PM << std::endl; 
+               << averaged_configurations_mean_PM << "\t"
+               << averaged_configurations_std_velocity << "\t"
+               << averaged_configurations_std_CO2 << "\t"
+               << averaged_configurations_std_NOx << "\t"
+               << averaged_configurations_std_VOC << "\t"
+               << averaged_configurations_std_PM << std::endl; 
    
 #ifdef OUTPUT_TIME_SPACE
    lane_status_file.close();
