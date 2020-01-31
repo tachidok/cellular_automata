@@ -8,119 +8,150 @@
 namespace CA
 {
 
- // Implements NaSch algorithm with periodic boundary conditions
- class NaSchPBC
+ /// Implements NaSch algorithm with periodic boundary conditions
+ class CCNaSchPBC
  {
  
  public:
  
   // ----------------------------------------------------------------
-  // Constructor -- do nothing
+  /// Constructor -- do nothing
   // ----------------------------------------------------------------
-  NaSchPBC();
+  CCNaSchPBC();
  
   // ----------------------------------------------------------------
-  // Constructor
+  /// Constructor
   // ----------------------------------------------------------------
-  NaSchPBC(unsigned lane_size, unsigned maximum_velocity, Real break_probability);
+  CCNaSchPBC(unsigned lane_size, unsigned maximum_velocity, Real break_probability);
  
   // ----------------------------------------------------------------
-  // Destructor
+  /// Destructor
   // ----------------------------------------------------------------
-  ~NaSchPBC();
+  ~CCNaSchPBC();
  
   // ----------------------------------------------------------------
-  // Initialise lane configuration
+  /// Initialise lane configuration
   // ----------------------------------------------------------------
   void initialise(unsigned lane_size, unsigned maximum_velocity, Real break_probability);
  
   // ----------------------------------------------------------------
-  // Clear data structures
+  /// Clear data structures
   // ----------------------------------------------------------------
   void clear();
 
   // ----------------------------------------------------------------
-  // Set bumps
+  /// Set bumps
   // ----------------------------------------------------------------
   void set_bumps(std::vector<unsigned> &bumps_positions);
   
   // ----------------------------------------------------------------
-  // Fill in vehicles
+  /// Fill in vehicles
   // ----------------------------------------------------------------
   void fill_in_vehicles(Real density);
  
   // ----------------------------------------------------------------
-  // Update vehicles list
+  /// Update vehicles list
   // ----------------------------------------------------------------
   unsigned update_vehicles_list();
  
   // ----------------------------------------------------------------
-  // Update lane based on NaSchPBC rules
+  /// Update lane based on CCNaSchPBC rules
   // ----------------------------------------------------------------
-  void apply_nasch(Real &mean_velocity, Real &mean_current, Real &mean_delay,
-                   unsigned &sum_travel_time, Real &mean_travel_time,
-                   Real &mean_queue_length,
-                   Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm,
-                   Real &std_velocity,
-                   Real &std_co2, Real &std_nox, Real &std_voc, Real &std_pm);
- 
+  void apply_nasch();
+  
   // ----------------------------------------------------------------
-  // Update the lane status
+  /// Update the lane status
   // ---------------------------------------------------------------- 
   void update();
-
+  
   // ----------------------------------------------------------------
-  // Check whether there is a bump close to the current position
+  /// Check whether there is a bump close to the current position
   // ----------------------------------------------------------------
   unsigned distance_to_nearest_bump(unsigned position);
   
   // ----------------------------------------------------------------
-  // Get the number of bumps
+  /// Get the number of bumps
   // ----------------------------------------------------------------
   inline const unsigned nbumps() {return Bumps_pt.size();}
   
   // ----------------------------------------------------------------
-  // Prints the lane status
+  /// Prints the lane status
   // ---------------------------------------------------------------- 
   void print(bool print_velocities = false);
  
   // ----------------------------------------------------------------
-  // Output lane status
+  /// Output lane status
   // ---------------------------------------------------------------- 
   void output_time_space(std::ofstream &output_file);
- 
+
+  /// Get the lane size
   inline unsigned lane_size() {return Lane_size;}
-  inline unsigned maximum_velocity() {return Maximum_velocity;}
+
+  /// Get the maximum velocity
+  inline unsigned maximum_velocity() const {return Maximum_velocity;}
+  /// Set the maximum velocity
+  inline unsigned &maximum_velocity() {return Maximum_velocity;}
+
+  /// Set the density
   inline Real &density() {return Density;}
+  
+  /// Get the density
   inline Real density() const {return Density;}
-  
+
+  /// Get the current number of vehicles on the lane
   inline unsigned current_number_of_vehicles() const {return Current_number_of_vehicles;}
-  inline unsigned nvehicles_complete_travel() const {return N_vehicles_complete_travel;}
   
-  inline void reset_n_vehicles_complete_travel() {N_vehicles_complete_travel = 0;}
+  inline Real mean_velocity() {return Mean_velocity;}
+  inline Real mean_current() {return Mean_current;}
+  inline Real mean_co2() {return Mean_co2;}
+  inline Real mean_nox() {return Mean_nox;}
+  inline Real mean_voc() {return Mean_voc;}
+  inline Real mean_pm() {return Mean_pm;}
+  inline Real std_velocity() {return Std_velocity;}
+  inline Real std_co2() {return Std_co2;}
+  inline Real std_nox() {return Std_nox;}
+  inline Real std_voc() {return Std_voc;}
+  inline Real std_pm() {return Std_pm;}
   
  protected:
- 
+  
+  /// Set all statistics values to zero
+  void reset_statistics();
+  
+  /// The size of the lane (in number of cells)
   unsigned Lane_size;
+
+  /// Maximum velocity (in number of cells per unit time)
   unsigned Maximum_velocity;
-  Real Break_probability;
- 
-  // Density associated with the number of vehicles in the lane
+  
+  /// Braking probability
+  Real Braking_probability;
+  
+  /// Density associated with the number of vehicles in the lane
   Real Density;
   
-  // Current number of vehicles (less or equal than the Lane size)
+  /// Current number of vehicles (less or equal than the Lane size)
   unsigned Current_number_of_vehicles; 
   
-  // Keep track of the lane status and vehicles
-  std::vector<Vehicle*> Lane;
-  std::vector<Vehicle*> Vehicles_pt;
+  /// Keep track of the lane status and vehicles
+  std::vector<CCVehicle*> Lane;
+  std::vector<CCVehicle*> Vehicles_pt;
   
-  // Keep track of the bumps, if any
+  /// Keep track of the bumps, if any
   std::vector<CCBump*> Bumps_pt;
   
-  // Keep track of the number of vehicles that have leave the lane
-  // (used to compute travel time)
-  unsigned N_vehicles_complete_travel;
+  /// Statistics
+  Real Mean_velocity;
+  Real Mean_current;
+  Real Mean_co2;
+  Real Mean_nox;
+  Real Mean_voc;
+  Real Mean_pm;
+  Real Std_velocity;
+  Real Std_co2;
+  Real Std_nox;
+  Real Std_voc;
+  Real Std_pm;
   
  };
  

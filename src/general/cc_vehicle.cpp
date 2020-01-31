@@ -4,20 +4,20 @@ namespace CA
 {
  
  // ----------------------------------------------------------------
- // Constructor
+ /// Constructor
  // ----------------------------------------------------------------
- Vehicle::Vehicle()
+ CCVehicle::CCVehicle()
  {
   // Set initial velocity, position and length
   initialise(0, 0, 1);
  }
  
  // ----------------------------------------------------------------
- // Constructor (the occupancy considers the number of cells the
- // vehicle occupies in the Cellular Automata, the length is the car
- // size in meters)
+ /// Constructor (the occupancy considers the number of cells the
+ /// vehicle occupies in the Cellular Automata, the length is the car
+ /// size in meters)
  // ----------------------------------------------------------------
- Vehicle::Vehicle(unsigned velocity, unsigned position,
+ CCVehicle::CCVehicle(unsigned velocity, unsigned position,
                   unsigned occupancy, Real length, Vehicle_type type)
  {
   // Set initial velocity, position and length
@@ -25,19 +25,19 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
- // Destructor
+ /// Destructor
  // ----------------------------------------------------------------
- Vehicle::~Vehicle()
+ CCVehicle::~CCVehicle()
  {
   
  }
  
  // ----------------------------------------------------------------
- // Set the current velocity and position (the occupancy considers
- // the number of cells the vehicle occupies in the Cellular
- // Automata, the length is the car size in meters)
+ /// Set the current velocity and position (the occupancy considers
+ /// the number of cells the vehicle occupies in the Cellular
+ /// Automata, the length is the car size in meters)
  // ----------------------------------------------------------------
- void Vehicle::initialise(unsigned velocity, unsigned position,
+ void CCVehicle::initialise(unsigned velocity, unsigned position,
                           unsigned occupancy, Real length, Vehicle_type type)
  {
   Velocity[1] = Velocity[0] = velocity;
@@ -51,11 +51,8 @@ namespace CA
   // Length/occupancy ratio
   Eta = length/static_cast<Real>(occupancy);
 
-  // Vehicle's type
+  // CCVehicle's type
   Type = type;
-  
-  // Initialise delays and travel time
-  Delay = Travel_time = 0;
   
   // Initialise emission table
   initialise_emission_tables();
@@ -63,9 +60,9 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
- // Update vehicles status
+ /// Update vehicles status
  // ----------------------------------------------------------------
- void Vehicle::update()
+ void CCVehicle::update()
  {
   //Update statistics
   update_statistics();
@@ -76,31 +73,18 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Update statistics
+ /// Update statistics
  // ----------------------------------------------------------------
- void Vehicle::update_statistics()
+ void CCVehicle::update_statistics()
  {
-  // Increase travel time
-  Travel_time++;
-  // Compute delay
-  const unsigned next_velocity = Velocity[1];
-  // Increase delay
-  if (next_velocity == 0)
-   {
-    Delay++;
-   }
-  else
-   {
-    Delay = 0;
-   }
- 
+  
  }
  
  // ----------------------------------------------------------------
- // In charge of setting the initial and constant values to the
- // emission table
+ /// In charge of setting the initial and constant values to the
+ /// emission table
  // ----------------------------------------------------------------
- void Vehicle::initialise_emission_tables()
+ void CCVehicle::initialise_emission_tables()
  {
   // ====================================================
   // CO2
@@ -403,9 +387,9 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // In charge of computing all emissions and transform
+ /// In charge of computing all emissions and transform
  // ----------------------------------------------------------------
- void Vehicle::compute_emissions(Real &CO2, Real &NOx, Real &VOC, Real &PM)
+ void CCVehicle::compute_emissions(Real &CO2, Real &NOx, Real &VOC, Real &PM)
  {
   // Trasformed velocity and acceleration, considering occupancy ratio
   const Real v = Velocity[0] * Eta;

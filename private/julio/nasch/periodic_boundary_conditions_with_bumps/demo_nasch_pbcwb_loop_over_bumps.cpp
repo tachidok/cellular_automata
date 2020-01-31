@@ -63,7 +63,7 @@ int main(int argc, const char** argv)
  // Optional
  parser.add_argument<unsigned>(args.vmax, "--vmax")
   .help("Maximum velocity, in cells numbers")
-  .default_value("5");
+  .default_value("4");
  
  parser.add_argument<Real>(args.rho, "--rho")
   .help("Density")
@@ -79,7 +79,7 @@ int main(int argc, const char** argv)
  
  parser.add_argument<unsigned>(args.n_bumps_max, "--n_bumps_max")
   .help("Maximum number of bumps")
-  .default_value("2");
+  .default_value("10");
  
  parser.add_argument<unsigned>(args.bumps_step, "--bumps_step")
   .help("The step to increment the number of bumps")
@@ -118,9 +118,6 @@ int main(int argc, const char** argv)
              << "nbumps" << "\t"
              << "mean_velocity" << "\t"
              << "mean_current" << "\t"
-             << "mean_delay" << "\t"
-             << "mean_travel_time" << "\t"
-             << "mean_queue_length" << "\t"
              << "mean_CO2" << "\t"
              << "mean_NOx" << "\t"
              << "mean_VOC" << "\t"
@@ -140,12 +137,6 @@ int main(int argc, const char** argv)
    Real averaged_configurations_mean_velocity = 0;
    // Averaged configurations mean current
    Real averaged_configurations_mean_current = 0;
-   // Averaged configurations mean delay
-   Real averaged_configurations_mean_delay = 0;
-   // Averaged configurations mean travel time
-   Real averaged_configurations_mean_travel_time = 0;
-   // Averaged configurations mean queue length
-   Real averaged_configurations_mean_queue_length = 0;
    // Averaged configurations mean CO2
    Real averaged_configurations_mean_CO2 = 0;
    // Averaged configurations mean NOx
@@ -167,7 +158,7 @@ int main(int argc, const char** argv)
    
    for (unsigned i_configuration = 0; i_configuration < N_CONFIGURATIONS; i_configuration++)
     {
-     NaSchPBC lane;
+     CCNaSchPBC lane;
      lane.initialise(lane_size, maximum_velocity, break_probability);
      
 #ifdef OUTPUT_CURRENT_VS_TIME
@@ -197,10 +188,6 @@ int main(int argc, const char** argv)
      
      Real sum_mean_velocity = 0;
      Real sum_mean_current = 0;
-     Real sum_mean_delay = 0;
-     Real sum_mean_travel_time = 0;
-     unsigned sum_travel_time = 0;
-     Real sum_mean_queue_length = 0;
      Real sum_mean_co2 = 0;
      Real sum_mean_nox = 0;
      Real sum_mean_voc = 0;
@@ -211,8 +198,6 @@ int main(int argc, const char** argv)
      Real sum_std_voc = 0;
      Real sum_std_pm = 0;
      
-     bool first_time_reset_travel_time = false;
-     
      const unsigned long monte_carlo_max_loop = MAX_MONTE_CARLO_LOOP;
      const unsigned long monte_carlo_stabilization_phase = MONTE_CARLO_STAB_PHASE;
      
@@ -222,27 +207,8 @@ int main(int argc, const char** argv)
        // Compute the occupancy index
        lane.update_vehicles_list();
        
-       Real mean_velocity = 0;
-       Real mean_current = 0;
-       Real mean_delay = 0;
-       Real mean_travel_time = 0; 
-       Real mean_queue_length = 0;
-       Real mean_co2 = 0.0;
-       Real mean_nox = 0.0;
-       Real mean_voc = 0.0;
-       Real mean_pm = 0.0;
-       Real std_velocity = 0.0;
-       Real std_co2 = 0.0;
-       Real std_nox = 0.0;
-       Real std_voc = 0.0;
-       Real std_pm = 0.0;
-       
        // Apply NaSch rules
-       lane.apply_nasch(mean_velocity, mean_current,
-                        mean_delay, sum_travel_time, mean_travel_time, mean_queue_length,
-                        mean_co2, mean_nox, mean_voc, mean_pm,
-                        std_velocity,
-                        std_co2, std_nox, std_voc, std_pm);
+       lane.apply_nasch();
        
        // Update lane status
        lane.update();
@@ -252,37 +218,24 @@ int main(int argc, const char** argv)
          
        // Apply only after stabilization phase
        if (i > monte_carlo_stabilization_phase)
-        {
-         // Reset statistics after stabilisation phase
-         if (!first_time_reset_travel_time)
-          {
-           sum_travel_time = 0;
-           lane.reset_n_vehicles_complete_travel();
-           mean_travel_time=0;
-           first_time_reset_travel_time = true;
-               
-          }
-             
+        {             
          //Real mean_velocity = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.current_number_of_vehicles());
-         sum_mean_velocity+=mean_velocity;
+         sum_mean_velocity+=lane.mean_velocity();
          //Real mean_current = static_cast<Real>(sum_velocity) / static_cast<Real>(lane.lane_size());
-         sum_mean_current+=mean_current;
-         sum_mean_delay+=mean_delay;
-         sum_mean_travel_time+=mean_travel_time;
-         sum_mean_queue_length+=mean_queue_length;
-            
+         sum_mean_current+=lane.mean_current();
+         
          // Emissions
-         sum_mean_co2+=mean_co2;
-         sum_mean_nox+=mean_nox;
-         sum_mean_voc+=mean_voc;
-         sum_mean_pm+=mean_pm;
+         sum_mean_co2+=lane.mean_co2();
+         sum_mean_nox+=lane.mean_nox();
+         sum_mean_voc+=lane.mean_voc();
+         sum_mean_pm+=lane.mean_pm();
 
          // Standard deviation
-         sum_std_velocity+=std_velocity;
-         sum_std_co2+=std_co2;
-         sum_std_nox+=std_nox;
-         sum_std_voc+=std_voc;
-         sum_std_pm+=std_pm;
+         sum_std_velocity+=lane.std_velocity();
+         sum_std_co2+=lane.std_co2();
+         sum_std_nox+=lane.std_nox();
+         sum_std_voc+=lane.std_voc();
+         sum_std_pm+=lane.std_pm();
 
 #ifdef OUTPUT_TIME_SPACE
          // Output lane status
@@ -314,12 +267,6 @@ int main(int argc, const char** argv)
      const Real total_mean_velocity = sum_mean_velocity / total_number_of_instances;
      // Total mean current
      const Real total_mean_current = sum_mean_current / total_number_of_instances;
-     // Total mean delay
-     const Real total_mean_delay = sum_mean_delay / total_number_of_instances;
-     // Total mean travel time
-     const Real total_mean_travel_time = sum_mean_travel_time / total_number_of_instances;
-     // Total mean queue length
-     const Real total_mean_queue_length = sum_mean_queue_length / total_number_of_instances;
      // Total mean CO2
      const Real total_mean_CO2 = sum_mean_co2 / total_number_of_instances;
      // Total mean NOx
@@ -341,9 +288,6 @@ int main(int argc, const char** argv)
      
      averaged_configurations_mean_velocity+=total_mean_velocity;
      averaged_configurations_mean_current+=total_mean_current;
-     averaged_configurations_mean_delay+=total_mean_delay;
-     averaged_configurations_mean_travel_time+=total_mean_travel_time;
-     averaged_configurations_mean_queue_length+=total_mean_queue_length;
      averaged_configurations_mean_CO2+=total_mean_CO2;
      averaged_configurations_mean_NOx+=total_mean_NOx;
      averaged_configurations_mean_VOC+=total_mean_VOC;
@@ -358,9 +302,6 @@ int main(int argc, const char** argv)
    
    averaged_configurations_mean_velocity=averaged_configurations_mean_velocity/static_cast<Real>(N_CONFIGURATIONS);
    averaged_configurations_mean_current=averaged_configurations_mean_current/static_cast<Real>(N_CONFIGURATIONS);
-   averaged_configurations_mean_delay=averaged_configurations_mean_delay/static_cast<Real>(N_CONFIGURATIONS);
-   averaged_configurations_mean_travel_time=averaged_configurations_mean_travel_time/static_cast<Real>(N_CONFIGURATIONS);
-   averaged_configurations_mean_queue_length=averaged_configurations_mean_queue_length/static_cast<Real>(N_CONFIGURATIONS);
    averaged_configurations_mean_CO2=averaged_configurations_mean_CO2/static_cast<Real>(N_CONFIGURATIONS);
    averaged_configurations_mean_NOx=averaged_configurations_mean_NOx/static_cast<Real>(N_CONFIGURATIONS);
    averaged_configurations_mean_VOC=averaged_configurations_mean_VOC/static_cast<Real>(N_CONFIGURATIONS);
@@ -376,9 +317,6 @@ int main(int argc, const char** argv)
              << "\tnbumps: " << n_bumps
              << "\tmJ: " << averaged_configurations_mean_current
              << "\tmV: " << averaged_configurations_mean_velocity
-             << "\tmDelay: " <<averaged_configurations_mean_delay
-             << "\tmTript: " <<averaged_configurations_mean_travel_time
-             << "\tmQlen: " <<averaged_configurations_mean_queue_length
              << "\tmCO2: " <<averaged_configurations_mean_CO2
              << "\tmNOx: " <<averaged_configurations_mean_NOx
              << "\tmVOC: " <<averaged_configurations_mean_VOC
@@ -396,9 +334,6 @@ int main(int argc, const char** argv)
                << n_bumps << "\t"
                << averaged_configurations_mean_velocity << "\t"
                << averaged_configurations_mean_current << "\t"
-               << averaged_configurations_mean_delay << "\t"
-               << averaged_configurations_mean_travel_time << "\t"
-               << averaged_configurations_mean_queue_length << "\t"
                << averaged_configurations_mean_CO2 << "\t"
                << averaged_configurations_mean_NOx << "\t"
                << averaged_configurations_mean_VOC << "\t"
