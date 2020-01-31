@@ -70,6 +70,31 @@ echo "============================================================= "
 echo ""
 
 #====================================================================
+# Check whether input argument where given or not
+#====================================================================
+input_arguments=1
+if test $# -eq 0; then
+    input_arguments=0
+else
+    echo " "
+    echo "Number of input arguments "$#
+    echo " "
+fi
+
+if test $input_arguments -eq 1 -a $# -ne 6; then
+    echo ""
+    echo "============================================================= "
+    echo ""
+    echo "FATAL ERROR: The number of expected arguments (if given) "
+    echo "should be six, but we only got "$#". Please carefully"
+    echo "check you are passing the right number of arguments"
+    echo ""
+    echo "============================================================= "
+    echo ""
+    exit 1
+fi
+
+#====================================================================
 # Going to the build directory
 #====================================================================
 if (test -d  $build_dir); then 
@@ -87,10 +112,17 @@ echo ""
 #====================================================================
 # Library type
 #====================================================================
-
 echo "Which library type do you want to build?"
 OptionPrompt "The a)STATIC or the b)SHARED type library? [a/b -- default: a]"
-static_or_shared=`OptionRead`
+
+static_or_shared='a'
+
+if test $input_arguments = 1; then
+    static_or_shared=$1
+else
+    static_or_shared=`OptionRead`
+fi
+
 if test "$static_or_shared" = "b" -o "$static_or_shared" = "B" ; then 
     lib_type=SHARED
     lib_ext=.so
@@ -106,10 +138,17 @@ echo ""
 #====================================================================
 # Library version
 #====================================================================
-
 echo "Which library version do you want to build?"
 OptionPrompt "The a)DEBUG or the b)RELEASE version of the library ? [a/b -- default: a]"
-debug_or_release=`OptionRead`
+
+debug_or_release='a'
+
+if test $input_arguments = 1; then
+    debug_or_release=$2
+else
+    debug_or_release=`OptionRead`
+fi
+
 if test "$debug_or_release" = "b" -o "$debug_or_release" = "B" ; then 
     lib_version=RELEASE
 else
@@ -125,7 +164,15 @@ echo ""
 #====================================================================
 echo "How many processor to use to build $lib_name?"
 OptionPrompt "[1] [2] [4] [default: 4]"
-number_of_processors_to_build_library=`OptionRead`
+
+number_of_processors_to_build_library=4
+
+if test $input_arguments = 1; then
+    number_of_processors_to_build_library=$3
+else
+    number_of_processors_to_build_library=`OptionRead`
+fi
+
 if test "$number_of_processors_to_build_library" != 1 -a "$number_of_processors_to_build_library" != 2 -a "$number_of_processors_to_build_library" != 4; then
     number_of_processors_to_build_library=4
     echo "Setting the number of processors to build library to [4]" 
@@ -140,10 +187,17 @@ echo ""
 #====================================================================
 # Configuration file for extra configuration
 #====================================================================
-
 echo "Specify the path config file with extra configuration flags:"
 OptionPrompt "[default: ./configs/current]"
-extra_config_file=`OptionRead`
+
+extra_config_file="./configs/current"
+
+if test $input_arguments = 1; then
+    extra_config_file=$4
+else
+    extra_config_file=`OptionRead`
+fi
+
 if test "$extra_config_file" = "" -o "$extra_config_file" = "" ; then 
     configuration_file=./configs/current
 else
@@ -157,17 +211,32 @@ echo ""
 #====================================================================
 # Build demos
 #====================================================================
-
 echo "Do you want to build and run the demos?"
 OptionPrompt "a)DO BUILD/RUN demos b)DO NOT BUILD/RUN demos [a/b -- default: a]"
-build_and_run_demos=`OptionRead`
+
+build_and_run_demos='a'
+
+if test $input_arguments = 1; then
+    build_and_run_demos=$5
+else
+    build_and_run_demos=`OptionRead`
+fi
+
 if test "$build_and_run_demos" = "b" -o "$build_and_run_demos" = "B" ; then 
     build_demos=FALSE
 else
     build_demos=TRUE
     echo "How many processor use to run tests?"
     OptionPrompt "[1] [2] [4] [default: 4]"
-    number_of_processors_to_run_demos=`OptionRead`
+
+    number_of_processors_to_run_demos=4
+    
+    if test $input_arguments = 1; then
+        number_of_processors_to_run_demos=$6
+    else
+        number_of_processors_to_run_demos=`OptionRead`
+    fi
+    
     if test "$number_of_processors_to_run_demos" != 1 -a "$number_of_processors_to_run_demos" != 2 -a "$number_of_processors_to_run_demos" != 4; then
         number_of_processors_to_run_demos=4
         echo "Setting the number of processors to run tests to [4]" 
