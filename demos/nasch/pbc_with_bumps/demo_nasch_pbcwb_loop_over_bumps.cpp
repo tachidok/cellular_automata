@@ -1,6 +1,6 @@
-#include "../../../../src/general/common_includes.h"
-#include "../../../../src/general/cc_vehicle.h"
-#include "../../../../src/nasch/cc_nasch_pbc.h"
+#include "../../../src/general/common_includes.h"
+#include "../../../src/general/cc_vehicle.h"
+#include "../../../src/nasch/cc_nasch_pbc.h"
 
 // ----------------------------------------------------------------------
 // Checking with these initial configurations
@@ -111,7 +111,8 @@ int main(int argc, const char** argv)
  
  // Output for testing/validation
  std::ostringstream output_filename;
- output_filename << "RESLT/output_" << "bp_" << break_probability << "_rho_" << density << ".dat";
+ //output_filename << "RESLT/output_" << "bp_" << break_probability << "_rho_" << density << ".dat";
+ output_filename << "output_test.dat";
  // Output for testing/validation
  std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
  output_file << "density" << "\t"
