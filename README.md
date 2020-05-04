@@ -1,61 +1,110 @@
 # cellular_automata
 An Object-Oriented implementation of cellular automata with applications to vehicular flow and biological flow.
 
-## How to become a collaborator?
+## Welcome!
 
-### Let us know you want to become a collaborator to give you credit for your work
+## What the project is about?
+A collection of tools (mostly based on cellular automata) to simulate
+phenomena modeles as discrete events.
 
-1. Send us an email (jcp.sansalvador at inaoe.mx) to let us include you in our list of collaborators and grant you access to the repository.
+## Fast installation and starting up!!!
 
-### Get the code
+### What you need to have it working nicely?
+* A C++ compiler - demo drivers and library built with version
+  7.4.0. It may work with previous versions as well.
+  
+* CMake - to configure and install it. We tested with version 3.10.2.
 
-2. Get a copy of the code by cloning it in your local computer and start working at your own pace
+* Python - to test output from demo drivers with validation files
+  (also to produce nice plots). We tested with version 3.7.3 but it
+  should work with any version >= 3
 
-```basch
-git clone https://github.com/tachidok/cellular_automata/
-```
-2.1 You will be prompted with your github user name and your password
-2.2 Once you have a local copy at your computer go into the `cellullar_automata` folder by typing
+#### Optional
 
-```basch
+* Latex - to build documentation. Most documentation is generated from
+  `.org` files.
+
+* Doxygen - to build classes diagrams and useful documentation from
+  the code.
+
+* MPI support for parallel features - `not currently supported`.
+
+### How to get your own copy of the project?
+You need **git** installed in your computer, then type in a terminal
+
+```shell
+git clone https://github.com/tachidok/cellular_automata
 cd cellular_automata
+git checkout -b bob
 ```
 
-2.3 Once in the `cellular_automata` folder create a new branch with your name so you can freely develop your own version of the framework, do this by typing
+After executing the first line you will be prompted with your github
+user name and your password. The third line generates your fully
+customised branch and assumes your name is _bob_
 
-```basch
-git checkout -b john
-```
+### How to configure it?
+* In a terminal (shell command line) go into the `cellular_automata` folder
+  then type
 
-to create a new branch with the name `john`
-
-2.4 Install the framework and check the documentation
-
-```basch
+```shell
 ./autogen.sh
 ```
 
-2.4.1 To install the framework follow the instructions on screen after typing the above command, you will need a recent `cmake` version and your preferred `C++` compiler
+* Follow up the instructions on screen to configure your own copy of
+the project.
 
-### Merge your contribution with the master branch
+**For full details and additional features please check the full
+documentation in the `doc` folder.**
 
-3. Once you are done with your work add the modified files to track their history and do a commit
+#### Documentation
 
-```basch
-git add your_modified_files
-git commit
+If you got doxygen installed in your system then generate the
+documentation by typing in a terminal,
+
+```shell
+./make_doc.sh
 ```
 
-4. Once you are done with all your changes and commits you can merge your branch with the `master` branch, do this by typing
+the documentation will be automatically generated into the
+`doc/doxy_doc/html` folder, then open the `index.html` file in a
+web-browser.
 
-```basch
-git checkout master
-git merge john
+## Examples and test cases
+
+Demos, examples or test cases are in the `demos` folder. These demos
+are also used to self test the implementation. You should run all of
+them to make sure nothing is broken. You can select to perform a full
+test at installation time, otherwise type
+
+```shell
+./ctest
 ```
+into the specified build folder (the default one is `build`).
 
+A large number of examples is expected to live in the `demos` folder
+so check there for any feature available in the project.
 
+## How to contribute
 
+Get your own copy and have fun. Do not hesitate to contact the
+developers at :envelope: (jcp.sansalvador.at.inaoep.mx) :envelope:
 
+### Notes for contributors
+For full details on contributions please check the documentation in
+the `doc` folder. Contact the developers for current in-development
+features.
 
+## Facts and curiosities
 
+### How many developers are currently working on the library
 
+At Sunday, May/03, 2020 there are 4 developers working in this project
+:no_mouth:
+
+:construction: :construction: :construction: :construction: :construction:
+
+### When did this start?
+This project was initially uploaded to GitHub on Wednesday, 29 May
+2019 :smile:
+
+## Have fun and enjoy .... !!!
