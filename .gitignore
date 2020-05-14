@@ -91,7 +91,7 @@ doc/**/*-converted-to.*
 # these rules might exclude image files for figures etc.
 # doc/**/*.ps
 # doc/**/*.eps
-doc/**/*.pdf
+# doc/**/*.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 doc/**/*.bbl
