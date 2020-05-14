@@ -33,17 +33,16 @@
 
 //#define OUTPUT_TIME_SPACE
 
-//#define OUTPUT_CURRENT_VS_TIME // If you want to get this output then
-// fix the density and set the density
-// step to some number larger than one
-// such that the density loop be
-// performed only once
+//#define OUTPUT_CURRENT_VS_TIME // If you want to get this output
+// then fix the density and set the density step to some number larger
+// than one such that the density loop is performed only once
 
 // Use the namespace of the framework
 using namespace CA;
 
 // Used to define arguments
 struct Args {
+ argparse::ArgValue<bool> test;
  argparse::ArgValue<unsigned> vmax;
  argparse::ArgValue<Real> rho;
  argparse::ArgValue<Real> bp;
@@ -61,6 +60,11 @@ int main(int argc, const char** argv)
  // Add arguments
  
  // Optional
+ parser.add_argument(args.test, "--test")
+  .help("Boolean argument")
+  .default_value("false")
+  .action(argparse::Action::STORE_TRUE);
+ 
  parser.add_argument<unsigned>(args.vmax, "--vmax")
   .help("Maximum velocity, in cells numbers")
   .default_value("4");
@@ -115,19 +119,29 @@ int main(int argc, const char** argv)
  output_filename << "output_test.dat";
  // Output for testing/validation
  std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
- output_file << "density" << "\t"
-             << "nbumps" << "\t"
-             << "mean_velocity" << "\t"
-             << "mean_current" << "\t"
-             << "mean_CO2" << "\t"
-             << "mean_NOx" << "\t"
-             << "mean_VOC" << "\t"
-             << "mean_PM" << "\t"
-             << "std_V: " << "\t"
-             << "std_CO2: " << "\t"
-             << "std_NOx: " << "\t"
-             << "std_VOC: " << "\t"
-             << "std_PM: " << std::endl; 
+ if (args.test)
+  {
+   output_file << "density" << "\t"
+               << "nbumps" << "\t"
+               << "mean_velocity" << "\t"
+               << "mean_current" << std::endl;
+  }
+ else
+  {
+   output_file << "density" << "\t"
+               << "nbumps" << "\t"
+               << "mean_velocity" << "\t"
+               << "mean_current" << "\t"
+               << "mean_CO2" << "\t"
+               << "mean_NOx" << "\t"
+               << "mean_VOC" << "\t"
+               << "mean_PM" << "\t"
+               << "std_V: " << "\t"
+               << "std_CO2: " << "\t"
+               << "std_NOx: " << "\t"
+               << "std_VOC: " << "\t"
+               << "std_PM: " << std::endl;
+  }
  
  // Loop over number of bumps
  unsigned n_bumps = min_nbumps;
@@ -336,19 +350,29 @@ int main(int argc, const char** argv)
    // -----------------------------------------------------------------------------------------
    // Output data
    // -----------------------------------------------------------------------------------------
-   output_file << density << "\t"
-               << n_bumps << "\t"
-               << averaged_configurations_mean_velocity << "\t"
-               << averaged_configurations_mean_current << "\t"
-               << averaged_configurations_mean_CO2 << "\t"
-               << averaged_configurations_mean_NOx << "\t"
-               << averaged_configurations_mean_VOC << "\t"
-               << averaged_configurations_mean_PM << "\t"
-               << averaged_configurations_std_velocity << "\t"
-               << averaged_configurations_std_CO2 << "\t"
-               << averaged_configurations_std_NOx << "\t"
-               << averaged_configurations_std_VOC << "\t"
-               << averaged_configurations_std_PM << std::endl; 
+   if (args.test)
+    {
+     output_file << density << "\t"
+                 << n_bumps << "\t"
+                 << averaged_configurations_mean_velocity << "\t"
+                 << averaged_configurations_mean_current << std::endl;
+    }
+   else
+    {
+     output_file << density << "\t"
+                 << n_bumps << "\t"
+                 << averaged_configurations_mean_velocity << "\t"
+                 << averaged_configurations_mean_current << "\t"
+                 << averaged_configurations_mean_CO2 << "\t"
+                 << averaged_configurations_mean_NOx << "\t"
+                 << averaged_configurations_mean_VOC << "\t"
+                 << averaged_configurations_mean_PM << "\t"
+                 << averaged_configurations_std_velocity << "\t"
+                 << averaged_configurations_std_CO2 << "\t"
+                 << averaged_configurations_std_NOx << "\t"
+                 << averaged_configurations_std_VOC << "\t"
+                 << averaged_configurations_std_PM << std::endl;
+    }
    
 #ifdef OUTPUT_TIME_SPACE
    lane_status_file.close();

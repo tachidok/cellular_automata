@@ -31,14 +31,14 @@ set_target_properties( demo_nasch_pbc_wb_loop_over_bumps
 # ===========================================
 # Run the application to check it works
 ADD_TEST(NAME TEST_demo_nasch_pbc_wb_loop_over_bumps_run
-          COMMAND demo_nasch_pbc_wb_loop_over_bumps --vmax 4 --bp 0.1 --n_bumps_min 1 --n_bumps_max 10 --bumps_step 1)
+          COMMAND demo_nasch_pbc_wb_loop_over_bumps --test --vmax 4 --bp 0.1 --n_bumps_min 1 --n_bumps_max 5 --bumps_step 1)
 IF (CELLULAR_AUTOMATA_USES_DOUBLE_PRECISION)
-   SET (VALIDATE_FILENAME_demo_nasch_pbc_wb_loop_over_bumps "validate_double_demo_nasch_pbc_wb_loop_over_bumps.dat")
+   SET (VALIDATE_FILENAME_demo_nasch_pbc_wb_loop_over_bumps "validate_demo_nasch_pbc_wb_loop_over_bumps.dat")
 ELSE (CELLULAR_AUTOMATA_USES_DOUBLE_PRECISION)
    SET (VALIDATE_FILENAME_demo_nasch_pbc_wb_loop_over_bumps "validate_demo_nasch_pbc_wb_loop_over_bumps.dat")
 ENDIF (CELLULAR_AUTOMATA_USES_DOUBLE_PRECISION)
 ADD_TEST(NAME TEST_demo_nasch_pbc_wb_loop_over_bumps_check_output
-         COMMAND ${PROJECT_SOURCE_DIR}/tools/fpdiff.py ${CMAKE_CURRENT_SOURCE_DIR}/validate/${VALIDATE_FILENAME_demo_nasch_pbc_wb_loop_over_bumps} ${CMAKE_CURRENT_BINARY_DIR}/output_test.dat)
+         COMMAND ${PROJECT_SOURCE_DIR}/tools/fpdiff.py ${CMAKE_CURRENT_SOURCE_DIR}/validate/${VALIDATE_FILENAME_demo_nasch_pbc_wb_loop_over_bumps} ${CMAKE_CURRENT_BINARY_DIR}/output_test.dat 5.0e-1)
 
 # ===========================================
 # Test execution order

@@ -53,6 +53,9 @@ customised branch and assumes your name is _bob_
 * Follow up the instructions on screen to configure your own copy of
 the project.
 
+* From here on you can continue with the `starting_up` document in the
+`doc` folder.
+
 **For full details and additional features please check the full
 documentation in the `doc` folder.**
 
