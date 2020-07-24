@@ -324,7 +324,7 @@ namespace CA
     
     // Update velocity and positon of vehicle
     current_vehicle_pt->velocity(1) = new_velocity;
-    current_vehicle_pt->position(1) = new_position;
+    current_vehicle_pt->position(0, 1) = new_position;
     
     sum_velocity+=new_velocity;
         
@@ -411,8 +411,8 @@ namespace CA
     // Get a pointer to the current vehicle
     CCVehicle *vehicle_pt = Vehicles_pt[i];
     
-    const unsigned old_position = vehicle_pt->position(0);
-    const unsigned new_position = vehicle_pt->position(1);
+    const unsigned old_position = vehicle_pt->position(0, 0);
+    const unsigned new_position = vehicle_pt->position(0, 1);
     
     // Update the pointer on the lane
     Lane[old_position] = 0; // Delete the pointer from the old position

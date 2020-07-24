@@ -7,6 +7,7 @@ namespace CA
  /// Constructor
  // ----------------------------------------------------------------
  CCVehicle::CCVehicle()
+  : ACAgent(0)
  {
   // Set initial velocity, position and length
   initialise(0, 0, 1);
@@ -19,9 +20,10 @@ namespace CA
  // ----------------------------------------------------------------
  CCVehicle::CCVehicle(unsigned velocity, unsigned position,
                   unsigned occupancy, Real length, Vehicle_type type)
+  : ACAgent(position)
  {
-  // Set initial velocity, position and length
-  initialise(velocity, position, occupancy, length, type);
+  // Set initial velocity and length
+  initialise(velocity, occupancy, length, type);
  }
  
  // ----------------------------------------------------------------
@@ -37,11 +39,12 @@ namespace CA
  /// the number of cells the vehicle occupies in the Cellular
  /// Automata, the length is the car size in meters)
  // ----------------------------------------------------------------
- void CCVehicle::initialise(unsigned velocity, unsigned position,
-                          unsigned occupancy, Real length, Vehicle_type type)
+ void CCVehicle::initialise(unsigned velocity,
+                            unsigned occupancy,
+                            Real length,
+                            Vehicle_type type)
  {
   Velocity[1] = Velocity[0] = velocity;
-  Position[1] = Position[0] = position;
   
   // Occupancy
   Occupancy = occupancy;
@@ -66,10 +69,12 @@ namespace CA
  {
   //Update statistics
   update_statistics();
- 
+  
   Velocity[0] = Velocity[1];
-  Position[0] = Position[1];
- 
+  
+  // Update position using Base class method
+  this->update_position();
+  
  }
 
  // ----------------------------------------------------------------

@@ -4,7 +4,7 @@ namespace CA
 {
  
  // ----------------------------------------------------------------
- // Constructor
+ /// Constructor
  // ----------------------------------------------------------------
  ACAgent::ACAgent(const unsigned position)
   : Dim(1)
@@ -15,7 +15,7 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
- // Constructor
+ /// Constructor
  // ----------------------------------------------------------------
  ACAgent::ACAgent(std::vector<unsigned> &position, const unsigned dim)
   : Dim(dim)
@@ -30,7 +30,22 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // In charge of initialise any structure required by the agent
+ /// In charge of updating the position of the agent
+ // ----------------------------------------------------------------
+ void ACAgent::update_position()
+ {
+  // Loop over all dimensions and update the current position of the
+  // agent
+  for (unsigned i = 0; i < Dim; i++)
+   {
+    // Update each position
+    Position[i][0] = Position[i][1];
+   }
+  
+ }
+ 
+ // ----------------------------------------------------------------
+ /// In charge of initialise any structure required by the agent
  // ----------------------------------------------------------------
  void ACAgent::initialise(std::vector<unsigned> &position)
  {

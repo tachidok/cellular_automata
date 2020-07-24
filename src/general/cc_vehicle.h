@@ -1,7 +1,7 @@
 #ifndef CC_VEHICLE_H
 #define CC_VEHICLE_H
 
-#include "common_includes.h"
+#include "ac_agent.h"
 
 namespace CA
 {
@@ -22,8 +22,8 @@ namespace CA
 #define TYPICAL_VEHICLES_OCCUPANCY 1
 #define TYPICAL_VEHICLES_LENGTH 7.5
  
- /// Implements the vehicle abstract type
- class CCVehicle
+ /// Implements the vehicle type
+ class CCVehicle : virtual public ACAgent
  {
  
  public:
@@ -47,11 +47,11 @@ namespace CA
   virtual ~CCVehicle();
   
   // ----------------------------------------------------------------
-  /// Set the current velocity and position (the occupancy considers
-  /// the number of cells the vehicle occupies in the Cellular
-  /// Automata, the length is the car size in meters)
-  // ----------------------------------------------------------------
-  void initialise(unsigned velocity, unsigned position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
+  /// Set the current velocity (the occupancy considers the number of
+  /// cells the vehicle occupies in the Cellular Automata, the length
+  /// is the car size in meters)
+  //----------------------------------------------------------------
+  void initialise(unsigned velocity, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
                   Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
   
   // ----------------------------------------------------------------
@@ -67,10 +67,6 @@ namespace CA
   inline Real velocity_in_ms_per_second(unsigned i = 0) const {return Velocity[i] * Eta;}
   /// Compute velocity kilometers per hour
   inline Real velocity_in_km_per_hour(unsigned i = 0) const {return Velocity[i] * Eta * MS_TO_KMH;}
-  /// Set position on the lane
-  inline unsigned &position(unsigned i = 0) {return Position[i];}
-  /// Get position on the lane
-  inline unsigned position(unsigned i = 0) const {return Position[i];}
   /// Set occupancy (in number of cells on the lane)
   inline unsigned &occupancy() {return Occupancy;}
   /// Get occupancy (in number of cells on the lane)
@@ -100,8 +96,7 @@ namespace CA
   
   /// Velocity (index 0 is current time, other index is at time i-th)
   unsigned Velocity[2];
-  /// Position (index 0 is current time, other index is at time i-th)
-  unsigned Position[2];
+  
   /// Occupancy, number of cells the vehicle uses in the CA
   unsigned Occupancy;
   /// Length of vehicle, in meters

@@ -29,6 +29,9 @@ namespace CA
   /// Gets access to the dimension of the agent
   inline const unsigned dim() const {return Dim;}
   
+  /// In charge of updating the position of the agent
+  void update_position();
+  
  protected:
   
   /// In charge of initialise any structure required by the agent
