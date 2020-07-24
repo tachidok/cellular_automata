@@ -7,7 +7,7 @@ namespace CA
  // Constructor
  // ----------------------------------------------------------------
  CCBump::CCBump(const unsigned position, bool enabled)
-  : Position(position)
+  : ACAgent(position)
  {
   Enabled = enabled;
  }

@@ -15,7 +15,7 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake_definitions.h.in"
 
 # Add source files in order of dependence, the ones with no dependency
 # first then the others
-SET(SRC_FILES utilities.cpp cc_bump.cpp cc_vehicle.cpp)
+SET(SRC_FILES utilities.cpp ac_agent.cpp cc_bump.cpp cc_vehicle.cpp)
 
 # Create a library with the above files based on the requested library
 # version
