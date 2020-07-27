@@ -1,8 +1,13 @@
 # cellular_automata
-An Object-Oriented implementation of cellular automata with
-applications to vehicular flow and biological flow.
+
+[![Build Status](https://travis-ci.org/tachidok/cellular_automata.svg?branch=master)](https://travis-ci.org/tachidok/cellular_automata)
+[![Build
+Status](https://travis-ci.org/tachidok/cellular_automata.svg?branch=julio)](https://travis-ci.org/tachidok/cellular_automata)
 
 ## Welcome!
+
+An Object-Oriented implementation of cellular automata with
+applications to vehicular flow and biological flow.
 
 ## What the project is about?
 A collection of tools (mostly based on cellular automata) to simulate
