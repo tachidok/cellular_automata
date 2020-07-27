@@ -1,5 +1,6 @@
 # cellular_automata
-An Object-Oriented implementation of cellular automata with applications to vehicular flow and biological flow.
+An Object-Oriented implementation of cellular automata with
+applications to vehicular flow and biological flow.
 
 ## Welcome!
 
@@ -35,12 +36,12 @@ You need **git** installed in your computer, then type in a terminal
 ```shell
 git clone https://github.com/tachidok/cellular_automata
 cd cellular_automata
-git checkout -b bob
+git checkout -b john
 ```
 
 After executing the first line you will be prompted with your github
 user name and your password. The third line generates your fully
-customised branch and assumes your name is _bob_
+customised branch and assumes your name is _john_
 
 ### How to configure it?
 * In a terminal (shell command line) go into the `cellular_automata` folder
@@ -101,8 +102,8 @@ features.
 
 ### How many developers are currently working on the library
 
-At Sunday, May/03, 2020 there are 4 developers working in this project
-:no_mouth:
+At Monday, July/27, 2020 there are 6 developers working in this
+project :smile:
 
 :construction: :construction: :construction: :construction: :construction:
 
