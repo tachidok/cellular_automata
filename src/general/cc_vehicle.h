@@ -27,36 +27,26 @@ namespace CA
  {
  
  public:
- 
-  // ----------------------------------------------------------------
+  
   /// Constructor
-  // ----------------------------------------------------------------
   CCVehicle();
   
-  // ----------------------------------------------------------------
   /// Constructor (the occupancy considers the number of cells the
   /// vehicle occupies in the Cellular Automata, the length is the car
   /// size in meters)
-  // ----------------------------------------------------------------
   CCVehicle(unsigned velocity, unsigned position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
           Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
   
-  // ----------------------------------------------------------------
   /// Destructor
-  // ----------------------------------------------------------------
   virtual ~CCVehicle();
   
-  // ----------------------------------------------------------------
   /// Set the current velocity (the occupancy considers the number of
   /// cells the vehicle occupies in the Cellular Automata, the length
   /// is the car size in meters)
-  //----------------------------------------------------------------
   void initialise(unsigned velocity, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
                   Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
   
-  // ----------------------------------------------------------------
   /// Update vehicles status
-  // ----------------------------------------------------------------
   void update();
  
   /// Set velocity
