@@ -4,8 +4,14 @@
 #include "common_includes.h"
 #include "utilities.h"
 
+#include "../../../src/general/cc_person.h"
+
 namespace CA
 {
+
+#define OCCUPIED_CELL 1
+#define NON_OCCUPIED_CELL 0
+#define OBSTACLE_CELL 1
  
  /// Implements the floor field used to implement the dynamics people
  /// uses to move on different stages
@@ -20,8 +26,17 @@ namespace CA
   /// Destructor
   virtual ~CCFloorField();
   
-  /// Initialise floor field
+  /// Initialise floor field with emergency exits
   void initialise();
+  
+  /// Add emergency exits to the stage
+  void add_emergency_exit(const unsigned i, const unsigned j);
+  
+  /// Get the number of emergency exits
+  inline const unsigned n_emergency_exit() {return Emergency_exit.size();}
+  
+  /// Initialise floor field with emergency exits
+  void fill_with_people(const Real density);
   
   /// Update floor fields
   void update();
@@ -38,17 +53,23 @@ namespace CA
   /// Get dynamic field weight parameter
   inline Real k_d() const {return K_d;}
   
-  // Returns the value of the static field
-  inline const Real static_field(const unsigned i, const unsigned j) {return Static_field[i][j];}
+  /// Returns the value of the static field
+  const Real static_field(const unsigned i, const unsigned j);
   
-  // Returns the value of the dynamic field
-  inline const Real dynamic_field(const unsigned i, const unsigned j) {return Dynamic_field[i][j];}
+  /// Returns the value of the dynamic field
+  const Real dynamic_field(const unsigned i, const unsigned j);
   
   /// Is a given cell occupied
-  inline bool is_occupied(const unsigned i, const unsigned j) {return Occupancy_matrix[i][j];}
+  bool is_occupied(const unsigned i, const unsigned j);
   
   /// Is there an obstacle
-  inline bool is_obstacle(const unsigned i, const unsigned j) {return Obstacle_matrix[i][j];}
+  bool is_obstacle(const unsigned i, const unsigned j);
+  
+  // Get the number of people in the field
+  inline const unsigned n_people() {return People_pt.size()}
+  
+  /// Get the i-th people in the field
+  CCPerson *people_pt(const unsigned i);
   
  protected:
   
@@ -74,6 +95,31 @@ namespace CA
   /// Obstacle matrix (0 represents a forbidden cell, e.g. wall, 1 for
   /// anything else)
   std::vector<std::vector<bool> > Obstacle_matrix;
+  
+  /// Store the position of the emergency exits
+  std::vector<std::vector<unsigned> > Emergency_exit;
+  
+  /// People vector pointer
+  std::vector<CCPerson *> People_pt;
+  
+  /// Add a person to field (check whether there are no obstacles or
+  /// the positon is already occupied by another person)
+  bool add_person_to_field(CCPerson *person_pt);
+  
+  /// Clean up emergency exits
+  inline void clean_emergency_exits() {Emergency_exit.clear();}
+  
+  /// Allocate matrices memory
+  void allocate_matrices_memory();
+  
+  /// Set stage boundary configuration
+  void set_boundary_configuration();
+  
+  /// Build wall at the boundary of the floor field
+  void build_wall_at_boundary();
+  
+  /// Configure emergency exits
+  void set_emergency_exits();
   
   /// Initialise static field matrix
   void initialise_static_field_matrix();

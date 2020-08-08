@@ -1,5 +1,6 @@
 #include "../../../../src/general/common_includes.h"
 #include "../../../../src/general/cc_person.h"
+#include "cc_floor_field.h"
 
 // Use the namespace of the framework
 using namespace CA;
@@ -80,11 +81,22 @@ int main(int argc, const char** argv)
    for (unsigned i_configuration = 0; i_configuration < n_configurations; i_configuration++)
     {
      // Instantiate a stage
-     CCStage stage;
+     CCFloorFiel stage(lattice_size, lattice_size);
+     
+     const Real static_field_weight = 1.0;
+     const Real dynamic_field_weight = 0.0;
+     
+     stage.k_s() = static_field_weight;
+     stage.k_d() = dynamic_field_weight;
+     
+     // Add emergency exits
+     stage.add_emergency_exit(0, 5);
+     
      // Initialise stage (with doors and obstacles)
      stage.initialise();
+     
      // Add people to the stage
-     stage.fill_stage_with_people(current_density);
+     stage.fill_with_people(current_density);
      
      // Keep track of the number of iterations
      unsigned n_iterations_current_configuration = 0;

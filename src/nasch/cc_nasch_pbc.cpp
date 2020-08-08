@@ -124,7 +124,10 @@ namespace CA
   if (Current_number_of_vehicles >= Lane_size)
    {
     // Add vehicles in the lane randomly
-    while(i < Current_number_of_vehicles)
+    //while(i < Current_number_of_vehicles)
+    while(i < Lane_size) // JCPS, if the "Current_number_of_vehicles"
+                         // is greater than the "Lane_size" there will
+                         // be an overflow
      {
       // Create a new vehicle
       unsigned initial_velocity = 0;
