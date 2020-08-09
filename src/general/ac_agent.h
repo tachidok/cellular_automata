@@ -2,6 +2,7 @@
 #define AC_AGENT_H
 
 #include "common_includes.h"
+#include "utilities.h"
 
 namespace CA
 {
@@ -13,10 +14,10 @@ namespace CA
  public:
   
   /// Constructor
-  ACAgent(const unsigned position);
+  ACAgent(const unsigned position, const unsigned one_dimensional_neighbourhood_size = 1);
   
   // Constructor
-  ACAgent(std::vector<unsigned> &position, const unsigned dim = 2);
+  ACAgent(std::vector<unsigned> &position, std::vector<unsigned> &neighbourhood_size);
   
   /// Destructor (empty)
   virtual ~ACAgent();
@@ -26,8 +27,11 @@ namespace CA
   /// Get i-th position at time t
   inline unsigned position(const unsigned i = 0, const unsigned t = 0) const {return Position[i][t];}
   
-  /// Gets access to the dimension of the agent
-  inline const unsigned dim() const {return Dim;}
+  /// Get the number of dimensions (based on the neighbourhood)
+  inline unsigned n_dimension() const {return Neighbourhood_size.size();}
+  
+  /// Get the number of neighbours in the i-th dimension
+  inline unsigned neighbourhood_size(const unsigned i) const {return Neighbourhood_size[i];}
   
   /// In charge of updating the position of the agent
   void update_position();
@@ -37,12 +41,13 @@ namespace CA
   /// In charge of initialise any structure required by the agent
   void initialise(std::vector<unsigned> &position);
   
-  /// Stores the position of the agent/particle at the current [0] and
-  /// next state [1]
+  /// Stores the position of the agent/particle
+  /// Position[i][0] - Particle dimension i at current time
+  /// Position[i][1] - Particle dimension i at next time
   std::vector<std::vector<unsigned> > Position;
-
-  /// The dimension where the agent live on
-  const unsigned Dim;
+  
+  /// Neighbourhood size
+  std::vector<unsigned> Neighbourhood_size;
   
  };
  

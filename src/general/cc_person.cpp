@@ -6,8 +6,8 @@ namespace CA
  // ----------------------------------------------------------------
  /// Constructor
  // ----------------------------------------------------------------
- CCPerson::CCPerson(std::vector<unsigned> &position)
-  : ACAgent(position, 2) // Dimension is 2
+ CCPerson::CCPerson(std::vector<unsigned> &position, std::vector<unsigned> &neighbourhood_sizes)
+  : ACAgent(position, neighbourhood_sizes)
  {
   initialise();
  }
@@ -15,7 +15,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Destructor
  // ----------------------------------------------------------------
- virtual ~CCPerson::CCPerson()
+ CCPerson::~CCPerson()
  {
   
  }
@@ -27,8 +27,8 @@ namespace CA
  void CCPerson::initialise()
  {
   // The dimension of the preference matrix
-  const unsigned m = 3;
-  const unsigned n = 3;
+  const unsigned m = this->neighbourhood_size(0);
+  const unsigned n = this->neighbourhood_size(1);
   M.resize(m);
   for (unsigned i = 0 ; i < m; i++)
    {
@@ -60,10 +60,10 @@ namespace CA
  {
   // Default initialisation of the preference matrix (all movements
   // are allowed)
-  const unsigned m = M.size();
+  const unsigned m = this->neighbourhood_size(0);
+  const unsigned n = this->neighbourhood_size(1);
   for (unsigned i = 0; i < m; i++)
    {
-    const unsigned n = M[i].size();
     for (unsigned j = 0; j < n; j++)
      {
       M[i][j] = 1.0;

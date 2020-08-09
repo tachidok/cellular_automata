@@ -6,14 +6,15 @@
 namespace CA
 {
  
- /// Implements the person type
+ /// Implements a person represented as a particle that moves in a
+ /// lattice
  class CCPerson : virtual public ACAgent
  {
   
  public:
   
   /// Constructor
-  CCPerson(std::vector<unsigned> &position);
+  CCPerson(std::vector<unsigned> &position, std::vector<unsigned> &neighbourhood_sizes);
   
   /// Destructor
   virtual ~CCPerson();
@@ -30,7 +31,15 @@ namespace CA
   /// Get preference matrix entries
   inline unsigned m(const unsigned i, const unsigned j) const {return M[i][j];}
   
+  /// Set transition probabilities matrix entries
+  inline unsigned &p(const unsigned i, const unsigned j) {return P[i][j];}
+  /// Get transition probabilities matrix entries
+  inline unsigned p(const unsigned i, const unsigned j) const {return P[i][j];}
+  
  protected:
+  
+  /// Transition probabilities matrix
+  std::vector<std::vector<Real> > P;
   
   /// Preference matrix
   std::vector<std::vector<Real> > M;

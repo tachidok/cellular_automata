@@ -6,6 +6,10 @@
 
 #include "../../../src/general/cc_person.h"
 
+/// This floor field is based on the paper Kirchner, Ansgar and
+/// Schadschneider, Andreas, Simulation of evacuation processes using
+/// a bionics-inspired cellular automaton model for pedestrian
+/// dynamics, Physica A, Elsevier, 2002.
 namespace CA
 {
 
@@ -25,6 +29,12 @@ namespace CA
   
   /// Destructor
   virtual ~CCFloorField();
+  
+  /// Get the m-dimension of the floor field
+  inline const unsigned m() const {return M;}
+  
+  /// Get the n-dimension of the floor field
+  inline const unsigned n() const {return N;}
   
   /// Initialise floor field with emergency exits
   void initialise();

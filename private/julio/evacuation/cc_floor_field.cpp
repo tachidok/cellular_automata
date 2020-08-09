@@ -143,15 +143,14 @@ namespace CA
       const Real r_i = dis(gen);
       const Real r_j = dis(gen);
       unsigned i = r_i * M;
-      unsigned j = r_j * N;
-      // The position of the person
-      std::vector<unsigned> tmp(2);
-      tmp[0] = i;
-      tmp[1] = j;
-      
+      unsigned j = r_j * N;      
       // Check whether this entry is already occupied
       if (!is_occupied(i, j) && !is_obstacle(i, j))
        {
+        // The position of the person
+        std::vector<unsigned> tmp(2);
+        tmp[0] = i;
+        tmp[1] = j;
         // Create the person
         CCPerson *new_person_pt = CCPerson(tmp);
         // Try to add the person to the field
@@ -226,9 +225,12 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::update()
  {
-    /// Update static field matrix
+  /// Move people based on the transition probabilities matrix
+  
+  
+  /// Update static field matrix
   void update_static_field_matrix();
-
+  
   /// Update dynamic field matrix
   void update_dynamic_field_matrix();
   

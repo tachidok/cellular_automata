@@ -35,7 +35,7 @@ namespace CA
   /// vehicle occupies in the Cellular Automata, the length is the car
   /// size in meters)
   CCVehicle(unsigned velocity, unsigned position, unsigned occupancy = TYPICAL_VEHICLES_OCCUPANCY,
-          Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
+            Real length = TYPICAL_VEHICLES_LENGTH, Vehicle_type Type = PETROL);
   
   /// Destructor
   virtual ~CCVehicle();

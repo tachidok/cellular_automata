@@ -1,3 +1,8 @@
+/// This demo uses the floor field based on the paper Kirchner, Ansgar
+/// and Schadschneider, Andreas, Simulation of evacuation processes
+/// using a bionics-inspired cellular automaton model for pedestrian
+/// dynamics, Physica A, Elsevier, 2002.
+
 #include "../../../../src/general/common_includes.h"
 #include "../../../../src/general/cc_person.h"
 #include "cc_floor_field.h"
