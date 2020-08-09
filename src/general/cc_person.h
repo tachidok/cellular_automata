@@ -27,14 +27,14 @@ namespace CA
   void update();
   
   /// Set preference matrix entries
-  inline unsigned &m(const unsigned i, const unsigned j) {return M[i][j];}
+  inline Real &m(const unsigned i, const unsigned j) {return M[i][j];}
   /// Get preference matrix entries
-  inline unsigned m(const unsigned i, const unsigned j) const {return M[i][j];}
+  inline Real m(const unsigned i, const unsigned j) const {return M[i][j];}
   
   /// Set transition probabilities matrix entries
-  inline unsigned &p(const unsigned i, const unsigned j) {return P[i][j];}
+  inline Real &p(const unsigned i, const unsigned j) {return P[i][j];}
   /// Get transition probabilities matrix entries
-  inline unsigned p(const unsigned i, const unsigned j) const {return P[i][j];}
+  inline Real p(const unsigned i, const unsigned j) const {return P[i][j];}
   
  protected:
   
@@ -56,4 +56,3 @@ namespace CA
 } // namespace CA
 
 #endif // #ifndef CC_PERSON_H
-

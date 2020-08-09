@@ -1,4 +1,5 @@
 #include "../../src/general/common_includes.h"
+#include "../../src/general/utilities.h"
 
 // Use the namespace of the framework
 using namespace CA;

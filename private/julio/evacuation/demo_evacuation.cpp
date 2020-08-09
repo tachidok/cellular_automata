@@ -3,8 +3,9 @@
 /// using a bionics-inspired cellular automaton model for pedestrian
 /// dynamics, Physica A, Elsevier, 2002.
 
-#include "../../../../src/general/common_includes.h"
-#include "../../../../src/general/cc_person.h"
+#include "../../../src/general/common_includes.h"
+#include "../../../src/general/utilities.h"
+
 #include "cc_floor_field.h"
 
 // Use the namespace of the framework
@@ -81,12 +82,12 @@ int main(int argc, const char** argv)
    // Max iterations for current density
    unsigned max_iterations = 0;
    // Min iterations for current density
-   unsgined min_iterations = lattice_size*lattice_size;
+   unsigned min_iterations = lattice_size*lattice_size;
    
    for (unsigned i_configuration = 0; i_configuration < n_configurations; i_configuration++)
     {
      // Instantiate a stage
-     CCFloorFiel stage(lattice_size, lattice_size);
+     CCFloorField stage(lattice_size, lattice_size);
      
      const Real static_field_weight = 1.0;
      const Real dynamic_field_weight = 0.0;
@@ -105,17 +106,37 @@ int main(int argc, const char** argv)
      
      // Keep track of the number of iterations
      unsigned n_iterations_current_configuration = 0;
+     
+     std::ostringstream folder_name;
+     folder_name << "RESLT/";
+     
      // Output initial configuration
-     stage.output();
+     stage.output_static_field(folder_name);
+     
+     /// Output dynamic field
+     stage.output_dynamic_field(folder_name);
+     
+     /// Output occupancy matrix
+     stage.output_occupancy_matrix(folder_name);
+     
+     /// Output obstacle matrix
+     stage.output_obstacle_matrix(folder_name);
      
      // Iterate until stage is empty
-     while(!stage.empty())
+     while(!stage.is_empty())
       {
        stage.simulation_step();
        // Increase the number of iterations
        n_iterations_current_configuration++;
+       // ---------------------------------
        // Output current configuration
-       stage.output();
+       // ---------------------------------
+       /// Output dynamic field
+       stage.output_dynamic_field(folder_name);
+       
+       /// Output occupancy matrix
+       stage.output_occupancy_matrix(folder_name);
+       
       } // while(!stage.empty())
      
      // Add to the sum of iterations
@@ -140,13 +161,13 @@ int main(int argc, const char** argv)
    // -----------------------------------------------------------------------------------------
    // Output data
    // -----------------------------------------------------------------------------------------
-   output_file << "\trho: " << density
+   output_file << "\trho: " << current_density
                << "\tmeanIt: " << averaged_iterations
                << "\tmaxIt: " << max_iterations
                << "\tminIt: " << min_iterations
                << std::endl;
    
-   std::cerr << "\trho: " << density
+   std::cerr << "\trho: " << current_density
              << "\tmeanIt: " << averaged_iterations
              << "\tmaxIt: " << max_iterations
              << "\tminIt: " << min_iterations

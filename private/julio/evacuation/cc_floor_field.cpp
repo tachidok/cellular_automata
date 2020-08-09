@@ -1,4 +1,4 @@
-#include "cc_person.h"
+#include "cc_floor_field.h"
 
 namespace CA
 {
@@ -114,6 +114,9 @@ namespace CA
   // Get the number of people to add to the floor field
   const unsigned n_people = static_cast<double>(field_size)*density;
   
+  // Set the initial density
+  Initial_density = density;
+  
   // If the number of people to be added to the floor field is larger
   // or equal to the size of the foor field then fill is with people
   if (n_people >= field_size)
@@ -221,6 +224,14 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
+ /// Take a simulation step
+ // ----------------------------------------------------------------
+ void CCFloorField::simulation_step()
+ {
+  
+ }
+ 
+ // ----------------------------------------------------------------
  /// Update floor fields
  // ----------------------------------------------------------------
  void CCFloorField::update()
@@ -239,6 +250,194 @@ namespace CA
   
   /// Update obstacle matrix
   void update_obstacle_matrix();
+ }
+ 
+ // ----------------------------------------------------------------
+ /// Output static field
+ // ----------------------------------------------------------------
+ void CCFloorField::output_static_field(std::ostringstream &output_folder_name)
+ {
+  // Create file name
+  std::ostringstream output_static_field_filename;
+  output_static_field_filename << output_folder_name << "static_field.dat";
+  // File
+  std::ofstream static_field_file((output_static_field_filename.str()).c_str(), std::ios_base::out);
+
+  // Loop over the static field
+  for (unsigned i = 0; i < M; i++)
+   {
+    for (unsigned j = 0; j < N-1; j++)
+     {
+      static_field_file << Static_field[i][j] << ",";
+     }
+    
+    // The last column values
+    if (i != M-1) // Is this not the last row as well
+     {
+      static_field_file << Static_field[i][N-1] << std::endl;
+     }
+    else // If this is the last column and the last row the do not
+         // include the "\n" at the end of the line
+     {
+      static_field_file << Static_field[i][N-1];
+     }
+    
+   }
+  // Close file
+  static_field_file.close();
+ }
+ 
+ // ----------------------------------------------------------------
+ /// Output dynamic field
+ // ----------------------------------------------------------------
+ void CCFloorField::output_dynamic_field(std::ostringstream &output_folder_name)
+ {
+  // Create file name
+  std::ostringstream output_dynamic_field_filename;
+  output_dynamic_field_filename << output_folder_name << "dynamic_field.dat";
+  // File
+  std::ofstream dynamic_field_file((output_dynamic_field_filename.str()).c_str(), std::ios_base::out);
+
+  // Loop over the dynamic field
+  for (unsigned i = 0; i < M; i++)
+   {
+    for (unsigned j = 0; j < N-1; j++)
+     {
+      dynamic_field_file << Dynamic_field[i][j] << ",";
+     }
+    
+    // The last column values
+    if (i != M-1) // Is this not the last row as well
+     {
+      dynamic_field_file << Dynamic_field[i][N-1] << std::endl;
+     }
+    else // If this is the last column and the last row the do not
+         // include the "\n" at the end of the line
+     {
+      dynamic_field_file << Dynamic_field[i][N-1];
+     }
+    
+   }
+  // Close file
+  dynamic_field_file.close();
+ }
+ 
+ // ----------------------------------------------------------------
+ /// Output occupancy matrix
+ // ----------------------------------------------------------------
+ void CCFloorField::output_occupancy_matrix(std::ostringstream &output_folder_name)
+ {
+  // Create file name
+  std::ostringstream output_occupancy_matrix_filename;
+  output_occupancy_matrix_filename << output_folder_name << "occupancy_matrix.dat";
+  // File
+  std::ofstream occupancy_matrix_file((output_occupancy_matrix_filename.str()).c_str(), std::ios_base::out);
+
+  // Loop over the dynamic field
+  for (unsigned i = 0; i < M; i++)
+   {
+    for (unsigned j = 0; j < N-1; j++)
+     {
+      if (Occupancy_matrix[i][j])
+       {
+        occupancy_matrix_file << "1,";
+       }
+      else
+       {
+        occupancy_matrix_file << "0,";
+       }
+      
+     }
+    
+    // The last column values
+    if (i != M-1) // Is this not the last row as well
+     {
+      if (Occupancy_matrix[i][N-1])
+       {
+        occupancy_matrix_file << "1" << std::endl;
+       }
+      else
+       {
+        occupancy_matrix_file << "0" << std::endl;
+       }
+      
+     }
+    else // If this is the last column and the last row the do not
+         // include the "\n" at the end of the line
+     {
+      if (Occupancy_matrix[i][N-1])
+       {
+        occupancy_matrix_file << "1";
+       }
+      else
+       {
+        occupancy_matrix_file << "0";
+       }
+      
+     }
+    
+   }
+  // Close file
+  occupancy_matrix_file.close();
+ }
+ 
+ // ----------------------------------------------------------------
+ /// Output obstacle matrix
+ // ----------------------------------------------------------------
+ void CCFloorField::output_obstacle_matrix(std::ostringstream &output_folder_name)
+ {
+  // Create file name
+  std::ostringstream output_obstacle_matrix_filename;
+  output_obstacle_matrix_filename << output_folder_name << "obstacle_matrix.dat";
+  // File
+  std::ofstream obstacle_matrix_file((output_obstacle_matrix_filename.str()).c_str(), std::ios_base::out);
+
+  // Loop over the dynamic field
+  for (unsigned i = 0; i < M; i++)
+   {
+    for (unsigned j = 0; j < N-1; j++)
+     {
+      if (Obstacle_matrix[i][j])
+       {
+        obstacle_matrix_file << "1,";
+       }
+      else
+       {
+        obstacle_matrix_file << "0,";
+       }
+      
+     }
+    
+    // The last column values
+    if (i != M-1) // Is this not the last row as well
+     {
+      if (Obstacle_matrix[i][N-1])
+       {
+        obstacle_matrix_file << "1" << std::endl;
+       }
+      else
+       {
+        obstacle_matrix_file << "0" << std::endl;
+       }
+      
+     }
+    else // If this is the last column and the last row the do not
+         // include the "\n" at the end of the line
+     {
+      if (Obstacle_matrix[i][N-1])
+       {
+        obstacle_matrix_file << "1";
+       }
+      else
+       {
+        obstacle_matrix_file << "0";
+       }
+      
+     }
+    
+   }
+  // Close file
+  obstacle_matrix_file.close();
  }
  
  // ----------------------------------------------------------------
@@ -363,12 +562,25 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
+ /// Is there no more people on the stage
+ // ----------------------------------------------------------------
+ bool CCFloorField::is_empty()
+ {
+  if (n_people() > 0)
+   {
+    return false;
+   }
+  return true;
+ }
+ 
+ // ----------------------------------------------------------------
  /// Set stage boundary configuration
  // ----------------------------------------------------------------
  void CCFloorField::set_boundary_configuration()
  {
-  // Build the wall
-  build_wall_at_boundary();
+  // Initialise obstacles matrix (wall at boundary and any other
+  // obstacles)
+  initialise_obstacle_matrix();
   // And create the emergency exits
   set_emergency_exits();
  }
@@ -434,8 +646,96 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::initialise_static_field_matrix()
  {
-  /// Static field
-  std::vector<std::vector<Real> > Static_field; 
+  /// The computation of the static field is described in Appendix A
+  /// of the paper "Kirchner, Ansgar and Schadschneider, Andreas,
+  /// Simulation of evacuation processes using a bionics-inspired
+  /// cellular automaton model for pedestrian dynamics, Physica A,
+  /// Elsevier, 2002".
+
+  /// In the mentioned paper, the euclidean distance is used therefore
+  /// obstacles have no effect on the values of the field. If we would
+  /// want to consider obstacles we may use the Manhattan distance
+  /// instead
+  
+  // Initialise the field with zeroes and create a temporary matrix to
+  // compute the maximum values of the cells to all the exits
+  std::vector<std::vector<Real> > tmp_norm(M);
+  for (unsigned i = 0; i < M; i++)
+   {
+    Static_field[i].assign(N, 0.0);
+    tmp_norm[i].resize(N, 0.0);
+   }
+  
+  // For each emergency exit on the stage compute the euclidean
+  // distance to each cell on the lattice
+  
+  // Get the number of emergency exits
+  const unsigned nemergency_exit = n_emergency_exit();
+  for (unsigned k = 0; k < nemergency_exit; k++)
+   {
+    // Get the position of the exit
+    const unsigned exit_i = Emergency_exit[k][0];
+    const unsigned exit_j = Emergency_exit[k][1];
+    // Compute the euclidean distance from each exit to all the cells
+    // in the lattice and store the maximum of all that distances in
+    // the cell (i,j)
+    for (unsigned i = 0; i < M; i++)
+     {
+      for (unsigned j = 0; j < N; j++)
+       {
+        Real i_d = static_cast<Real>(exit_i - i);
+        Real j_d = static_cast<Real>(exit_j - j);
+        Real tmp_squared = std::sqrt((i_d*i_d)+(j_d*j_d));
+        // Get the maximum of the distances
+        if (tmp_squared > tmp_norm[i][j])
+         {
+          tmp_norm[i][j] = tmp_squared;
+          // --------------------------------------------------------
+          Static_field[i][j] = tmp_squared; // Also set these values
+                                            // in the Static field so
+                                            // that we can compute the
+                                            // minimum in the next
+                                            // step
+         }
+        
+       } // for (j < N)
+      
+     } // for (i < M)
+
+   } // for (k < nemergency_exit)
+  
+  // The values in "tmp_norm" matrix are the MAXIMUM of the distances
+  // from the cell (i,j) to all the exits. This MAXIMUM value is used
+  // as a normalisation parameter
+  
+  // Loop over all the exits
+  for (unsigned k = 0; k < nemergency_exit; k++)
+   {
+    // ... and all the cells again to compute the final values for the
+    // Static_field
+    for (unsigned i = 0; i < M; i++)
+     {
+      for (unsigned j = 0; j < N; j++)
+       {
+        // Compute the euclidean distance from the current exit to the
+        // current cell
+        Real i_d = static_cast<Real>(exit_i - i);
+        Real j_d = static_cast<Real>(exit_j - j);
+        Real tmp_squared = std::sqrt((i_d*i_d)+(j_d*j_d));
+        Real tmp_difference = tmp_norm[i][j] - tmp_squared;
+        
+        // Get the minimum of the distances
+        if (tmp_difference < Static_field[i][j])
+         {
+          Static_field[i][j] = tmp_difference;
+         }
+        
+       } // for (j < N)
+      
+     } // for (i < M)
+    
+   } // for (k < nemergency_exit)
+  
  }
 
  // ----------------------------------------------------------------
@@ -443,10 +743,15 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::initialise_dynamic_field_matrix()
  {
-  /// Dynamic field
-  std::vector<std::vector<Real> > Dynamic_field;  
+  // Initialise the field with zeroes
+  for (unsigned i = 0; i < M; i++)
+   {
+    Dynamic_field[i].assign(N, 0.0);
+   }
+  
  }
 
+ /*
  // ----------------------------------------------------------------
  /// Initialise occupancy matrix
  // ----------------------------------------------------------------
@@ -455,15 +760,15 @@ namespace CA
   /// Occupancy matrix
   std::vector<std::vector<bool> > Occupancy_matrix;  
  }
+ */
 
  // ----------------------------------------------------------------
  /// Initialise obstacle matrix
  // ----------------------------------------------------------------
  void CCFloorField::initialise_obstacle_matrix()
  {
-  /// Obstacle matrix (0 represents a forbidden cell, e.g. wall, 1 for
-  /// anything else)
-  std::vector<std::vector<bool> > Obstacle_matrix;  
+  // Build the wall
+  build_wall_at_boundary();
  }
 
  // ----------------------------------------------------------------

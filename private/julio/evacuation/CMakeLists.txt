@@ -1,5 +1,5 @@
 # Indicate source files and dependencies in the files
-SET(SRC_demo_evacuation demo_evacuation.cpp)
+SET(SRC_demo_evacuation demo_evacuation.cpp floor_field.cpp)
 
 # Do not create executable but add them to the 'make' list
 ADD_EXECUTABLE(julio_demo_evacuation EXCLUDE_FROM_ALL ${SRC_demo_evacuation})

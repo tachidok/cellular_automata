@@ -1,8 +1,8 @@
 #ifndef CC_FLOORFIELD_H
 #define CC_FLOORFIELD_H
 
-#include "common_includes.h"
-#include "utilities.h"
+#include "../../../src/general/common_includes.h"
+#include "../../../src/general/utilities.h"
 
 #include "../../../src/general/cc_person.h"
 
@@ -48,8 +48,23 @@ namespace CA
   /// Initialise floor field with emergency exits
   void fill_with_people(const Real density);
   
+  /// Take a simulation step
+  void simulation_step();
+  
   /// Update floor fields
   void update();
+  
+  /// Output static field
+  void output_static_field(std::ostringstream &output_folder_name);
+  
+  /// Output dynamic field
+  void output_dynamic_field(std::ostringstream &output_folder_name);
+  
+  /// Output occupancy matrix
+  void output_occupancy_matrix(std::ostringstream &output_folder_name);
+  
+  /// Output obstacle matrix
+  void output_obstacle_matrix(std::ostringstream &output_folder_name);
   
   /// Set static field weight parameter
   inline Real &k_s() {return K_s;}
@@ -75,8 +90,11 @@ namespace CA
   /// Is there an obstacle
   bool is_obstacle(const unsigned i, const unsigned j);
   
+  /// Is there no more people on the stage
+  bool is_empty();
+  
   // Get the number of people in the field
-  inline const unsigned n_people() {return People_pt.size()}
+  inline const unsigned n_people() {return People_pt.size();}
   
   /// Get the i-th people in the field
   CCPerson *people_pt(const unsigned i);
@@ -87,11 +105,14 @@ namespace CA
   const unsigned M;
   const unsigned N;
   
+  /// Initial density
+  Real Initial_density;
+  
   /// Static field weight parameter
-  const Real K_s;
+  Real K_s;
   
   /// Dynamic field weight parameter
-  const Real K_d;
+  Real K_d;
   
   /// Static field
   std::vector<std::vector<Real> > Static_field;
@@ -138,7 +159,7 @@ namespace CA
   void initialise_dynamic_field_matrix();
   
   /// Initialise occupancy matrix
-  void initialise_occupancy_matrix();
+  //void initialise_occupancy_matrix();
   
   /// Initialise obstacle matrix
   void initialise_obstacle_matrix();

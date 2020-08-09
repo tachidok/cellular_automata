@@ -1,4 +1,6 @@
 #include "../../../src/general/common_includes.h"
+#include "../../../src/general/utilities.h"
+
 #include "../../../src/general/cc_vehicle.h"
 #include "../../../src/nasch/cc_nasch_pbc.h"
 
