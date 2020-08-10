@@ -13,9 +13,9 @@ using namespace CA;
 
 // Used to define arguments
 struct Args {
- argparse::ArgValue<Real> rho_m; // Minimum density
- argparse::ArgValue<Real> rho_M; // Maximum density
- argparse::ArgValue<Real> rho_h; // Density step from rho_m to rho_M
+ argparse::ArgValue<Real> rho_min; // Minimum density
+ argparse::ArgValue<Real> rho_max; // Maximum density
+ argparse::ArgValue<Real> rho_h; // Density step from rho_min to rho_max
  argparse::ArgValue<unsigned> ls; // Lattice size
  argparse::ArgValue<unsigned> nc; // Number of configurations to test
 };
@@ -29,11 +29,11 @@ int main(int argc, const char** argv)
  // Add arguments
  
  // Optional
- parser.add_argument<Real>(args.rho_m, "--rho_m")
+ parser.add_argument<Real>(args.rho_min, "--rho_min")
   .help("Minimum density of people (number of people on the lattice)")
   .default_value("0.0");
  
- parser.add_argument<Real>(args.rho_M, "--rho_M")
+ parser.add_argument<Real>(args.rho_max, "--rho_max")
   .help("Maximum density of people (number of people on the lattice)")
   .default_value("1.0");
  
@@ -52,9 +52,9 @@ int main(int argc, const char** argv)
  // Parse the input arguments
  parser.parse_args(argc, argv);
  
- const Real rho_m = args.rho_m; // Minimum density
- const Real rho_M = args.rho_M; // Maximum density
- const Real rho_h = args.rho_h; // Density step from rho_m to rho_M
+ const Real rho_min = args.rho_min; // Minimum density
+ const Real rho_max = args.rho_max; // Maximum density
+ const Real rho_h = args.rho_h; // Density step from rho_min to rho_max
  const unsigned lattice_size = args.ls; // Lattice size
  const unsigned n_configurations = args.nc; // Number of configurations to test
  
@@ -69,10 +69,15 @@ int main(int argc, const char** argv)
              << "min_iterations" << "\t"
              << "std_dev" << std::endl;
  
- Real current_density = rho_m;
- const unsigned n_steps = (rho_M-rho_m/rho_h) + 1;
+ Real current_density = rho_min;
+ const unsigned n_steps = ((rho_max-rho_min)/rho_h) + 1;
  // A counter for the density steps
  unsigned i_rho_step = 0;
+ 
+ std::cout << "rho_min: " << rho_min << std::endl;
+ std::cout << "rho_max: " << rho_max << std::endl;
+ std::cout << "rho_h: " << rho_h << std::endl;
+ std::cout << "n_steps: " << n_steps << std::endl;
  
  // Loop over density
  while (i_rho_step < n_steps)
@@ -121,6 +126,8 @@ int main(int argc, const char** argv)
      
      /// Output obstacle matrix
      stage.output_obstacle_matrix(folder_name);
+     
+     exit(0); // JCPS
      
      // Iterate until stage is empty
      while(!stage.is_empty())

@@ -20,7 +20,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Destructor
  // ----------------------------------------------------------------
- virtual ~CCFloorField::CCFloorField()
+ CCFloorField::~CCFloorField()
  {
   // Clear any emergency exit
   clean_emergency_exits();
@@ -61,10 +61,10 @@ namespace CA
   initialise_dynamic_field_matrix();
   
   /// Initialise occupancy matrix
-  initialise_occupancy_matrix();
+  //initialise_occupancy_matrix();
   
   /// Initialise obstacle matrix
-  initialise_obstacle_matrix();
+  //initialise_obstacle_matrix();
  }
 
  // ----------------------------------------------------------------
@@ -74,14 +74,14 @@ namespace CA
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
-  if (i >= m || j >= n)
+  if (i >= M || j >= N)
    {
     // Error message
     std::ostringstream error_message;
     error_message << "The entry you are trying to read is out of range\n"
                   << "You requested for the entry ("<<i<<", "<<j<<")\n"
-                  << "The range for i should be in [0, "<<m-1<<"]\n"
-                  << "The range for j should be in [0, "<<n-1<<"]\n"
+                  << "The range for i should be in [0, "<<M-1<<"]\n"
+                  << "The range for j should be in [0, "<<N-1<<"]\n"
                   << std::endl;
     throw CALibError(error_message.str(),
                      CA_CURRENT_FUNCTION,
@@ -126,10 +126,14 @@ namespace CA
       for (unsigned j = 0; j < N; j++)
        {
         // The position of the person
-        std::vector<unsigned> tmp(2);
-        tmp[0] = i;
-        tmp[1] = j;
-        CCPerson *new_person_pt = CCPerson(tmp);
+        std::vector<unsigned> tmp_pos(2);
+        tmp_pos[0] = i;
+        tmp_pos[1] = j;
+        // The size of neighbourhood
+        std::vector<unsigned> tmp_neighbourhood(2);
+        tmp_neighbourhood[0] = 3;
+        tmp_neighbourhood[1] = 3;
+        CCPerson *new_person_pt = new CCPerson(tmp_pos, tmp_neighbourhood);
         // Add the person to the field
         add_person_to_field(new_person_pt);
        }
@@ -151,11 +155,14 @@ namespace CA
       if (!is_occupied(i, j) && !is_obstacle(i, j))
        {
         // The position of the person
-        std::vector<unsigned> tmp(2);
-        tmp[0] = i;
-        tmp[1] = j;
-        // Create the person
-        CCPerson *new_person_pt = CCPerson(tmp);
+        std::vector<unsigned> tmp_pos(2);
+        tmp_pos[0] = i;
+        tmp_pos[1] = j;
+        // The size of neighbourhood
+        std::vector<unsigned> tmp_neighbourhood(2);
+        tmp_neighbourhood[0] = 3;
+        tmp_neighbourhood[1] = 3;
+        CCPerson *new_person_pt = new CCPerson(tmp_pos, tmp_neighbourhood);
         // Try to add the person to the field
         if (add_person_to_field(new_person_pt))
          {
@@ -178,8 +185,8 @@ namespace CA
  bool CCFloorField::add_person_to_field(CCPerson *person_pt)
  {
   // Get the position of the person
-  const unsigned i = person_pt.position(0);
-  const unsigned j = person_pt.position(1);
+  const unsigned i = person_pt->position(0);
+  const unsigned j = person_pt->position(1);
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
   if (i >= M || j >= N)
@@ -257,9 +264,9 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::output_static_field(std::ostringstream &output_folder_name)
  {
-  // Create file name
-  std::ostringstream output_static_field_filename;
-  output_static_field_filename << output_folder_name << "static_field.dat";
+  // Create file name (add any stuff at the end of the string - ate)
+  std::ostringstream output_static_field_filename(output_folder_name.str(), std::ostringstream::ate);
+  output_static_field_filename << "static_field.dat";
   // File
   std::ofstream static_field_file((output_static_field_filename.str()).c_str(), std::ios_base::out);
 
@@ -292,9 +299,9 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::output_dynamic_field(std::ostringstream &output_folder_name)
  {
-  // Create file name
-  std::ostringstream output_dynamic_field_filename;
-  output_dynamic_field_filename << output_folder_name << "dynamic_field.dat";
+  // Create file name (add any stuff at the end of the string - ate)
+  std::ostringstream output_dynamic_field_filename(output_folder_name.str(), std::ostringstream::ate);
+  output_dynamic_field_filename << "dynamic_field.dat";
   // File
   std::ofstream dynamic_field_file((output_dynamic_field_filename.str()).c_str(), std::ios_base::out);
 
@@ -327,9 +334,9 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::output_occupancy_matrix(std::ostringstream &output_folder_name)
  {
-  // Create file name
-  std::ostringstream output_occupancy_matrix_filename;
-  output_occupancy_matrix_filename << output_folder_name << "occupancy_matrix.dat";
+  // Create file name (add any stuff at the end of the string - ate)
+  std::ostringstream output_occupancy_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
+  output_occupancy_matrix_filename << "occupancy_matrix.dat";
   // File
   std::ofstream occupancy_matrix_file((output_occupancy_matrix_filename.str()).c_str(), std::ios_base::out);
 
@@ -386,9 +393,9 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::output_obstacle_matrix(std::ostringstream &output_folder_name)
  {
-  // Create file name
-  std::ostringstream output_obstacle_matrix_filename;
-  output_obstacle_matrix_filename << output_folder_name << "obstacle_matrix.dat";
+  // Create file name (add any stuff at the end of the string - ate)
+  std::ostringstream output_obstacle_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
+  output_obstacle_matrix_filename << "obstacle_matrix.dat";
   // File
   std::ofstream obstacle_matrix_file((output_obstacle_matrix_filename.str()).c_str(), std::ios_base::out);
 
@@ -713,6 +720,11 @@ namespace CA
    {
     // ... and all the cells again to compute the final values for the
     // Static_field
+    
+    // Get the position of the exit
+    const unsigned exit_i = Emergency_exit[k][0];
+    const unsigned exit_j = Emergency_exit[k][1];
+    
     for (unsigned i = 0; i < M; i++)
      {
       for (unsigned j = 0; j < N; j++)
