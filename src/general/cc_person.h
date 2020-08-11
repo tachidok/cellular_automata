@@ -19,9 +19,12 @@ namespace CA
   /// Destructor
   virtual ~CCPerson();
   
-  /// Initialise information used by the person to move:
-  /// - Preference Matrix M
-  void initialise();
+  /// Allocate memory for internal structures and initialise
+  /// information used by the person to move: preference matrix M
+  void allocate_memory();
+  
+  /// Compute maximum probability indexes
+  void compute_max_probability_position(unsigned &i_max, unsigned &j_max);
   
   /// Update person's status
   void update();

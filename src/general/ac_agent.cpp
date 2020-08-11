@@ -65,7 +65,7 @@ namespace CA
  {
   const unsigned ndim = n_dimension();
   /// Range check
-#ifdef CELLULAR_AUTOMATON_RANGE_CHECK // CHAPCHOM_PANIC_MODE
+#ifdef CELLULAR_AUTOMATON_PANIC_MODE
   // Get the dimension of the input vector
   const unsigned tmp_dim = position.size();
   if (ndim != tmp_dim)

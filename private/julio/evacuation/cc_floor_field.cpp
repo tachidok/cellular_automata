@@ -285,46 +285,26 @@ namespace CA
  
  /// Compute next position for a given person
  void CCFloorField::update_next_position(CCPerson *person_pt)
- {
+ {  
+  // Compute the indexes with the maximum probability
+  unsigned i_max = 0;
+  unsigned j_max = 0;
+  person_pt->compute_max_probability_position(i_max, j_max);
+  
+  // Get size of neighboorhood in each dimension for the person
+  const unsigned p_m = person_pt->neighbourhood_size(0);
+  const unsigned p_n = person_pt->neighbourhood_size(1);
+  
+  const unsigned i_offset = -(p_m/2) + i_max;
+  const unsigned j_offset = -(p_n/2) + j_max;
+
   // Get the position of the person at current time
   const unsigned i_p = person_pt->position(0);
   const unsigned j_p = person_pt->position(1);
   
-  // Get the full probability matrix of the person
-  std::vector<std::vector<Real> > P = person_pt->p();
-  // Get size of dimensions of the transitions probability matrix
-  const unsigned p_m = P.size();
-  const unsigned p_n = P[0].size();
-  
-  // Get the position of the maximum probability in the transitions
-  // matrix
-  unsigned i_max = 0;
-  unsigned j_max = 0;
-  // Initialise with the value at the center of the transition matrix
-  Real max_value = P[p_m/2][p_n/2];
-  
-  // Loop over the transition probability matrix
-  for (unsigned i = 0; i < p_m; i++)
-   {
-    for (unsigned j = 0; j < p_n; j++)
-     {
-      if (P[i][j] > max_value)
-       {
-        i_max = i;
-        j_max = j;
-        max_value = P[i][j];
-       }
-      
-     } // for (j < p_n)
-    
-   } // for (i < p_m)
-  
-  const unsigned i_offset = -(p_m/2) + i_max;
-  const unsigned j_offset = -(p_n/2) + j_max;
-  
   // Set the next position
-  person_pt->position(0, 1) = i_offset + i_p;
-  person_pt->position(1, 1) = j_offset + j_p;
+  person_pt->position(0, 1) = i_p + i_offset;
+  person_pt->position(1, 1) = j_p + j_offset;
   
  }
  
