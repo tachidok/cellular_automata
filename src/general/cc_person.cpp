@@ -30,9 +30,11 @@ namespace CA
   const unsigned m = this->neighbourhood_size(0);
   const unsigned n = this->neighbourhood_size(1);
   M.resize(m);
+  P.resize(m);
   for (unsigned i = 0 ; i < m; i++)
    {
-    M[i].resize(n);
+    M[i].resize(n, 0.0);
+    P[i].resize(n, 0.0);
    }
  }
  
@@ -41,7 +43,9 @@ namespace CA
  // ----------------------------------------------------------------
  void CCPerson::update()
  {
-  
+  // Update position (copy the next position into the current
+  // position)
+  this->update_position();
  }
 
  // ----------------------------------------------------------------

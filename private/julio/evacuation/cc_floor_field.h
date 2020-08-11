@@ -137,6 +137,13 @@ namespace CA
   /// the positon is already occupied by another person)
   bool add_person_to_field(CCPerson *person_pt);
   
+  /// Update the transition probability matrix of a person using the
+  /// floor field's information
+  void update_transition_probability_matrix(CCPerson *person_pt);
+  
+  /// Compute next position for a given person
+  void update_next_position(CCPerson *person_pt);
+  
   /// Clean up emergency exits
   inline void clean_emergency_exits() {Emergency_exit.clear();}
   
@@ -163,7 +170,10 @@ namespace CA
   
   /// Initialise obstacle matrix
   void initialise_obstacle_matrix();
-
+  
+  /// Solve people's positions conflicts
+  void solve_people_position_conflicts();
+  
   /// Update static field matrix
   void update_static_field_matrix();
 

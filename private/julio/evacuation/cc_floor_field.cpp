@@ -112,7 +112,7 @@ namespace CA
   const unsigned field_size = M*N;
   
   // Get the number of people to add to the floor field
-  const unsigned n_people = static_cast<double>(field_size)*density;
+  const unsigned n_people = static_cast<Real>(field_size)*density;
   
   // Set the initial density
   Initial_density = density;
@@ -230,11 +230,128 @@ namespace CA
   
  }
  
+ /// Update the transition probability matrix of a person using the
+ /// floor field's information
+ void CCFloorField::update_transition_probability_matrix(CCPerson *person_pt)
+ {
+  // Get the position of the person at current time
+  const unsigned i_p = person_pt->position(0);
+  const unsigned j_p = person_pt->position(1);
+  
+  // Get the full probability matrix of the person
+  std::vector<std::vector<Real> > P = person_pt->p();
+  // Get size of dimensions of the transitions probability matrix
+  const unsigned p_m = P.size();
+  const unsigned p_n = P[0].size();
+  
+  // Initialise offsets
+  unsigned i_offset = -p_m/2;
+  for (unsigned i = 0; i < p_m; i++)
+   {
+    // Initialise offsets
+    unsigned j_offset = -p_n/2;
+    for (unsigned j = 0; j < p_n; j++)
+     {
+      // Check whether the cell is occupied or is an obstacle
+      if (is_occupied(i_p + i_offset, j_p + j_offset) ||
+          is_obstacle(i_p + i_offset, j_p + j_offset))
+       {
+        // Set the probability to zero
+        P[i][j] = 0.0;
+       }
+      else
+       {
+        // Static field contribution
+        const Real sf = K_s * static_field(i_p + i_offset, j_p + j_offset);
+        // Dynamic field contribution
+        const Real df = K_d * dynamic_field(i_p + i_offset, j_p + j_offset);
+        
+        // Set the probability for the transition matrix
+        P[i][j] = std::exp(sf) * std::exp(df);
+        
+       }
+      
+      // Increase the offset
+      j_offset++;
+      
+     } // for (j < p_n)
+    
+    // Increase the offset
+    i_offset++;
+    
+   } // for (i < p_m)
+  
+ }
+ 
+ /// Compute next position for a given person
+ void CCFloorField::update_next_position(CCPerson *person_pt)
+ {
+  // Get the position of the person at current time
+  const unsigned i_p = person_pt->position(0);
+  const unsigned j_p = person_pt->position(1);
+  
+  // Get the full probability matrix of the person
+  std::vector<std::vector<Real> > P = person_pt->p();
+  // Get size of dimensions of the transitions probability matrix
+  const unsigned p_m = P.size();
+  const unsigned p_n = P[0].size();
+  
+  // Get the position of the maximum probability in the transitions
+  // matrix
+  unsigned i_max = 0;
+  unsigned j_max = 0;
+  // Initialise with the value at the center of the transition matrix
+  Real max_value = P[p_m/2][p_n/2];
+  
+  // Loop over the transition probability matrix
+  for (unsigned i = 0; i < p_m; i++)
+   {
+    for (unsigned j = 0; j < p_n; j++)
+     {
+      if (P[i][j] > max_value)
+       {
+        i_max = i;
+        j_max = j;
+        max_value = P[i][j];
+       }
+      
+     } // for (j < p_n)
+    
+   } // for (i < p_m)
+  
+  const unsigned i_offset = -(p_m/2) + i_max;
+  const unsigned j_offset = -(p_n/2) + j_max;
+  
+  // Set the next position
+  person_pt->position(0, 1) = i_offset + i_p;
+  person_pt->position(1, 1) = j_offset + j_p;
+  
+ }
+ 
  // ----------------------------------------------------------------
  /// Take a simulation step
  // ----------------------------------------------------------------
  void CCFloorField::simulation_step()
  {
+  // Loop over each person and compute its next position
+  
+  // Get the number of people on the stage
+  const unsigned npeople = n_people();
+  for (unsigned k = 0; k < npeople; k++)
+   {
+    // Get the k-th person on the stage
+    CCPerson* person_pt = people_pt(k);
+    
+    // Compute the values for the transition probability matrix
+    update_transition_probability_matrix(person_pt);
+    
+    // Compute the next position for the person
+    update_next_position(person_pt);
+    
+   }
+  
+  // Solve for conflicts
+  solve_people_position_conflicts();
   
  }
  
@@ -243,20 +360,27 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::update()
  {
-  /// Move people based on the transition probabilities matrix
-  
+  /// Move people based on their next position
+    
+  // Get the number of people
+  const unsigned npeople = n_people();
+  for (unsigned i = 0; i < npeople; i++)
+   {
+    // Update status
+    people_pt(i)->update();
+   }
   
   /// Update static field matrix
-  void update_static_field_matrix();
+  update_static_field_matrix();
   
   /// Update dynamic field matrix
-  void update_dynamic_field_matrix();
+  update_dynamic_field_matrix();
   
   /// Update occupancy matrix
-  void update_occupancy_matrix();
+  update_occupancy_matrix();
   
   /// Update obstacle matrix
-  void update_obstacle_matrix();
+  update_obstacle_matrix();
  }
  
  // ----------------------------------------------------------------
@@ -475,7 +599,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Returns the value of the static field
  // ----------------------------------------------------------------
- inline const Real CCFloorField::static_field(const unsigned i, const unsigned j)
+ const Real CCFloorField::static_field(const unsigned i, const unsigned j)
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
@@ -664,45 +788,37 @@ namespace CA
   /// want to consider obstacles we may use the Manhattan distance
   /// instead
   
-  // Initialise the field with zeroes and create a temporary matrix to
-  // compute the maximum values of the cells to all the exits
-  std::vector<std::vector<Real> > tmp_norm(M);
+  // Initialise the field with zeroes
   for (unsigned i = 0; i < M; i++)
    {
     Static_field[i].assign(N, 0.0);
-    tmp_norm[i].resize(N, 0.0);
    }
   
-  // For each emergency exit on the stage compute the euclidean
-  // distance to each cell on the lattice
+  // For each emergency exit on the stage compute the maximum
+  // (euclidean) distance to all cells on the lattice
   
   // Get the number of emergency exits
   const unsigned nemergency_exit = n_emergency_exit();
+  // Store the maximum distance to each emergency exit
+  std::vector<Real> max_distance(nemergency_exit, 0.0);
   for (unsigned k = 0; k < nemergency_exit; k++)
    {
     // Get the position of the exit
     const unsigned exit_i = Emergency_exit[k][0];
     const unsigned exit_j = Emergency_exit[k][1];
     // Compute the euclidean distance from each exit to all the cells
-    // in the lattice and store the maximum of all that distances in
-    // the cell (i,j)
+    // in the lattice and store the maximum in max_distance
     for (unsigned i = 0; i < M; i++)
      {
       for (unsigned j = 0; j < N; j++)
        {
-        Real i_d = static_cast<Real>(exit_i - i);
-        Real j_d = static_cast<Real>(exit_j - j);
+        Real i_d = static_cast<Real>(exit_i) - static_cast<Real>(i);
+        Real j_d = static_cast<Real>(exit_j) - static_cast<Real>(j);
         Real tmp_squared = std::sqrt((i_d*i_d)+(j_d*j_d));
         // Get the maximum of the distances
-        if (tmp_squared > tmp_norm[i][j])
+        if (tmp_squared > max_distance[k])
          {
-          tmp_norm[i][j] = tmp_squared;
-          // --------------------------------------------------------
-          Static_field[i][j] = tmp_squared; // Also set these values
-                                            // in the Static field so
-                                            // that we can compute the
-                                            // minimum in the next
-                                            // step
+          max_distance[k] = tmp_squared;
          }
         
        } // for (j < N)
@@ -711,15 +827,14 @@ namespace CA
 
    } // for (k < nemergency_exit)
   
-  // The values in "tmp_norm" matrix are the MAXIMUM of the distances
-  // from the cell (i,j) to all the exits. This MAXIMUM value is used
-  // as a normalisation parameter
+  // The values in "max_distance" are used to normalise the entries in
+  // the Static field matrix
   
   // Loop over all the exits
   for (unsigned k = 0; k < nemergency_exit; k++)
    {
     // ... and all the cells again to compute the final values for the
-    // Static_field
+    // Static field
     
     // Get the position of the exit
     const unsigned exit_i = Emergency_exit[k][0];
@@ -731,15 +846,25 @@ namespace CA
        {
         // Compute the euclidean distance from the current exit to the
         // current cell
-        Real i_d = static_cast<Real>(exit_i - i);
-        Real j_d = static_cast<Real>(exit_j - j);
+        Real i_d = static_cast<Real>(exit_i) - static_cast<Real>(i);
+        Real j_d = static_cast<Real>(exit_j) - static_cast<Real>(j);
         Real tmp_squared = std::sqrt((i_d*i_d)+(j_d*j_d));
-        Real tmp_difference = tmp_norm[i][j] - tmp_squared;
+        Real tmp_difference = max_distance[k] - tmp_squared;
         
-        // Get the minimum of the distances
-        if (tmp_difference < Static_field[i][j])
+        // If this is the first emergency exit then copy the value
+        // into the static field, otherwise choose the minimum
+        if (k == 0)
          {
           Static_field[i][j] = tmp_difference;
+         }
+        else // k != 0
+         {
+          // Get the minimum of the distances
+          if (tmp_difference < Static_field[i][j])
+           {
+            Static_field[i][j] = tmp_difference;
+           }
+          
          }
         
        } // for (j < N)
@@ -784,11 +909,19 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
+ /// Solve people's positions conflicts
+ // ----------------------------------------------------------------
+ void CCFloorField::solve_people_position_conflicts()
+ {
+  
+ }
+ 
+ // ----------------------------------------------------------------
  /// Update static field matrix
  // ----------------------------------------------------------------
  void CCFloorField::update_static_field_matrix()
  {
-  
+  // Do nothing
  }
 
  // ----------------------------------------------------------------
@@ -804,6 +937,27 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::update_occupancy_matrix()
  {
+  // Restart the occupancy matrix with zeroes
+  for (unsigned i = 0; i < M; i++)
+   {
+    Occupancy_matrix[i].assign(N, 0);
+   }
+  
+  // Get the number of people
+  const unsigned npeople = n_people();
+  // Loop over all people still on the stage
+  for (unsigned k = 0; k < npeople; k++)
+   {
+    // Get the k-th person on the stage
+    CCPerson* person_pt = people_pt(k);
+    // Get the position of the i-th person
+    const unsigned i = person_pt->position(0);
+    const unsigned j = person_pt->position(1);
+    
+    // Update the status of the occupancy matrix
+    Occupancy_matrix[i][j] = OCCUPIED_CELL;
+    
+   }
   
  }
 
@@ -812,7 +966,7 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::update_obstacle_matrix()
  {
-  
+  // Do nothing
  }
  
 } // namespace CA

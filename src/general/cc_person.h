@@ -18,7 +18,7 @@ namespace CA
   
   /// Destructor
   virtual ~CCPerson();
-
+  
   /// Initialise information used by the person to move:
   /// - Preference Matrix M
   void initialise();
@@ -26,10 +26,16 @@ namespace CA
   /// Update person's status
   void update();
   
+  /// Get access to the full preference matrix
+  inline std::vector<std::vector<Real> > &m() {return M;}
+  
   /// Set preference matrix entries
   inline Real &m(const unsigned i, const unsigned j) {return M[i][j];}
   /// Get preference matrix entries
   inline Real m(const unsigned i, const unsigned j) const {return M[i][j];}
+  
+  /// Get access to the full transitions probabily matrix
+  inline std::vector<std::vector<Real> > &p() {return P;}
   
   /// Set transition probabilities matrix entries
   inline Real &p(const unsigned i, const unsigned j) {return P[i][j];}

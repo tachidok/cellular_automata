@@ -115,34 +115,43 @@ int main(int argc, const char** argv)
      std::ostringstream folder_name;
      folder_name << "RESLT/";
      
+     // ---------------------------------
      // Output initial configuration
+     // ---------------------------------
+     // Output static field
      stage.output_static_field(folder_name);
      
-     /// Output dynamic field
+     // Output dynamic field
      stage.output_dynamic_field(folder_name);
      
-     /// Output occupancy matrix
+     // Output occupancy matrix
      stage.output_occupancy_matrix(folder_name);
      
-     /// Output obstacle matrix
+     // Output obstacle matrix
      stage.output_obstacle_matrix(folder_name);
-     
-     exit(0); // JCPS
      
      // Iterate until stage is empty
      while(!stage.is_empty())
       {
+       // Perform a simulation step
        stage.simulation_step();
+
+       // Update the fields
+       stage.update();
+       
        // Increase the number of iterations
        n_iterations_current_configuration++;
+       
        // ---------------------------------
        // Output current configuration
        // ---------------------------------
-       /// Output dynamic field
+       // Output dynamic field
        stage.output_dynamic_field(folder_name);
        
-       /// Output occupancy matrix
+       // Output occupancy matrix
        stage.output_occupancy_matrix(folder_name);
+       
+       exit(0); // JCPS
        
       } // while(!stage.empty())
      
