@@ -10,6 +10,7 @@ namespace CA
   : ACAgent(position, neighbourhood_sizes)
  {
   allocate_memory();
+  initialise_preference_matrix();
  }
  
  // ----------------------------------------------------------------

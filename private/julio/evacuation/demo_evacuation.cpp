@@ -118,6 +118,9 @@ int main(int argc, const char** argv)
      // ---------------------------------
      // Output initial configuration
      // ---------------------------------
+     unsigned index_for_files = 0;
+     stage.index_files() = index_for_files;
+     
      // Output static field
      stage.output_static_field(folder_name);
      
@@ -135,7 +138,7 @@ int main(int argc, const char** argv)
       {
        // Perform a simulation step
        stage.simulation_step();
-
+       
        // Update the fields
        stage.update();
        
@@ -145,6 +148,8 @@ int main(int argc, const char** argv)
        // ---------------------------------
        // Output current configuration
        // ---------------------------------
+       stage.index_files() = ++index_for_files;
+       
        // Output dynamic field
        stage.output_dynamic_field(folder_name);
        

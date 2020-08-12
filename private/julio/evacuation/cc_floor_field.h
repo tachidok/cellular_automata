@@ -99,6 +99,12 @@ namespace CA
   /// Get the i-th people in the field
   CCPerson *people_pt(const unsigned i);
   
+  /// Set index for files
+  inline unsigned &index_files() {return Index_files;}
+  
+  /// Read index for files
+  inline unsigned index_files() const {return Index_files;}
+  
  protected:
   
   /// Dimension of the floor field
@@ -185,6 +191,9 @@ namespace CA
   
   /// Update obstacle matrix
   void update_obstacle_matrix();
+  
+  /// Index for files (default to 0 in constructor)
+  unsigned Index_files;
   
  };
  

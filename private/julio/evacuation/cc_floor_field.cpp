@@ -15,6 +15,9 @@ namespace CA
   
   // Clear any emergency exit
   clean_emergency_exits();
+  
+  // Initialise index for files
+  Index_files = 0;
  }
  
  // ----------------------------------------------------------------
@@ -241,15 +244,15 @@ namespace CA
   // Get the full probability matrix of the person
   std::vector<std::vector<Real> > P = person_pt->p();
   // Get size of dimensions of the transitions probability matrix
-  const unsigned p_m = P.size();
-  const unsigned p_n = P[0].size();
+  const unsigned p_m = person_pt->neighbourhood_size(0);
+  const unsigned p_n = person_pt->neighbourhood_size(1);
   
   // Initialise offsets
-  unsigned i_offset = -p_m/2;
+  int i_offset = -static_cast<int>(p_m)/2;
   for (unsigned i = 0; i < p_m; i++)
    {
     // Initialise offsets
-    unsigned j_offset = -p_n/2;
+    int j_offset = -static_cast<int>(p_n)/2;
     for (unsigned j = 0; j < p_n; j++)
      {
       // Check whether the cell is occupied or is an obstacle
@@ -257,7 +260,7 @@ namespace CA
           is_obstacle(i_p + i_offset, j_p + j_offset))
        {
         // Set the probability to zero
-        P[i][j] = 0.0;
+        person_pt->p(i,j) = 0.0;
        }
       else
        {
@@ -267,7 +270,7 @@ namespace CA
         const Real df = K_d * dynamic_field(i_p + i_offset, j_p + j_offset);
         
         // Set the probability for the transition matrix
-        P[i][j] = std::exp(sf) * std::exp(df);
+        person_pt->p(i,j) = std::exp(sf) * std::exp(df);
         
        }
       
@@ -295,8 +298,8 @@ namespace CA
   const unsigned p_m = person_pt->neighbourhood_size(0);
   const unsigned p_n = person_pt->neighbourhood_size(1);
   
-  const unsigned i_offset = -(p_m/2) + i_max;
-  const unsigned j_offset = -(p_n/2) + j_max;
+  const int i_offset = -(static_cast<int>(p_m)/2) + i_max;
+  const int j_offset = -(static_cast<int>(p_n)/2) + j_max;
 
   // Get the position of the person at current time
   const unsigned i_p = person_pt->position(0);
@@ -344,10 +347,13 @@ namespace CA
     
   // Get the number of people
   const unsigned npeople = n_people();
-  for (unsigned i = 0; i < npeople; i++)
+  for (unsigned k = 0; k < npeople; k++)
    {
+    std::cout << "Person: " << k << std::endl;
+    std::cout << "Current position: " << people_pt(k)->position(0) << " " << people_pt(k)->position(1) << std::endl;
+    std::cout << "Next position: " << people_pt(k)->position(0,1) << " " << people_pt(k)->position(1,1) << std::endl;
     // Update status
-    people_pt(i)->update();
+    people_pt(k)->update();
    }
   
   /// Update static field matrix
@@ -370,7 +376,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_static_field_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_static_field_filename << "static_field.dat";
+  output_static_field_filename << "static_field_" << Index_files << ".dat";
   // File
   std::ofstream static_field_file((output_static_field_filename.str()).c_str(), std::ios_base::out);
 
@@ -405,7 +411,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_dynamic_field_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_dynamic_field_filename << "dynamic_field.dat";
+  output_dynamic_field_filename << "dynamic_field_" << Index_files << ".dat";
   // File
   std::ofstream dynamic_field_file((output_dynamic_field_filename.str()).c_str(), std::ios_base::out);
 
@@ -440,7 +446,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_occupancy_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_occupancy_matrix_filename << "occupancy_matrix.dat";
+  output_occupancy_matrix_filename << "occupancy_matrix_" << Index_files << ".dat";
   // File
   std::ofstream occupancy_matrix_file((output_occupancy_matrix_filename.str()).c_str(), std::ios_base::out);
 
@@ -499,7 +505,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_obstacle_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_obstacle_matrix_filename << "obstacle_matrix.dat";
+  output_obstacle_matrix_filename << "obstacle_matrix_" << Index_files << ".dat";
   // File
   std::ofstream obstacle_matrix_file((output_obstacle_matrix_filename.str()).c_str(), std::ios_base::out);
 
