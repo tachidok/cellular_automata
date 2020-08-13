@@ -59,6 +59,24 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
+ /// Reset movement of the agen for the current time step (should be
+ /// called prior to update position)
+ // ----------------------------------------------------------------
+ void ACAgent::reset_movement()
+ {
+  // Get the number of dimension
+  const unsigned ndim = n_dimension();
+  // Loop over all dimensions and update the current position of the
+  // agent
+  for (unsigned i = 0; i < ndim; i++)
+   {
+    // Update each position
+    Position[i][1] = Position[i][0];
+   }
+  
+ }
+ 
+ // ----------------------------------------------------------------
  /// In charge of initialise any structure required by the agent
  // ----------------------------------------------------------------
  void ACAgent::initialise(std::vector<unsigned> &position)

@@ -133,8 +133,11 @@ int main(int argc, const char** argv)
      // Output obstacle matrix
      stage.output_obstacle_matrix(folder_name);
      
+     // Max iterations
+     const unsigned allowed_max_iterations = lattice_size*lattice_size;
+     
      // Iterate until stage is empty
-     while(!stage.is_empty())
+     while(!stage.is_empty() && n_iterations_current_configuration < allowed_max_iterations)
       {
        // Perform a simulation step
        stage.simulation_step();
@@ -156,13 +159,11 @@ int main(int argc, const char** argv)
        // Output occupancy matrix
        stage.output_occupancy_matrix(folder_name);
        
-       exit(0); // JCPS
-       
       } // while(!stage.empty())
      
      // Add to the sum of iterations
      averaged_iterations+=n_iterations_current_configuration;
-
+     
      // Update the maximum and minimum number of iterations
      if (max_iterations < n_iterations_current_configuration)
       {
@@ -173,6 +174,8 @@ int main(int argc, const char** argv)
       {
        min_iterations = n_iterations_current_configuration;
       }
+
+     exit(0);
      
     } // for (i_configuration < n_configurations)
    

@@ -23,8 +23,9 @@ namespace CA
   /// information used by the person to move: preference matrix M
   void allocate_memory();
   
-  /// Compute maximum probability indexes
-  void compute_max_probability_position(unsigned &i_max, unsigned &j_max);
+  /// Get the indexes of the entry with the maximum probability in the
+  /// P matrix, return the max probability
+  Real get_indexes_with_max_probability(unsigned &i_max, unsigned &j_max);
   
   /// Update person's status
   void update();

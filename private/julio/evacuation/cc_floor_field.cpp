@@ -255,6 +255,11 @@ namespace CA
     int j_offset = -static_cast<int>(p_n)/2;
     for (unsigned j = 0; j < p_n; j++)
      {
+      if ((i_p + i_offset) == 0 || (j_p + j_offset) == 0)
+       {
+        DEB("HERE");
+       }
+      
       // Check whether the cell is occupied or is an obstacle
       if (is_occupied(i_p + i_offset, j_p + j_offset) ||
           is_obstacle(i_p + i_offset, j_p + j_offset))
@@ -286,13 +291,15 @@ namespace CA
   
  }
  
- /// Compute next position for a given person
- void CCFloorField::update_next_position(CCPerson *person_pt)
+ /// Compute next position for a given person and the probability of
+ /// that next position
+ void CCFloorField::update_next_position(CCPerson *person_pt, Real &max_probability)
  {  
-  // Compute the indexes with the maximum probability
+  // Get the indexes with the maximum probability in the transition
+  // matrix, and the value of the maximum probability
   unsigned i_max = 0;
   unsigned j_max = 0;
-  person_pt->compute_max_probability_position(i_max, j_max);
+  max_probability = person_pt->get_indexes_with_max_probability(i_max, j_max);
   
   // Get size of neighboorhood in each dimension for the person
   const unsigned p_m = person_pt->neighbourhood_size(0);
@@ -316,6 +323,13 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::simulation_step()
  {
+  // Keep track of the next (desired) positions of each person in the
+  // field; used to solve conflicting positions
+  std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> > next_peoples_positions;
+  
+  // Keep track of the maximum probability in the transition matrix of each person
+  std::map<CCPerson *, Real> max_probability_of_person;
+  
   // Loop over each person and compute its next position
   
   // Get the number of people on the stage
@@ -328,13 +342,28 @@ namespace CA
     // Compute the values for the transition probability matrix
     update_transition_probability_matrix(person_pt);
     
+    Real max_probability = 0.0;
+    
     // Compute the next position for the person
-    update_next_position(person_pt);
+    update_next_position(person_pt, max_probability);
+    
+    // Add the person and its probability to the map structure
+    max_probability_of_person[person_pt] = max_probability;
+    DEB(max_probability);
+    
+    // Get the desired or next position of the person and store it the
+    // structure to solve conflicts
+    const unsigned next_i = person_pt->position(0,1);
+    const unsigned next_j = person_pt->position(0,1);
+    std::pair<unsigned, unsigned> position_pair(next_i, next_j);
+    
+    // Associate the person with the next position
+    next_peoples_positions[position_pair].push_back(person_pt);
     
    }
   
-  // Solve for conflicts
-  solve_people_position_conflicts();
+  // Solve for conflicts (using max probability)
+  solve_people_position_conflicts(next_peoples_positions, max_probability_of_person);
   
  }
  
@@ -349,6 +378,7 @@ namespace CA
   const unsigned npeople = n_people();
   for (unsigned k = 0; k < npeople; k++)
    {
+    std::cout << "CCFloorField::update()" << std::endl;
     std::cout << "Person: " << k << std::endl;
     std::cout << "Current position: " << people_pt(k)->position(0) << " " << people_pt(k)->position(1) << std::endl;
     std::cout << "Next position: " << people_pt(k)->position(0,1) << " " << people_pt(k)->position(1,1) << std::endl;
@@ -605,7 +635,7 @@ namespace CA
 #endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
   return Static_field[i][j];
  }
-
+ 
  // ----------------------------------------------------------------
  /// Returns the value of the dynamic field
  // ----------------------------------------------------------------
@@ -895,10 +925,119 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- /// Solve people's positions conflicts
+ /// Solve people's positions conflicts (using max probability)
  // ----------------------------------------------------------------
- void CCFloorField::solve_people_position_conflicts()
+ void CCFloorField::solve_people_position_conflicts(std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> > &next_peoples_positions, std::map<CCPerson *, Real> &max_probability_of_person)
  {
+  // Loop over all new desired positions
+  for (std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> >::iterator it =
+        next_peoples_positions.begin();
+       it != next_peoples_positions.end();
+       ++it)
+   {
+    // Get the vector with the conflicting people
+    std::vector<CCPerson *> conflicting_people_pt = it->second;
+    
+    // Check whether there are more than one person trying to get to
+    // that position, otherwise do nothing!!!
+    const unsigned nconflicting_people = conflicting_people_pt.size();
+    if (nconflicting_people > 1)
+     {
+      // Get the person with the maximum probability and only allow
+      // that to move to its next (desired) position, the losers
+      // cannot move therefore they stay in their current position
+      unsigned index_max = 0;
+      Real tmp_max = 0.0;
+      for (unsigned i = 0; i < nconflicting_people; i++)
+       {
+        // Get the i-th conficting person
+        CCPerson *person_pt = conflicting_people_pt[i];
+        // Get the maximum probability of the i-th person (used the
+        // find method to check for FAILUER, otherwise we cannot check
+        // for it)
+        std::map<CCPerson *, Real>::iterator it2 = max_probability_of_person.find(person_pt);
+        if (it2 != max_probability_of_person.end())
+         {
+          const Real i_max_probability = it2->second;
+          // If necessary update the max and the index
+          if (i_max_probability > tmp_max)
+           {
+            tmp_max = i_max_probability;
+            index_max = i;
+           }
+          // If the transition probabilities are exactly the same then
+          // use a probability to choose one
+          else if (i_max_probability == tmp_max)
+           {
+            // Used to get a seed for the random number engine
+            std::random_device rd;
+            // Standard mersenne_twister_engine seeded with rd()
+            std::mt19937 gen(rd());
+            
+            // Use dist to generate a random number into a Real in the range
+            // [0,1)
+            std::uniform_real_distribution<> dis(0.0, 1.0);
+            const Real r = dis(gen);
+            // If r < 0.5 then choose the new one, otherwise choose
+            // the old one (do nothing)
+            if (r < 0.5)
+             {
+              tmp_max = i_max_probability;
+              index_max = i;
+             }
+#ifdef CELLULAR_AUTOMATON_PANIC_MODE
+            // Same exact transition probabilities
+            std::ostringstream warning_message;
+            warning_message << "We found at least two people with the same transition probability,\n"
+                            << "we need to implement an strategy that decides on which person to favor.\n"
+                            << "The current strategy randomly choose between a given pair, however,\n"
+                            << "we should consider that more than one person may have the same transition\n"
+                            << "probability, therefore the decision consider all of them at once.\n"
+                            << std::endl;
+            CALibWarning(warning_message.str(),
+                         CA_CURRENT_FUNCTION,
+                         CA_EXCEPTION_LOCATION);
+           }
+#endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
+         }
+#ifdef CELLULAR_AUTOMATON_PANIC_MODE
+        else
+         {
+          // We could not find the person in the map
+          std::ostringstream error_message;
+          error_message << "The person you are looking for is not in the map structure\n"
+                        << "This means there is no associated maximum probability with it\n"
+                        << "Double check you are including this person in the:\n"
+                        << "'max_probability_of_person' structure\n\n"
+                        << "This is weird\n"
+                        << std::endl;
+          throw CALibError(error_message.str(),
+                           CA_CURRENT_FUNCTION,
+                           CA_EXCEPTION_LOCATION);
+         }
+#endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
+        
+       } // for (i < nconflicting_people)
+      
+      // ------------------------------------------------------------------------------------
+      // At this point we already know who is moving and who doesn't,
+      // therefore proceed to reset the next (desired) position of the
+      // loosers
+      for (unsigned i = 0; i < nconflicting_people; i++)
+       {
+        // Only reset those who should not move
+        if (i != index_max)
+         {
+          // Get the i-th conficting person
+          CCPerson *person_pt = conflicting_people_pt[i];
+          // Reset its movement
+          person_pt->reset_movement();
+         }
+       }
+      
+     } // if (nconflicting_people > 1)
+    
+   } // Loop over map with positions
   
  }
  

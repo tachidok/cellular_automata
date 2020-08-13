@@ -36,6 +36,10 @@ namespace CA
   /// In charge of updating the position of the agent
   void update_position();
   
+  /// Reset movement of the agen for the current time step (should be
+  /// called prior to update position)
+  void reset_movement();
+  
  protected:
   
   /// In charge of initialise any structure required by the agent

@@ -174,7 +174,7 @@ namespace CA
   delete Exception_string_stream_pt;
   Exception_string_stream_pt=0;
  }
-
+ 
  //========================================================================
  /// Default output stream for CALibErrors (cerr)
  //========================================================================

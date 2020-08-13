@@ -147,8 +147,9 @@ namespace CA
   /// floor field's information
   void update_transition_probability_matrix(CCPerson *person_pt);
   
-  /// Compute next position for a given person
-  void update_next_position(CCPerson *person_pt);
+  /// Compute next position for a given person and the probability of
+  /// that next position
+  void update_next_position(CCPerson *person_pt, Real &max_probability);
   
   /// Clean up emergency exits
   inline void clean_emergency_exits() {Emergency_exit.clear();}
@@ -177,8 +178,8 @@ namespace CA
   /// Initialise obstacle matrix
   void initialise_obstacle_matrix();
   
-  /// Solve people's positions conflicts
-  void solve_people_position_conflicts();
+  /// Solve people's positions conflicts (using max probability)
+  void solve_people_position_conflicts(std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> > &next_peoples_positions, std::map<CCPerson *, Real> &max_probability_of_person);
   
   /// Update static field matrix
   void update_static_field_matrix();

@@ -55,11 +55,12 @@ namespace CA
     P[i].resize(n, 0.0);
    }
  }
- 
- // ----------------------------------------------------------------
- /// Compute maximum probability indexes
- // ----------------------------------------------------------------
- void CCPerson::compute_max_probability_position(unsigned &i_max, unsigned &j_max)
+
+ /// ---------------------------------------------------------------------
+ /// Get the indexes of the entry with the maximum probability in the
+ /// P matrix, return the max probability
+ /// ---------------------------------------------------------------------
+ Real CCPerson::get_indexes_with_max_probability(unsigned &i_max, unsigned &j_max)
  {
   // Compute the next position using the current values in the matrix
   // P (transition probabiliies matrix) and the matrix M (preferences
@@ -99,6 +100,9 @@ namespace CA
   
   i_max = tmp_i_max;
   j_max = tmp_j_max;
+  
+  // Return the maximum probability
+  return max_value;
   
  }
  
