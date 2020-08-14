@@ -1,5 +1,6 @@
 #include "../../src/general/common_includes.h"
 #include "../../src/general/utilities.h"
+#include "../../src/general/initialise.h"
 
 // Use the namespace of the framework
 using namespace CA;
@@ -15,6 +16,9 @@ struct Args {
 
 int main(int argc, const char** argv)
 {
+ // Initialise ca
+ initialise_ca();
+ 
  // Output for testing/validation
  std::ofstream output_test("output_test.dat", std::ios_base::out);
  
@@ -77,6 +81,9 @@ int main(int argc, const char** argv)
  
  // Close the output for test
  output_test.close();
+ 
+ // Finalise chapcom
+ finalise_ca();
  
  return 0;
  

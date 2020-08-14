@@ -1,5 +1,6 @@
 #include "../../../src/general/common_includes.h"
 #include "../../../src/general/utilities.h"
+#include "../../../src/general/initialise.h"
 
 #include "../../../src/general/cc_vehicle.h"
 #include "../../../src/nasch/cc_nasch_pbc.h"
@@ -55,6 +56,9 @@ struct Args {
 
 int main(int argc, const char** argv)
 {
+ // Initialise ca
+ initialise_ca();
+ 
  // Instantiate parser
  Args args;
  auto parser = argparse::ArgumentParser(argv[0], "NaSch algorithm");
@@ -386,6 +390,9 @@ int main(int argc, const char** argv)
   } // while (n_bumps <= max_nbumps) 
  
  output_file.close();
+ 
+ // Finalise ca
+ finalise_ca();
  
  return 0;
  

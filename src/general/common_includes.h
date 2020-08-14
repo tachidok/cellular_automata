@@ -1,71 +1,82 @@
 #ifndef COMMON_INCLUDES_H
 #define COMMON_INCLUDES_H
 
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-#include <vector>
-#include <algorithm>
+// ====================================================================
+// Check this page for more information about the included libraries
+// 
+// http://en.cppreference.com/w/cpp/header
+// 
+// ====================================================================
+
+// ====================================================================
+// Utilities library
+// ====================================================================
+#include <typeinfo> // 	Runtime type information utilities
+#include <iomanip> // Output format
+#include <utility> // Various utility components
+#include <ctime> // C-style time/date utilites
+// #include <chrono> // (since C++11) C++ time utilites
+
+// ====================================================================
+// Utilities library / Numeric limits
+// ====================================================================
+#include <climits>
+#include <cfloat>
+#include <limits>
+
+// ====================================================================
+// Utilities library / Error handling
+// ====================================================================
+#include <exception> // Exception handling utilities
+#include <stdexcept> // Standard exception objects
+#include <cassert> // Conditionally compiled macro that compares its
+		   // argument to zero
+//#include <system_error> // (since C++11) defines std::error_code, a
+			// platform-dependent error code
+#include <cerrno> // Macro containing the last error number
+
+// ====================================================================
+// String library
+// ====================================================================
+#include <cstring> // various narrow character string handling functions
+#include <string>  // library to handle strings, implements std::string
+
+// ====================================================================
+// Containers library
+// ====================================================================
+//#include <array> // (since C++11) std::array container
+#include <vector> // std::vector container
+#include <list> // std::list container
+#include <set> // std::set container
+#include <map> // std::map container
+
+// ====================================================================
+// Algorithms library
+// ====================================================================
+#include <algorithm> // Algorithms that operate on containers
+
+// ====================================================================
+// Numerics library
+// ====================================================================
+#include <cmath>
+
+// ====================================================================
+// Random numbers library
+// ====================================================================
 #include <random>
-#include <set>
+
+// ====================================================================
+// Input/output library
+// ====================================================================
+#include <iostream> // several standard stream objects
+#include <fstream> // functions for inputting from and outputting to files
+#include <sstream>
 
 // Include ArgParse
 #include "../../external_src/argparse/src/argparse.hpp"
 
-namespace CA
-{
-#define DEB(x)  std::cout << "[" << #x << "]: "  << x << std::endl
-
-#define KMH_TO_MS 0.2778
-#define MS_TO_KMH 3.6
- 
-#ifdef TYPEDEF_REAL_IS_DOUBLE
- typedef double Real;
-#else
- typedef float Real;
-#endif // #ifdef TYPEDEF_REAL_IS_DOUBLE
-
- //Pre-processor magic for error reporting
- //Macro that converts argument to string
-#define CA_MAKE_STRING(x) #x
-
- //Macro wrapper to CA_MAKE_STRING, required because calling
- //CA_MAKE_STRING(__LINE__) directly returns __LINE__
- //i.e. the conversion of __LINE__ into a number must be performed before
- //its conversion into a string
-#define CA_TO_STRING(x) CA_MAKE_STRING(x)
-
- //Combine the FILE and LINE built-in macros into a string that can
- //be used in error messages.
-#define CA_EXCEPTION_LOCATION __FILE__ ":" CA_TO_STRING(__LINE__)
-
- // Get the current function name. All the mess is due to different
- // compilers naming the macro we need differently.
-#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
-# define CA_CURRENT_FUNCTION __PRETTY_FUNCTION__
-
-#elif defined(__DMC__) && (__DMC__ >= 0x810)
-# define CA_CURRENT_FUNCTION __PRETTY_FUNCTION__
-
-#elif defined(__FUNCSIG__)
-# define CA_CURRENT_FUNCTION __FUNCSIG__
-
-#elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
-# define CA_CURRENT_FUNCTION __FUNCTION__
-
-#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
-# define CA_CURRENT_FUNCTION __FUNC__
-
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
-# define CA_CURRENT_FUNCTION __func__
-
-#else
-# define CA_CURRENT_FUNCTION "[Unknown function -- unrecognised compiler]"
-
-#endif
- 
-} // namespace CA
+// Own CA definitions
+#include "definitions.h"
+#include "cmake_definitions.h"
 
 #endif // #ifndef COMMON_INCLUDES_H

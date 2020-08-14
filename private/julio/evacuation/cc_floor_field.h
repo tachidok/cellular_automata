@@ -139,6 +139,10 @@ namespace CA
   /// People vector pointer
   std::vector<CCPerson *> People_pt;
   
+  /// Keep track for people next to the emergency exit that will leave
+  /// the stage on the next simulation step
+  std::vector<CCPerson *> People_next_to_emergency_exit_pt;
+  
   /// Add a person to field (check whether there are no obstacles or
   /// the positon is already occupied by another person)
   bool add_person_to_field(CCPerson *person_pt);
@@ -195,6 +199,13 @@ namespace CA
   
   /// Index for files (default to 0 in constructor)
   unsigned Index_files;
+  
+  /// Leave people next to an emergency exit to leave and update the
+  /// data structure that keeps track of people on stage
+  void release_people_next_to_emergency_exit();
+  
+  /// Update the vector of people
+  void update_people_vector(std::vector<CCPerson *> &tmp_people_pt);
   
  };
  

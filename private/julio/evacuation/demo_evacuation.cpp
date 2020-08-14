@@ -5,6 +5,8 @@
 
 #include "../../../src/general/common_includes.h"
 #include "../../../src/general/utilities.h"
+#include "../../../src/general/initialise.h"
+
 
 #include "cc_floor_field.h"
 
@@ -22,6 +24,9 @@ struct Args {
 
 int main(int argc, const char** argv)
 {
+ // Initialise ca
+ initialise_ca();
+ 
  // Instantiate parser
  Args args;
  auto parser = argparse::ArgumentParser(argv[0], "Demo evacuation from a rectangular lattice");
@@ -205,9 +210,8 @@ int main(int argc, const char** argv)
    
   } // while (i_rho_step < n_steps)
  
- std::cout << std::endl;
- std::cout << "[DONE]"<< std::endl;
- std::cout << std::endl;
+ // Finalise ca
+ finalise_ca();
  
  return 0;
  

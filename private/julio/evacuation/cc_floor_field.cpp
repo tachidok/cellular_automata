@@ -117,6 +117,10 @@ namespace CA
   // Get the number of people to add to the floor field
   const unsigned n_people = static_cast<Real>(field_size)*density;
   
+  // Reserve memory in people's container to reduce the time for
+  // push_back()
+  People_pt.reserve(n_people);
+  
   // Set the initial density
   Initial_density = density;
   
@@ -153,7 +157,7 @@ namespace CA
       const Real r_i = dis(gen);
       const Real r_j = dis(gen);
       unsigned i = r_i * M;
-      unsigned j = r_j * N;      
+      unsigned j = r_j * N;
       // Check whether this entry is already occupied
       if (!is_occupied(i, j) && !is_obstacle(i, j))
        {
@@ -323,6 +327,9 @@ namespace CA
  // ----------------------------------------------------------------
  void CCFloorField::simulation_step()
  {
+  // Release all people next to an emergency exit
+  release_people_next_to_emergency_exit();
+  
   // Keep track of the next (desired) positions of each person in the
   // field; used to solve conflicting positions
   std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> > next_peoples_positions;
@@ -349,7 +356,6 @@ namespace CA
     
     // Add the person and its probability to the map structure
     max_probability_of_person[person_pt] = max_probability;
-    DEB(max_probability);
     
     // Get the desired or next position of the person and store it the
     // structure to solve conflicts
@@ -1092,6 +1098,95 @@ namespace CA
  void CCFloorField::update_obstacle_matrix()
  {
   // Do nothing
+ }
+ 
+ // ----------------------------------------------------------------
+ /// Leave people next to an emergency exit to leave and update the
+ // ----------------------------------------------------------------
+ void CCFloorField::release_people_next_to_emergency_exit()
+ {
+  // Get the number of emergency exits
+  const ungigned nemergency_exit = n_emergency_exit();
+  // Get the number of people on stage
+  const unsigned npeople = n_people();
+  
+  /// A temporary vector to keep track of people that remains on stage
+  std::vector<CCPerson *> tmp_people_pt;
+  tmp_people_pt.reserve(npeople);
+  
+  // Number of emergency exits that have a person on it (helps to
+  // reduce the number of iterations if all emergency exits are
+  // occupied)
+  unsigned n_people_to_leave = 0;
+  
+  // Loop over all people and check whether they are sitting on an
+  // emergency exit
+  for (unsigned k = 0; k < npeople; k++)
+   {
+    // Get the k-th person on the stage
+    CCPerson* person_pt = people_pt(k);
+    
+    // Try to reduce the number of iterations to continuously checking
+    // whether we have reviewed for all emergency exits    
+    if (n_people_to_leave < nemergency_exit)
+     {
+      // Get the position of the person
+      const unsigned i = person_pt->position(0);
+      const unsigned j = person_pt->position(1);
+      // Check whether the current person should be kept on stage
+      bool keep_on_stage = true;
+      
+      // Loop over emergency exits
+      for (unsigned e = 0; e < nemergency_exit; e++)
+       {
+        if (i == Emergency_exit[e][0] && Emergency_exit[e][1])
+         {
+          // Should not be keep on stage then 
+          keep_on_stage = false;
+          // Increase the number of people to leave from stage
+          n_people_to_leave++;
+          // Delete person
+          delete person_pt;
+          
+          break;
+         }
+        
+       } // for (e < nemergency_exit)
+      
+      // Person is not on an emergency exit?
+      if (keep_on_stage)
+       {
+        // Add person to the temporary vector
+        tmp_people_pt.push_back(person_pt);
+       }
+      
+     } // if (n_people_to_leave < nemergency_exit)
+    else
+     {
+      // Add all remaining people to the temporary vector to keep it
+      // on stage
+      tmp_people_pt.push_back(person_pt);
+     }
+    
+   } // for (k < npeople)
+  
+  //  Update the vector of people only with the people that remains on stage
+  update_people_vector(tmp_people_pt);
+  
+ }
+
+ // ----------------------------------------------------------------
+ /// Update the vector of people
+ // ----------------------------------------------------------------
+ void CCFloorField::update_people_vector(std::vector<CCPerson *> &tmp_people_pt)
+ {
+  // Get the number of people on the temporary vector
+  
+  // Get the number of people currently on stage
+
+  // Check whether the number of people is the same, if that is the
+  // case then do nothing, otherwise proceed with the updating process
+  
  }
  
 } // namespace CA
