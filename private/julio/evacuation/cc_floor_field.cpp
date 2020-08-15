@@ -117,10 +117,6 @@ namespace CA
   // Get the number of people to add to the floor field
   const unsigned n_people = static_cast<Real>(field_size)*density;
   
-  // Reserve memory in people's container to reduce the time for
-  // push_back()
-  People_pt.reserve(n_people);
-  
   // Set the initial density
   Initial_density = density;
   
@@ -258,15 +254,11 @@ namespace CA
     // Initialise offsets
     int j_offset = -static_cast<int>(p_n)/2;
     for (unsigned j = 0; j < p_n; j++)
-     {
-      if ((i_p + i_offset) == 0 || (j_p + j_offset) == 0)
-       {
-        DEB("HERE");
-       }
-      
-      // Check whether the cell is occupied or is an obstacle
-      if (is_occupied(i_p + i_offset, j_p + j_offset) ||
-          is_obstacle(i_p + i_offset, j_p + j_offset))
+     {      
+      // Check whether the cell is occupied or is an obstacle AND it
+      // is not me (because the cell is occupied by me)
+      if ((is_occupied(i_p + i_offset, j_p + j_offset) ||
+           is_obstacle(i_p + i_offset, j_p + j_offset)) && !(i == 1 && j == 1))
        {
         // Set the probability to zero
         person_pt->p(i,j) = 0.0;
@@ -337,14 +329,13 @@ namespace CA
   // Keep track of the maximum probability in the transition matrix of each person
   std::map<CCPerson *, Real> max_probability_of_person;
   
+  // Iterator for people list
+  std::list<CCPerson *>::iterator it;
   // Loop over each person and compute its next position
-  
-  // Get the number of people on the stage
-  const unsigned npeople = n_people();
-  for (unsigned k = 0; k < npeople; k++)
+  for (it = People_pt.begin(); it!=People_pt.end(); ++it)
    {
-    // Get the k-th person on the stage
-    CCPerson* person_pt = people_pt(k);
+    // Get the current person on the stage
+    CCPerson* person_pt = (*it);
     
     // Compute the values for the transition probability matrix
     update_transition_probability_matrix(person_pt);
@@ -360,13 +351,13 @@ namespace CA
     // Get the desired or next position of the person and store it the
     // structure to solve conflicts
     const unsigned next_i = person_pt->position(0,1);
-    const unsigned next_j = person_pt->position(0,1);
+    const unsigned next_j = person_pt->position(1,1);
     std::pair<unsigned, unsigned> position_pair(next_i, next_j);
     
     // Associate the person with the next position
     next_peoples_positions[position_pair].push_back(person_pt);
     
-   }
+   } // for (it!=People_pt.end())
   
   // Solve for conflicts (using max probability)
   solve_people_position_conflicts(next_peoples_positions, max_probability_of_person);
@@ -379,18 +370,25 @@ namespace CA
  void CCFloorField::update()
  {
   /// Move people based on their next position
-    
-  // Get the number of people
-  const unsigned npeople = n_people();
-  for (unsigned k = 0; k < npeople; k++)
+  
+  unsigned k = 0;
+  
+  // Iterator for people list
+  std::list<CCPerson *>::iterator it;
+  // Loop over each person and compute its next position
+  for (it = People_pt.begin(); it!=People_pt.end(); ++it)
    {
+    // Get the current person on the stage
+    CCPerson* person_pt = (*it);
+    
     std::cout << "CCFloorField::update()" << std::endl;
-    std::cout << "Person: " << k << std::endl;
-    std::cout << "Current position: " << people_pt(k)->position(0) << " " << people_pt(k)->position(1) << std::endl;
-    std::cout << "Next position: " << people_pt(k)->position(0,1) << " " << people_pt(k)->position(1,1) << std::endl;
+    std::cout << "Person: " << k++ << std::endl;
+    std::cout << "Current position: " << person_pt->position(0) << " " << person_pt->position(1) << std::endl;
+    std::cout << "Next position: " << person_pt->position(0,1) << " " << person_pt->position(1,1) << std::endl;
     // Update status
-    people_pt(k)->update();
-   }
+    person_pt->update();
+    
+   } // for (it!=People_pt.end())
   
   /// Update static field matrix
   update_static_field_matrix();
@@ -412,7 +410,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_static_field_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_static_field_filename << "static_field_" << Index_files << ".dat";
+  output_static_field_filename << "static_field_" <<  std::setfill('0') << std::setw(5) << Index_files << ".dat";
   // File
   std::ofstream static_field_file((output_static_field_filename.str()).c_str(), std::ios_base::out);
 
@@ -447,7 +445,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_dynamic_field_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_dynamic_field_filename << "dynamic_field_" << Index_files << ".dat";
+  output_dynamic_field_filename << "dynamic_field_" <<  std::setfill('0') << std::setw(5) << Index_files << ".dat";
   // File
   std::ofstream dynamic_field_file((output_dynamic_field_filename.str()).c_str(), std::ios_base::out);
 
@@ -482,7 +480,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_occupancy_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_occupancy_matrix_filename << "occupancy_matrix_" << Index_files << ".dat";
+  output_occupancy_matrix_filename << "occupancy_matrix_" <<  std::setfill('0') << std::setw(5)<< Index_files << ".dat";
   // File
   std::ofstream occupancy_matrix_file((output_occupancy_matrix_filename.str()).c_str(), std::ios_base::out);
 
@@ -541,7 +539,7 @@ namespace CA
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_obstacle_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
-  output_obstacle_matrix_filename << "obstacle_matrix_" << Index_files << ".dat";
+  output_obstacle_matrix_filename << "obstacle_matrix_" <<  std::setfill('0') << std::setw(5) << Index_files << ".dat";
   // File
   std::ofstream obstacle_matrix_file((output_obstacle_matrix_filename.str()).c_str(), std::ios_base::out);
 
@@ -592,7 +590,8 @@ namespace CA
   // Close file
   obstacle_matrix_file.close();
  }
- 
+
+#if 0
  // ----------------------------------------------------------------
  /// Get the i-th people in the field
  // ----------------------------------------------------------------
@@ -617,6 +616,7 @@ namespace CA
 #endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
   return People_pt[i];
  }
+#endif // #if 0
  
  // ----------------------------------------------------------------
  /// Returns the value of the static field
@@ -712,18 +712,6 @@ namespace CA
    }
 #endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
   return Obstacle_matrix[i][j];
- }
- 
- // ----------------------------------------------------------------
- /// Is there no more people on the stage
- // ----------------------------------------------------------------
- bool CCFloorField::is_empty()
- {
-  if (n_people() > 0)
-   {
-    return false;
-   }
-  return true;
  }
  
  // ----------------------------------------------------------------
@@ -995,10 +983,11 @@ namespace CA
             // Same exact transition probabilities
             std::ostringstream warning_message;
             warning_message << "We found at least two people with the same transition probability,\n"
-                            << "we need to implement an strategy that decides on which person to favor.\n"
-                            << "The current strategy randomly choose between a given pair, however,\n"
-                            << "we should consider that more than one person may have the same transition\n"
-                            << "probability, therefore the decision consider all of them at once.\n"
+                            << "we need to implement an strategy that decides on which person to choose.\n"
+                            << "The current strategy randomly choose ONLY between two people, however,\n"
+                            << "we should consider that MORE THAN two people may have the same transition\n"
+                            << "probability, therefore the implemented strategy should consider all of\n"
+                            << "them at once, not just in pairs.\n"
                             << std::endl;
             CALibWarning(warning_message.str(),
                          CA_CURRENT_FUNCTION,
@@ -1073,14 +1062,15 @@ namespace CA
    {
     Occupancy_matrix[i].assign(N, 0);
    }
-  
-  // Get the number of people
-  const unsigned npeople = n_people();
-  // Loop over all people still on the stage
-  for (unsigned k = 0; k < npeople; k++)
+
+  // Iterator for people list
+  std::list<CCPerson *>::iterator it;
+  // Loop over each person and compute its next position
+  for (it = People_pt.begin(); it!=People_pt.end(); ++it)
    {
-    // Get the k-th person on the stage
-    CCPerson* person_pt = people_pt(k);
+    // Get the current person on the stage
+    CCPerson* person_pt = (*it);
+    
     // Get the position of the i-th person
     const unsigned i = person_pt->position(0);
     const unsigned j = person_pt->position(1);
@@ -1088,7 +1078,7 @@ namespace CA
     // Update the status of the occupancy matrix
     Occupancy_matrix[i][j] = OCCUPIED_CELL;
     
-   }
+   } // for (it!=People_pt.end())
   
  }
 
@@ -1106,86 +1096,48 @@ namespace CA
  void CCFloorField::release_people_next_to_emergency_exit()
  {
   // Get the number of emergency exits
-  const ungigned nemergency_exit = n_emergency_exit();
-  // Get the number of people on stage
-  const unsigned npeople = n_people();
-  
-  /// A temporary vector to keep track of people that remains on stage
-  std::vector<CCPerson *> tmp_people_pt;
-  tmp_people_pt.reserve(npeople);
+  const unsigned nemergency_exit = n_emergency_exit();
   
   // Number of emergency exits that have a person on it (helps to
   // reduce the number of iterations if all emergency exits are
   // occupied)
   unsigned n_people_to_leave = 0;
   
+  // Iterator for people list
+  std::list<CCPerson *>::iterator it;
   // Loop over all people and check whether they are sitting on an
-  // emergency exit
-  for (unsigned k = 0; k < npeople; k++)
+  // emergency exit. Also check whether there are more emergency exits
+  // left to check
+  for (it = People_pt.begin(); it!=People_pt.end() && (n_people_to_leave < nemergency_exit); ++it)
    {
-    // Get the k-th person on the stage
-    CCPerson* person_pt = people_pt(k);
+    // Get the current person on the stage
+    CCPerson* person_pt = (*it);
     
-    // Try to reduce the number of iterations to continuously checking
-    // whether we have reviewed for all emergency exits    
-    if (n_people_to_leave < nemergency_exit)
+    // Get the position of the person
+    const unsigned i = person_pt->position(0);
+    const unsigned j = person_pt->position(1);
+    
+    // Loop over emergency exits
+    for (unsigned e = 0; e < nemergency_exit; e++)
      {
-      // Get the position of the person
-      const unsigned i = person_pt->position(0);
-      const unsigned j = person_pt->position(1);
-      // Check whether the current person should be kept on stage
-      bool keep_on_stage = true;
-      
-      // Loop over emergency exits
-      for (unsigned e = 0; e < nemergency_exit; e++)
+      if (i == Emergency_exit[e][0] && j == Emergency_exit[e][1])
        {
-        if (i == Emergency_exit[e][0] && Emergency_exit[e][1])
-         {
-          // Should not be keep on stage then 
-          keep_on_stage = false;
-          // Increase the number of people to leave from stage
-          n_people_to_leave++;
-          // Delete person
-          delete person_pt;
-          
-          break;
-         }
+        // Increase the number of people to leave from stage
+        n_people_to_leave++;
         
-       } // for (e < nemergency_exit)
-      
-      // Person is not on an emergency exit?
-      if (keep_on_stage)
-       {
-        // Add person to the temporary vector
-        tmp_people_pt.push_back(person_pt);
+        // Remove person from stage and call the destructor in the
+        // process
+        it = People_pt.erase(it);
+        
+        // Delete person
+        //delete person_pt;
+        
+        break;
        }
       
-     } // if (n_people_to_leave < nemergency_exit)
-    else
-     {
-      // Add all remaining people to the temporary vector to keep it
-      // on stage
-      tmp_people_pt.push_back(person_pt);
-     }
+     } // for (e < nemergency_exit)
     
-   } // for (k < npeople)
-  
-  //  Update the vector of people only with the people that remains on stage
-  update_people_vector(tmp_people_pt);
-  
- }
-
- // ----------------------------------------------------------------
- /// Update the vector of people
- // ----------------------------------------------------------------
- void CCFloorField::update_people_vector(std::vector<CCPerson *> &tmp_people_pt)
- {
-  // Get the number of people on the temporary vector
-  
-  // Get the number of people currently on stage
-
-  // Check whether the number of people is the same, if that is the
-  // case then do nothing, otherwise proceed with the updating process
+   } // for (it!=People_pt.end())
   
  }
  

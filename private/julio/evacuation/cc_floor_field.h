@@ -91,13 +91,15 @@ namespace CA
   bool is_obstacle(const unsigned i, const unsigned j);
   
   /// Is there no more people on the stage
-  bool is_empty();
+  inline bool is_empty() {return People_pt.empty();}
   
   // Get the number of people in the field
   inline const unsigned n_people() {return People_pt.size();}
-  
+
+  /*
   /// Get the i-th people in the field
   CCPerson *people_pt(const unsigned i);
+  */
   
   /// Set index for files
   inline unsigned &index_files() {return Index_files;}
@@ -136,12 +138,8 @@ namespace CA
   /// Store the position of the emergency exits
   std::vector<std::vector<unsigned> > Emergency_exit;
   
-  /// People vector pointer
-  std::vector<CCPerson *> People_pt;
-  
-  /// Keep track for people next to the emergency exit that will leave
-  /// the stage on the next simulation step
-  std::vector<CCPerson *> People_next_to_emergency_exit_pt;
+  /// List of pointers to people
+  std::list<CCPerson *> People_pt;
   
   /// Add a person to field (check whether there are no obstacles or
   /// the positon is already occupied by another person)
@@ -203,9 +201,6 @@ namespace CA
   /// Leave people next to an emergency exit to leave and update the
   /// data structure that keeps track of people on stage
   void release_people_next_to_emergency_exit();
-  
-  /// Update the vector of people
-  void update_people_vector(std::vector<CCPerson *> &tmp_people_pt);
   
  };
  
