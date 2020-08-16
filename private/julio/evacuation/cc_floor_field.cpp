@@ -1062,7 +1062,7 @@ namespace CA
    {
     Occupancy_matrix[i].assign(N, 0);
    }
-
+  
   // Iterator for people list
   std::list<CCPerson *>::iterator it;
   // Loop over each person and compute its next position
@@ -1128,6 +1128,9 @@ namespace CA
         // Remove person from stage and call the destructor in the
         // process
         it = People_pt.erase(it);
+        
+        // Update the status of the occupancy matrix
+        Occupancy_matrix[i][j] = NON_OCCUPIED_CELL;
         
         // Delete person
         //delete person_pt;

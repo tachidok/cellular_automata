@@ -22,13 +22,16 @@ plt.rc('ytick', labelsize=BIG_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=EXTRA_BIG_SIZE)   # legend fontsize
 plt.rc('figure', titlesize=MEDIUM_SIZE)  # fontsize of the figure title
 
-def generate_gif(file_name, initial_index, final_index):
+def generate_gif(file_name, initial_index, final_index, output_filename):
 
-    #fig = plt.figure()
-    #camera = Camera(fig)
-            
-    for index in range(initial_index, final_index + 1):
+    fig = plt.figure()
+    #ax = plt.axes()
+    #ax = plt.axes(xlim=(0,10),ylim=(0,10))
+    camera = Camera(fig)
     
+    for index in range(initial_index, final_index + 1):
+
+        print(f"Visiting file: {index}")
         # An empty matrix
         matrix = []
 
@@ -39,31 +42,32 @@ def generate_gif(file_name, initial_index, final_index):
             for row in csv_reader:
 
                 # Get the number of columns
-                nrows = len(row)
+                ncols = len(row)
                 #print(f"The number of columns is: {nrows}")
                 
                 # Convert from 
-                for i in range(nrows):
+                for i in range(ncols):
                     row[i]=float(row[i])
                     #print(f'\t{row[0]} {row[1]} {row[2]}')
                     
-                    matrix.append(row)
-                    
-                    #print(matrix)
-                    
+                matrix.append(row)
+                
         # Plot with reversed color map
         #plt.imshow(matrix, cmap='hot', interpolation='nearest')
         #plt.imshow(matrix, cmap='hot_r', interpolation='nearest')
         plt.imshow(matrix, cmap='gray_r', interpolation='nearest')
-
+        
         #plt.title("Static field");
-        plt.xlim(0, 10)
-        plt.ylim(0, 10)
-        plt.show()
-        #camera.snap() # Use this instead of plt.show()
+        #plt.show()
+        camera.snap() # Use this instead of plt.show()
+        # Clear an axis
+        #plt.cla()
+        # Clear entiere figure
+        #plt.clf()
 
+    print("Generating 'gif' file")
     animation = camera.animate(interval = 200, repeat = True, repeat_delay = 500)
-    animation.save('occupation.gif', writer='imagemagick')
+    animation.save(output_filename+'.gif', writer='imagemagick')
     
 def plot_field(file_name):
     
@@ -99,16 +103,25 @@ def plot_field(file_name):
 def main():
     
     # Create the parser to deal with the arguments
-    parser = argparse.ArgumentParser("Plot room states.")
+    parser = argparse.ArgumentParser("Plot evacuation dynamics")
     
     # Set the positional arguments
-    parser.add_argument('--RESLT_PATH', dest='RESLT_PATH', type=str, required=True, help='The path with the results')
+    parser.add_argument('--RESLT_PATH', dest='RESLT_PATH', type=str, required=True, help='Specify the path where the result files are stored')
+    
+    # Set the positional arguments
+    parser.add_argument('--initial_index', dest='initial_index', type=int, required=True, help='Specify the index of the file that should be used as the initial position of the animation')
+    
+    parser.add_argument('--final_index', dest='final_index', type=int, required=True, help='Specify the index of the file that should be used as the final position of the animation')
     
     # parse args
     args = parser.parse_args()
     
     # RESLT folder
     RESLT = args.RESLT_PATH
+
+    # Initial and final indexes
+    initial_index = args.initial_index
+    final_index = args.final_index
 
     print(f"Path to folder: {RESLT}")
     
@@ -118,7 +131,7 @@ def main():
     plot_field(RESLT + "obstacle_matrix_")
 
     #generate_gif(RESLT + "dynamic_field_")
-    generate_gif(RESLT + "occupancy_matrix_", 0, 12)
+    generate_gif(RESLT + "occupancy_matrix_", initial_index, final_index, "occupation")
 
 if __name__ == '__main__':
     main()
