@@ -381,10 +381,10 @@ namespace CA
     // Get the current person on the stage
     CCPerson* person_pt = (*it);
     
-    std::cout << "CCFloorField::update()" << std::endl;
-    std::cout << "Person: " << k++ << std::endl;
-    std::cout << "Current position: " << person_pt->position(0) << " " << person_pt->position(1) << std::endl;
-    std::cout << "Next position: " << person_pt->position(0,1) << " " << person_pt->position(1,1) << std::endl;
+    //    std::cout << "CCFloorField::update()" << std::endl;
+    //std::cout << "Person: " << k++ << std::endl;
+    //std::cout << "Current position: " << person_pt->position(0) << " " << person_pt->position(1) << std::endl;
+    //std::cout << "Next position: " << person_pt->position(0,1) << " " << person_pt->position(1,1) << std::endl;
     // Update status
     person_pt->update();
     
@@ -834,7 +834,7 @@ namespace CA
        } // for (j < N)
       
      } // for (i < M)
-
+    
    } // for (k < nemergency_exit)
   
   // The values in "max_distance" are used to normalise the entries in
@@ -869,8 +869,13 @@ namespace CA
          }
         else // k != 0
          {
-          // Get the minimum of the distances
-          if (tmp_difference < Static_field[i][j])
+          // Get the maximum of the distances (in the referenced paper
+          // the authors state to use te minimum, not the maximum,
+          // however, given that the transition probability matrix
+          // searches for the maximum here we select the maximum
+          // instead of the minimum)
+          // if (tmp_difference < Static_field[i][j])
+          if (tmp_difference > Static_field[i][j])
            {
             Static_field[i][j] = tmp_difference;
            }
@@ -989,9 +994,9 @@ namespace CA
                             << "probability, therefore the implemented strategy should consider all of\n"
                             << "them at once, not just in pairs.\n"
                             << std::endl;
-            CALibWarning(warning_message.str(),
-                         CA_CURRENT_FUNCTION,
-                         CA_EXCEPTION_LOCATION);
+            //CALibWarning(warning_message.str(),
+            //            CA_CURRENT_FUNCTION,
+            //            CA_EXCEPTION_LOCATION);
            }
 #endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
          }
@@ -1104,11 +1109,13 @@ namespace CA
   unsigned n_people_to_leave = 0;
   
   // Iterator for people list
-  std::list<CCPerson *>::iterator it;
+  std::list<CCPerson *>::iterator it = People_pt.begin();
   // Loop over all people and check whether they are sitting on an
   // emergency exit. Also check whether there are more emergency exits
   // left to check
-  for (it = People_pt.begin(); it!=People_pt.end() && (n_people_to_leave < nemergency_exit); ++it)
+  while (it!=People_pt.end() && (n_people_to_leave < nemergency_exit))
+   //for (it = People_pt.begin(); it!=People_pt.end() && (n_people_to_leave < nemergency_exit;)
+  //for (it = People_pt.begin(); it!=People_pt.end(); ++it)
    {
     // Get the current person on the stage
     CCPerson* person_pt = (*it);
@@ -1116,6 +1123,9 @@ namespace CA
     // Get the position of the person
     const unsigned i = person_pt->position(0);
     const unsigned j = person_pt->position(1);
+    
+    // A flag to know whether the person was removed or not
+    bool removed = false;
     
     // Loop over emergency exits
     for (unsigned e = 0; e < nemergency_exit; e++)
@@ -1132,15 +1142,27 @@ namespace CA
         // Update the status of the occupancy matrix
         Occupancy_matrix[i][j] = NON_OCCUPIED_CELL;
         
+        // Set the removed flag to true
+        removed = true;
+        
         // Delete person
         //delete person_pt;
         
+        // Break the emergency exits search and do not increase the
+        // iterator since we are already pointing to the next item due
+        // to the erase method
         break;
        }
       
      } // for (e < nemergency_exit)
     
-   } // for (it!=People_pt.end())
+    // Go for the next item (only if no removed)
+    if (!removed)
+     {
+      it++;
+     }
+    
+   } // while (it!=People_pt.end())
   
  }
  

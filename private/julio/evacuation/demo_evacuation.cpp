@@ -106,9 +106,13 @@ int main(int argc, const char** argv)
      stage.k_d() = dynamic_field_weight;
      
      // Add emergency exits
-     //stage.add_emergency_exit(0, 5);
-     //stage.add_emergency_exit(5, 0);
-     stage.add_emergency_exit(0, 45);
+     stage.add_emergency_exit(0, 4);
+     stage.add_emergency_exit(0, 5);
+     stage.add_emergency_exit(0, 6);
+     stage.add_emergency_exit(0, 140);
+     stage.add_emergency_exit(149, 49);
+     stage.add_emergency_exit(149, 50);
+     stage.add_emergency_exit(80, 149);
      
      // Initialise stage (with doors and obstacles)
      stage.initialise();
