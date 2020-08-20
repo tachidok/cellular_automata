@@ -111,21 +111,34 @@ namespace CA
   // [0,1)
   std::uniform_real_distribution<> dis(0.0, 1.0);
   
-  // Floor field size
-  const unsigned field_size = M*N;
+  // Get the number of obstacles and already occupied spaces
+  const unsigned non_free_spaces_on_field = n_obstacles() + n_occupied();
+  
+  // Free spaces on stage
+  const unsigned free_spaces_on_field = M*N - non_free_spaces_on_field;
   
   // Get the number of people to add to the floor field
-  const unsigned n_people = static_cast<Real>(field_size)*density;
+  const unsigned n_people = static_cast<Real>(free_spaces_on_field)*density;
   
   // Set the initial density
   Initial_density = density;
   
-  // If the number of people to be added to the floor field is larger
-  // or equal to the size of the foor field then fill is with people
-  if (n_people >= field_size)
+  // Threshold density to remove people instead of adding
+  const double threshold_density = 0.55;
+  
+  // If the density is larger or equal than the threshold density, we
+  // fill the stage with people and after remove them (fill with empty
+  // space) until achieving the desired density of people.
+  if (density >= threshold_density)
    {
+    // Create a temporary storage for people
+    std::vector<std::vector<CCPerson*> > tmp_people_pt(M);
+    
+    // Fill the field with people
     for (unsigned i = 0; i < M; i++)
      {
+      // Resize and fill with zeroes
+      tmp_people_pt[i].resize(N, 0);
       for (unsigned j = 0; j < N; j++)
        {
         // The position of the person
@@ -137,11 +150,85 @@ namespace CA
         tmp_neighbourhood[0] = 3;
         tmp_neighbourhood[1] = 3;
         CCPerson *new_person_pt = new CCPerson(tmp_pos, tmp_neighbourhood);
-        // Add the person to the field
-        add_person_to_field(new_person_pt);
+        
+        // Check for possible obstacles
+        if (!is_obstacle(i, j))
+         {
+          // Add the person to the temporary field
+          tmp_people_pt[i][j] = new_person_pt;
+         }
+        
        }
+      
      }
-   }
+    
+    // ------------------------------------------------------------------------------------
+    // Remove people until reaching the desired density
+    
+    // Number of people to remove
+    const unsigned n_people_to_remove = static_cast<Real>(free_spaces_on_field) * (1.0 - density);
+    // Counter
+    unsigned k = 0;
+    // Remove people
+    while (k < n_people_to_remove)
+     {
+      // Random position to add a person
+      const Real r_i = dis(gen);
+      const Real r_j = dis(gen);
+      unsigned i = r_i * M;
+      unsigned j = r_j * N;
+      
+      // Check whether this entry has been already removed or not
+      if (tmp_people_pt[i][j] != 0)
+       {
+        // Remove person from field
+        delete tmp_people_pt[i][j];
+        tmp_people_pt[i][j] = 0;
+        
+        // Increase the number of people removed from the stage
+        k++;
+       }
+      
+     } // while (k < n_people_to_remove)
+    
+    // ------------------------------------------------------------------------
+    // Finally, loop over the remaining people on stage and add it to
+    // the vector of People
+    k = 0;
+    for (unsigned i = 0; i < M; i++)
+     {
+      for (unsigned j = 0; j < N; j++)
+       {
+        // Did this person survived?
+        if (tmp_people_pt[i][j] != 0)
+         {
+          k++;
+          // Get the person and add it to the field
+          CCPerson *new_person_pt = tmp_people_pt[i][j];
+          if (!add_person_to_field(new_person_pt))
+           {
+            // Something really weird happened
+#ifdef CELLULAR_AUTOMATON_PANIC_MODE
+            // Error message
+            std::ostringstream error_message;
+            error_message << "Something weird happened!!!\n"
+                          << "We couldn't add a person at position: (" << i << "," << j << ")\n"
+                          << "Is this an obstacle: " << is_obstacle(i, j) << "\n"
+                          << "Is this occupied: " << is_occupied(i, j) << "\n"
+                          << std::endl;
+            throw CALibError(error_message.str(),
+                             CA_CURRENT_FUNCTION,
+                             CA_EXCEPTION_LOCATION);
+           }
+#endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK            
+          
+         }
+        
+       } // for (j < N)
+      
+     } // for (i < M)
+    
+   } // if (density >= threshold_density)
   else
    {
     // Counter
@@ -590,33 +677,6 @@ namespace CA
   // Close file
   obstacle_matrix_file.close();
  }
-
-#if 0
- // ----------------------------------------------------------------
- /// Get the i-th people in the field
- // ----------------------------------------------------------------
- CCPerson *CCFloorField::people_pt(const unsigned i)
- {
-  /// Range check
-#ifdef CELLULAR_AUTOMATON_RANGE_CHECK
-  // Get the number of people in the field
-  const unsigned npeople = n_people();
-  if (i >= npeople)
-   {
-    // Error message
-    std::ostringstream error_message;
-    error_message << "You are trying to get the "<<i<<" entry in the people vector\n"
-                  << "However, we only have "<<npeople<<" entries in the people vector\n"
-                  << "The range should be in [0, "<<npeople-1<<"]\n"
-                  << std::endl;
-    throw CALibError(error_message.str(),
-                     CA_CURRENT_FUNCTION,
-                     CA_EXCEPTION_LOCATION);
-   }
-#endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
-  return People_pt[i];
- }
-#endif // #if 0
  
  // ----------------------------------------------------------------
  /// Returns the value of the static field
@@ -691,6 +751,26 @@ namespace CA
  }
  
  // ----------------------------------------------------------------
+ // Get the number of already occupied spaces on stage
+ // ----------------------------------------------------------------
+ const unsigned CCFloorField::n_occupied()
+ {
+  // Counter for the number of obstacles
+  unsigned counter_occupied = 0;
+  for (unsigned i = 0; i < M; i++)
+   {
+    for (unsigned j = 0; j < N; j++)
+     {
+      if (Occupancy_matrix[i][j])
+       {
+        counter_occupied++;
+       }
+     }
+   }
+  return counter_occupied;
+ }
+ 
+ // ----------------------------------------------------------------
  /// Is there an obstacle
  // ----------------------------------------------------------------
  bool CCFloorField::is_obstacle(const unsigned i, const unsigned j)
@@ -712,6 +792,26 @@ namespace CA
    }
 #endif // #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
   return Obstacle_matrix[i][j];
+ }
+ 
+ // ----------------------------------------------------------------
+ // Get the number of obstacles on stage
+ // ----------------------------------------------------------------
+ const unsigned CCFloorField::n_obstacles()
+ {
+  // Counter for the number of obstacles
+  unsigned counter_obstacles = 0;
+  for (unsigned i = 0; i < M; i++)
+   {
+    for (unsigned j = 0; j < N; j++)
+     {
+      if (Obstacle_matrix[i][j])
+       {
+        counter_obstacles++;
+       }
+     }
+   }
+  return counter_obstacles;
  }
  
  // ----------------------------------------------------------------

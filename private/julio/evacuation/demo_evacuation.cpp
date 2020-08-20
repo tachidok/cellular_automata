@@ -15,12 +15,15 @@ using namespace CA;
 
 // Used to define arguments
 struct Args {
+ argparse::ArgValue<bool> test; // Test (used when only one single configuration is used)
  argparse::ArgValue<Real> rho_min; // Minimum density
  argparse::ArgValue<Real> rho_max; // Maximum density
  argparse::ArgValue<Real> rho_h; // Density step from rho_min to rho_max
  argparse::ArgValue<unsigned> ls; // Lattice size
  argparse::ArgValue<unsigned> nc; // Number of configurations to test
 };
+
+//#define OUTPUT_ONE_SINGLE_RUN
 
 int main(int argc, const char** argv)
 {
@@ -34,22 +37,32 @@ int main(int argc, const char** argv)
  // Add arguments
  
  // Optional
+ parser.add_argument(args.test, "--test")
+  .help("Only one configuration with the minimum density")
+  .default_value("false")
+  .action(argparse::Action::STORE_TRUE); 
+ 
+ // Optional
  parser.add_argument<Real>(args.rho_min, "--rho_min")
   .help("Minimum density of people (number of people on the lattice)")
   .default_value("0.0");
- 
+
+ // Optional
  parser.add_argument<Real>(args.rho_max, "--rho_max")
   .help("Maximum density of people (number of people on the lattice)")
   .default_value("1.0");
- 
+
+ // Optional
  parser.add_argument<Real>(args.rho_h, "--rho_h")
   .help("Density step until reaching maximum density")
   .default_value("0.1");
- 
+
+ // Optional
  parser.add_argument<unsigned>(args.ls, "--ls")
   .help("Lattice size, consider only squared lattices")
   .default_value("10");
- 
+
+ // Optional
  parser.add_argument<unsigned>(args.nc, "--nc")
   .help("Number of configurations to test")
   .default_value("100");
@@ -57,6 +70,7 @@ int main(int argc, const char** argv)
  // Parse the input arguments
  parser.parse_args(argc, argv);
  
+ bool test = args.test; // Test
  const Real rho_min = args.rho_min; // Minimum density
  const Real rho_max = args.rho_max; // Maximum density
  const Real rho_h = args.rho_h; // Density step from rho_min to rho_max
@@ -68,11 +82,11 @@ int main(int argc, const char** argv)
  output_filename << "RESLT/output.dat";
  // Output for testing/validation
  std::ofstream output_file((output_filename.str()).c_str(), std::ios_base::out);
- output_file << "rho" << "\t"
-             << "mean_iterations" << "\t"
-             << "max_iterations" << "\t"
-             << "min_iterations" << "\t"
-             << "std_dev" << std::endl;
+ output_file << "rho,"
+             << "mean_iterations,"
+             << "min_iterations,"
+             << "max_iterations" << std::endl;
+  //             << "std_dev" << std::endl;
  
  Real current_density = rho_min;
  const unsigned n_steps = ((rho_max-rho_min)/rho_h) + 1;
@@ -85,7 +99,7 @@ int main(int argc, const char** argv)
  std::cout << "n_steps: " << n_steps << std::endl;
  
  // Loop over density
- while (i_rho_step < n_steps)
+ do
   {
    // Averaged iteartions
    Real averaged_iterations = 0;
@@ -106,13 +120,26 @@ int main(int argc, const char** argv)
      stage.k_d() = dynamic_field_weight;
      
      // Add emergency exits
-     stage.add_emergency_exit(0, 4);
-     stage.add_emergency_exit(0, 5);
-     stage.add_emergency_exit(0, 6);
-     stage.add_emergency_exit(0, 140);
-     stage.add_emergency_exit(149, 49);
-     stage.add_emergency_exit(149, 50);
-     stage.add_emergency_exit(80, 149);
+     //stage.add_emergency_exit(0, 5);
+     
+     stage.add_emergency_exit(0, 9);
+     stage.add_emergency_exit(0, 10);
+     stage.add_emergency_exit(0, 11);
+     
+     stage.add_emergency_exit(0, 24);
+     stage.add_emergency_exit(0, 25);
+     stage.add_emergency_exit(0, 26);
+     
+     stage.add_emergency_exit(0, 39);
+     stage.add_emergency_exit(0, 40);
+     stage.add_emergency_exit(0, 41);
+     
+     //stage.add_emergency_exit(0, 5);
+     //stage.add_emergency_exit(0, 6);
+     //stage.add_emergency_exit(0, 140);
+     //stage.add_emergency_exit(149, 49);
+     //stage.add_emergency_exit(149, 50);
+     //stage.add_emergency_exit(80, 149);
      
      // Initialise stage (with doors and obstacles)
      stage.initialise();
@@ -126,6 +153,7 @@ int main(int argc, const char** argv)
      std::ostringstream folder_name;
      folder_name << "RESLT/";
      
+#ifdef OUTPUT_ONE_SINGLE_RUN
      // ---------------------------------
      // Output initial configuration
      // ---------------------------------
@@ -143,6 +171,7 @@ int main(int argc, const char** argv)
      
      // Output obstacle matrix
      stage.output_obstacle_matrix(folder_name);
+#endif // #ifdef OUTPUT_ONE_SINGLE_RUN
      
      // Max iterations
      const unsigned allowed_max_iterations = lattice_size*lattice_size;
@@ -159,6 +188,7 @@ int main(int argc, const char** argv)
        // Increase the number of iterations
        n_iterations_current_configuration++;
        
+#ifdef OUTPUT_ONE_SINGLE_RUN
        // ---------------------------------
        // Output current configuration
        // ---------------------------------
@@ -169,6 +199,7 @@ int main(int argc, const char** argv)
        
        // Output occupancy matrix
        stage.output_occupancy_matrix(folder_name);
+#endif // #ifdef OUTPUT_ONE_SINGLE_RUN
        
       } // while(!stage.empty())
      
@@ -185,27 +216,31 @@ int main(int argc, const char** argv)
       {
        min_iterations = n_iterations_current_configuration;
       }
-
-     exit(0);
+     
+     // If this is test then break the loop
+     if (test)
+      {
+       break;
+      }
      
     } // for (i_configuration < n_configurations)
    
    // Compute the average number of iterations
    averaged_iterations=averaged_iterations/(Real)(n_configurations);
-
+   
    // -----------------------------------------------------------------------------------------
    // Output data
    // -----------------------------------------------------------------------------------------
-   output_file << "\trho: " << current_density
-               << "\tmeanIt: " << averaged_iterations
-               << "\tmaxIt: " << max_iterations
-               << "\tminIt: " << min_iterations
+   output_file << current_density << ","
+               << averaged_iterations << ","
+               << min_iterations << ","
+               << max_iterations
                << std::endl;
    
-   std::cerr << "\trho: " << current_density
+   std::cerr << "rho: " << current_density
              << "\tmeanIt: " << averaged_iterations
-             << "\tmaxIt: " << max_iterations
              << "\tminIt: " << min_iterations
+             << "\tmaxIt: " << max_iterations
              << std::endl;
    
    // Increase density
@@ -214,7 +249,7 @@ int main(int argc, const char** argv)
    // Increase the density counter step
    i_rho_step++;
    
-  } // while (i_rho_step < n_steps)
+  } while (i_rho_step < n_steps && !test);
  
  // Finalise ca
  finalise_ca();

@@ -36,7 +36,7 @@ int main(int argc, const char** argv)
  parser.add_argument(args.boolean_argument, "--boolean_argument")
   .help("Boolean argument")
   .default_value("false")
-  .action(argparse::Action::STORE_TRUE); 
+  .action(argparse::Action::STORE_TRUE);
  
  // Note the use of choices values
  parser.add_argument(args.verbosity, "--verbosity", "-v")

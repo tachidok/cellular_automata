@@ -93,13 +93,14 @@ namespace CA
   /// Is there no more people on the stage
   inline bool is_empty() {return People_pt.empty();}
   
-  // Get the number of people in the field
+  // Get the number of people on stage
   inline const unsigned n_people() {return People_pt.size();}
-
-  /*
-  /// Get the i-th people in the field
-  CCPerson *people_pt(const unsigned i);
-  */
+  
+  // Get the number of already occupied spaces on stage
+  const unsigned n_occupied();
+  
+  // Get the number of obstacles on stage
+  const unsigned n_obstacles();
   
   /// Set index for files
   inline unsigned &index_files() {return Index_files;}
