@@ -1,13 +1,12 @@
-#include "cc_floor_field.h"
+#include "ac_lattice.h"
 
 namespace CA
 {
  
  // ----------------------------------------------------------------
- /// Constructor (specify the size of the floor field)
+ /// Constructor (specify the size of the lattice)
  // ----------------------------------------------------------------
- CCFloorField::CCFloorField(const unsigned m, const unsigned n)
-  : M(m), N(n)
+ ACLattice::ACLattice(std::vector<unsigned> &dimension_sizes)
  {
   // Allocate memory for matrices (static field, dynamic field,
   // occupancy and obstacles)
@@ -23,7 +22,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Destructor
  // ----------------------------------------------------------------
- CCFloorField::~CCFloorField()
+ ACLattice::~ACLattice()
  {
   // Clear any emergency exit
   clean_emergency_exits();
@@ -32,7 +31,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Allocate matrices memory
  // ----------------------------------------------------------------
- void CCFloorField::allocate_matrices_memory()
+ void ACLattice::allocate_matrices_memory()
  {
   // Allocate memory for all matrices
   Static_field.resize(M);
@@ -52,7 +51,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Initialise floor field
  // ----------------------------------------------------------------
- void CCFloorField::initialise()
+ void ACLattice::initialise()
  { 
   // Set boundary configuration
   set_boundary_configuration();
@@ -73,7 +72,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Add emergency exits to the stage
  // ----------------------------------------------------------------
- void CCFloorField::add_emergency_exit(const unsigned i, const unsigned j)
+ void ACLattice::add_emergency_exit(const unsigned i, const unsigned j)
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
@@ -100,7 +99,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Initialise floor field with emergency exits
  // ----------------------------------------------------------------
- void CCFloorField::fill_with_people(const Real density)
+ void ACLattice::fill_with_people(const Real density)
  {
   // Used to get a seed for the random number engine
   std::random_device rd;
@@ -272,7 +271,7 @@ namespace CA
  /// Add a person to field (check whether there are no obstacles or
  /// the positon is already occupied by another person)
  // ----------------------------------------------------------------
- bool CCFloorField::add_person_to_field(CCPerson *person_pt)
+ bool ACLattice::add_person_to_field(CCPerson *person_pt)
  {
   // Get the position of the person
   const unsigned i = person_pt->position(0);
@@ -322,7 +321,7 @@ namespace CA
  
  /// Update the transition probability matrix of a person using the
  /// floor field's information
- void CCFloorField::update_transition_probability_matrix(CCPerson *person_pt)
+ void ACLattice::update_transition_probability_matrix(CCPerson *person_pt)
  {
   // Get the position of the person at current time
   const unsigned i_p = person_pt->position(0);
@@ -376,7 +375,7 @@ namespace CA
  
  /// Compute next position for a given person and the probability of
  /// that next position
- void CCFloorField::update_next_position(CCPerson *person_pt, Real &max_probability)
+ void ACLattice::update_next_position(CCPerson *person_pt, Real &max_probability)
  {  
   // Get the indexes with the maximum probability in the transition
   // matrix, and the value of the maximum probability
@@ -404,7 +403,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Take a simulation step
  // ----------------------------------------------------------------
- void CCFloorField::simulation_step()
+ void ACLattice::simulation_step()
  {
   // Release all people next to an emergency exit
   release_people_next_to_emergency_exit();
@@ -454,7 +453,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Update floor fields
  // ----------------------------------------------------------------
- void CCFloorField::update()
+ void ACLattice::update()
  {
   /// Move people based on their next position
   
@@ -468,7 +467,7 @@ namespace CA
     // Get the current person on the stage
     CCPerson* person_pt = (*it);
     
-    //    std::cout << "CCFloorField::update()" << std::endl;
+    //    std::cout << "ACLattice::update()" << std::endl;
     //std::cout << "Person: " << k++ << std::endl;
     //std::cout << "Current position: " << person_pt->position(0) << " " << person_pt->position(1) << std::endl;
     //std::cout << "Next position: " << person_pt->position(0,1) << " " << person_pt->position(1,1) << std::endl;
@@ -493,7 +492,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Output static field
  // ----------------------------------------------------------------
- void CCFloorField::output_static_field(std::ostringstream &output_folder_name)
+ void ACLattice::output_static_field(std::ostringstream &output_folder_name)
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_static_field_filename(output_folder_name.str(), std::ostringstream::ate);
@@ -528,7 +527,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Output dynamic field
  // ----------------------------------------------------------------
- void CCFloorField::output_dynamic_field(std::ostringstream &output_folder_name)
+ void ACLattice::output_dynamic_field(std::ostringstream &output_folder_name)
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_dynamic_field_filename(output_folder_name.str(), std::ostringstream::ate);
@@ -563,7 +562,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Output occupancy matrix
  // ----------------------------------------------------------------
- void CCFloorField::output_occupancy_matrix(std::ostringstream &output_folder_name)
+ void ACLattice::output_occupancy_matrix(std::ostringstream &output_folder_name)
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_occupancy_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
@@ -622,7 +621,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Output obstacle matrix
  // ----------------------------------------------------------------
- void CCFloorField::output_obstacle_matrix(std::ostringstream &output_folder_name)
+ void ACLattice::output_obstacle_matrix(std::ostringstream &output_folder_name)
  {
   // Create file name (add any stuff at the end of the string - ate)
   std::ostringstream output_obstacle_matrix_filename(output_folder_name.str(), std::ostringstream::ate);
@@ -681,7 +680,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Returns the value of the static field
  // ----------------------------------------------------------------
- const Real CCFloorField::static_field(const unsigned i, const unsigned j)
+ const Real ACLattice::static_field(const unsigned i, const unsigned j)
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
@@ -705,7 +704,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Returns the value of the dynamic field
  // ----------------------------------------------------------------
- const Real CCFloorField::dynamic_field(const unsigned i, const unsigned j)
+ const Real ACLattice::dynamic_field(const unsigned i, const unsigned j)
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
@@ -729,7 +728,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Is a given cell occupied
  // ----------------------------------------------------------------
- bool CCFloorField::is_occupied(const unsigned i, const unsigned j)
+ bool ACLattice::is_occupied(const unsigned i, const unsigned j)
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
@@ -753,7 +752,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Get the number of already occupied spaces on stage
  // ----------------------------------------------------------------
- const unsigned CCFloorField::n_occupied()
+ const unsigned ACLattice::n_occupied()
  {
   // Counter for the number of obstacles
   unsigned counter_occupied = 0;
@@ -773,7 +772,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Is there an obstacle
  // ----------------------------------------------------------------
- bool CCFloorField::is_obstacle(const unsigned i, const unsigned j)
+ bool ACLattice::is_obstacle(const unsigned i, const unsigned j)
  {
   /// Range check
 #ifdef CELLULAR_AUTOMATON_RANGE_CHECK
@@ -797,7 +796,7 @@ namespace CA
  // ----------------------------------------------------------------
  // Get the number of obstacles on stage
  // ----------------------------------------------------------------
- const unsigned CCFloorField::n_obstacles()
+ const unsigned ACLattice::n_obstacles()
  {
   // Counter for the number of obstacles
   unsigned counter_obstacles = 0;
@@ -817,7 +816,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Set stage boundary configuration
  // ----------------------------------------------------------------
- void CCFloorField::set_boundary_configuration()
+ void ACLattice::set_boundary_configuration()
  {
   // Initialise obstacles matrix (wall at boundary and any other
   // obstacles)
@@ -829,7 +828,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Build wall at the boundary of the floor field
  // ----------------------------------------------------------------
- void CCFloorField::build_wall_at_boundary()
+ void ACLattice::build_wall_at_boundary()
  {
   // Use the obstacle matrix to represent a wall a the boundary
   // ----------------------
@@ -852,7 +851,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Configure emergency exits
  // ----------------------------------------------------------------
- void CCFloorField::set_emergency_exits()
+ void ACLattice::set_emergency_exits()
  {
   // Get the number of emergency exits
   const unsigned nemergency_exits = Emergency_exit.size();
@@ -885,7 +884,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Initialise static field matrix
  // ----------------------------------------------------------------
- void CCFloorField::initialise_static_field_matrix()
+ void ACLattice::initialise_static_field_matrix()
  {
   /// The computation of the static field is described in Appendix A
   /// of the paper "Kirchner, Ansgar and Schadschneider, Andreas,
@@ -993,7 +992,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Initialise dynamic field matrix
  // ----------------------------------------------------------------
- void CCFloorField::initialise_dynamic_field_matrix()
+ void ACLattice::initialise_dynamic_field_matrix()
  {
   // Initialise the field with zeroes
   for (unsigned i = 0; i < M; i++)
@@ -1007,7 +1006,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Initialise occupancy matrix
  // ----------------------------------------------------------------
- void CCFloorField::initialise_occupancy_matrix()
+ void ACLattice::initialise_occupancy_matrix()
  {
   /// Occupancy matrix
   std::vector<std::vector<bool> > Occupancy_matrix;  
@@ -1017,7 +1016,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Initialise obstacle matrix
  // ----------------------------------------------------------------
- void CCFloorField::initialise_obstacle_matrix()
+ void ACLattice::initialise_obstacle_matrix()
  {
   // Build the wall
   build_wall_at_boundary();
@@ -1026,7 +1025,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Solve people's positions conflicts (using max probability)
  // ----------------------------------------------------------------
- void CCFloorField::solve_people_position_conflicts(std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> > &next_peoples_positions, std::map<CCPerson *, Real> &max_probability_of_person)
+ void ACLattice::solve_people_position_conflicts(std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> > &next_peoples_positions, std::map<CCPerson *, Real> &max_probability_of_person)
  {
   // Loop over all new desired positions
   for (std::map<std::pair<unsigned, unsigned>, std::vector<CCPerson *> >::iterator it =
@@ -1144,7 +1143,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Update static field matrix
  // ----------------------------------------------------------------
- void CCFloorField::update_static_field_matrix()
+ void ACLattice::update_static_field_matrix()
  {
   // Do nothing
  }
@@ -1152,7 +1151,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Update dynamic field matrix
  // ----------------------------------------------------------------
- void CCFloorField::update_dynamic_field_matrix()
+ void ACLattice::update_dynamic_field_matrix()
  {
   
  }
@@ -1160,7 +1159,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Update occupancy matrix
  // ----------------------------------------------------------------
- void CCFloorField::update_occupancy_matrix()
+ void ACLattice::update_occupancy_matrix()
  {
   // Restart the occupancy matrix with zeroes
   for (unsigned i = 0; i < M; i++)
@@ -1190,7 +1189,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Update obstacle matrix
  // ----------------------------------------------------------------
- void CCFloorField::update_obstacle_matrix()
+ void ACLattice::update_obstacle_matrix()
  {
   // Do nothing
  }
@@ -1198,7 +1197,7 @@ namespace CA
  // ----------------------------------------------------------------
  /// Leave people next to an emergency exit to leave and update the
  // ----------------------------------------------------------------
- void CCFloorField::release_people_next_to_emergency_exit()
+ void ACLattice::release_people_next_to_emergency_exit()
  {
   // Get the number of emergency exits
   const unsigned nemergency_exit = n_emergency_exit();
