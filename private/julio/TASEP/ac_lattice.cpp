@@ -4,15 +4,16 @@ namespace CA
 {
  
  // ----------------------------------------------------------------
- /// Constructor (specify the size of the lattice)
+ /// Constructor (specify the size of the lattice) and the number of
+ /// force fields
  // ----------------------------------------------------------------
- ACLattice::ACLattice(std::vector<unsigned> &dimension_sizes)
+ ACLattice::ACLattice(std::vector<unsigned> &dimension_sizes,
+                      const unsigned n_force_fields)
+  : Dimension_sizes(dimension_sizes),
+    N_force_fields(n_force_fields)
  {
   // Allocate memory for force fields matrices
-  allocate_matrices_memory();
-  
-  // Clear any emergency exit
-  clean_emergency_exits();
+  allocate_force_fields_memory();
   
   // Initialise index for files
   Index_files = 0;
@@ -23,17 +24,56 @@ namespace CA
  // ----------------------------------------------------------------
  ACLattice::~ACLattice()
  {
-  // Clear any emergency exit
-  clean_emergency_exits();
+  
  }
  
- // ----------------------------------------------------------------
- /// Allocate matrices memory
- // ----------------------------------------------------------------
- void ACLattice::allocate_matrices_memory()
+ // ---------------------------------------------------------------- /
+ //Allocate force fields matrices memory
+ //----------------------------------------------------------------
+ void ACLattice::allocate_force_fields_memory()
  {
-  // Allocate memory for all matrices
-  Static_field.resize(M);
+  // Get the number of dimensions
+  const unsigned n_dim = n_dimensions();
+
+  // Check whether we have force fields or not
+  if (N_force_fields == 0)
+   {
+    return;
+   }
+  
+  /// Too many force fields
+  if (N_force_fields > 3)
+   {
+    // Error message
+    std::ostringstream error_message;
+    error_message << "Too many force fields.\n"
+                  << "You are requesting " << N_force_fields << " force fields.\n"
+                  << "It may result in slow computations if the force fields are 'large'.\n"
+                  << "Comment these lines if you have no problem with that,\n"
+                  << "compile and run again under your own risk.\n"
+                  << std::endl;
+    throw CALibError(error_message.str(),
+                     CA_CURRENT_FUNCTION,
+                     CA_EXCEPTION_LOCATION);
+   }
+  
+  // Allocate space to as many force fields as requested
+  Force_fields.resize(N_force_fields);
+  
+  // One dimensional case
+  if (n_dim == 1)
+   {
+    
+   }
+  // Two dimensional case
+  else if (n_dim == 2)
+   {
+    // Loop over the force fields
+    for (unsigned i = 0; i < N_force_fields; i++)
+     {
+      Force_fields[i]
+     }
+    Static_field.resize(M);
   Dynamic_field.resize(M);
   Occupancy_matrix.resize(M);
   Obstacle_matrix.resize(M);
@@ -43,6 +83,24 @@ namespace CA
     Dynamic_field[i].resize(N, 0);
     Occupancy_matrix[i].resize(N, NON_OCCUPIED_CELL);
     Obstacle_matrix[i].resize(N, NON_OCCUPIED_CELL);
+   }  
+   }
+  // Three dimensional case
+  else if (n_dim == 3)
+   {
+    
+   }
+  else
+   {
+    // Error message
+    std::ostringstream error_message;
+    error_message << "The number of dimensions is neither 1, nor 2, nor 3, the current\n"
+                  << "implementation of the ACLattice only supports up to 3 dimensional\n"
+                  << "lattices\n"
+                  << std::endl;
+    throw CALibError(error_message.str(),
+                     CA_CURRENT_FUNCTION,
+                     CA_EXCEPTION_LOCATION);
    }
   
  }
@@ -414,6 +472,9 @@ namespace CA
   // Keep track of the maximum probability in the transition matrix of each person
   std::map<CCPerson *, Real> max_probability_of_person;
   
+  // Perform actions prior all agents rules are executed
+  actions_before_agents_rules();
+
   // Iterator for people list
   std::list<CCPerson *>::iterator it;
   // Loop over each person and compute its next position
@@ -443,6 +504,9 @@ namespace CA
     next_peoples_positions[position_pair].push_back(person_pt);
     
    } // for (it!=People_pt.end())
+  
+  // Perform actions after all agents rules are executed
+  actions_after_agents_rules();
   
   // Solve for conflicts (using max probability)
   solve_people_position_conflicts(next_peoples_positions, max_probability_of_person);

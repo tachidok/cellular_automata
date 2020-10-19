@@ -21,8 +21,8 @@ namespace CA
   
  public:
   
-  /// Constructor (specify the size of the lattice)
-  ACLattice(std::vector<unsigned> &dimension_sizes);
+  /// Constructor (specify the size of the lattice) and the number of force fields
+  ACLattice(std::vector<unsigned> &dimension_sizes, const unsigned n_force_fields = 0)
   
   /// Destructor
   virtual ~ACLattice();
@@ -52,11 +52,28 @@ namespace CA
   // Get the number of already occupied spaces on stage
   const unsigned n_occupied();
   
+  /// -------------------------------------------------------------------
+  /// Simulation
+  /// -------------------------------------------------------------------
+  
+  /// Implements the set of actions that should be taken previous the
+  /// execution of agents rules
+  virtual void actions_before_agents_rules();
+  
+  /// Implements the set of actions that should be taken after the
+  /// execution of agents rules
+  virtual void actions_after_agents_rules();
+  
+  /// Implements the set of actions that should be taken previous the
+  /// simulation step
+  virtual void actions_before_simulation_step();
+  
+  /// Implements the set of actions that should be taken after the
+  /// simulation step
+  virtual void actions_after_simulation_step();
+  
   /// Take a simulation step
   void simulation_step();
-  
-  /// Update force fields
-  void update_force_fields();
   
   /// Get the i-th force field weight
   const Real force_field_weight(const unsigned i) const;
@@ -90,6 +107,9 @@ namespace CA
   /// Stores the size of the dimensions of the lattice
   std::vector<unsigned> Dimension_sizes;
   
+  /// Number of force fields
+  const unsigned N_force_fields;
+  
   /// Lattice matrix
   std::vector<std::vector<ACAgent *> > Lattice_pt;
   
@@ -105,17 +125,11 @@ namespace CA
   /// Allocate force fields memory
   void allocate_force_fields_memory();
   
-  /// Set boundary conditions
-  void set_boundary_conditions();
-  
   /// Initialise force fields
   void initialise_force_fields();
   
   /// Update force fields
   void update_force_fields();
-  
-  /// Solve agent's positions conflicts (using max probability)
-  void solve_agents_position_conflicts(std::map<std::pair<unsigned, unsigned>, std::vector<ACAgent *> > &next_agents_positions, std::map<ACAgent *, Real> &max_probability_of_agent);
   
   /// Index for files (default to 0 in constructor)
   unsigned Index_files;
