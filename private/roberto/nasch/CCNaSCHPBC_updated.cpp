@@ -4,51 +4,48 @@ namespace CA
 {
 
  // ----------------------------------------------------------------
- // Constructor -- do nothing
+ /// Constructor -- do nothing
  // ----------------------------------------------------------------
- NaSchPBC::NaSchPBC()
+ CCNaSchPBC::CCNaSchPBC()
  {
 
  }
 
  // ----------------------------------------------------------------
- // Constructor
+ /// Constructor
  // ----------------------------------------------------------------
- NaSchPBC::NaSchPBC(unsigned lane_size, unsigned maximum_velocity, Real break_probability)
+ CCNaSchPBC::CCNaSchPBC(unsigned lane_size, unsigned maximum_velocity, Real break_probability)
  {
   // Set lane configuration
   initialise(lane_size, maximum_velocity, break_probability);
  }
 
  // ----------------------------------------------------------------
- // Destructor - do nothing
+ /// Destructor - do nothing
  // ----------------------------------------------------------------
- NaSchPBC::~NaSchPBC()
+ CCNaSchPBC::~CCNaSchPBC()
  {
   clear();
  }
 
  // ----------------------------------------------------------------
- // Initialise lane configuration
+ /// Initialise lane configuration
  // ----------------------------------------------------------------
- void NaSchPBC::initialise(unsigned lane_size, unsigned maximum_velocity, Real break_probability)
+ void CCNaSchPBC::initialise(unsigned lane_size, unsigned maximum_velocity, Real braking_probability)
  {
   // Set lane configuration
   Lane_size = lane_size;
   Maximum_velocity = maximum_velocity;
-  Break_probability = break_probability;
-
-  // No vehicle has traverse the lane
-  N_vehicles_complete_travel = 0;
+  Braking_probability = braking_probability;
 
   // Initialise data structures
   clear();
  }
 
  // ----------------------------------------------------------------
- // Clear data structures
+ /// Clear data structures
  // ----------------------------------------------------------------
- void NaSchPBC::clear()
+ void CCNaSchPBC::clear()
  {
   // Initialise data structures representing the lane
   Lane.clear();
@@ -84,9 +81,9 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Set bumps
+ /// Set bumps
  // ----------------------------------------------------------------
- void NaSchPBC::set_bumps(std::vector<unsigned> &bumps_positions)
+ void CCNaSchPBC::set_bumps(std::vector<unsigned> &bumps_positions)
  {
   const unsigned n_bumps = bumps_positions.size();
   for (unsigned i = 0; i < n_bumps; i++)
@@ -99,9 +96,9 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Fill in vehicles
+ /// Fill in vehicles
  // ----------------------------------------------------------------
- void NaSchPBC::fill_in_vehicles(Real density)
+ void CCNaSchPBC::fill_in_vehicles(Real density)
  {
   // Initialise data structures
   clear();
@@ -132,7 +129,7 @@ namespace CA
       // Create a new vehicle
       unsigned initial_velocity = 0;
       unsigned initial_position = i;
-      Vehicle *new_vehicle_pt = new Vehicle(initial_velocity, initial_position);
+      CCVehicle *new_vehicle_pt = new CCVehicle(initial_velocity, initial_position);
       // Add a vehicle
       Lane[i] = new_vehicle_pt;
       // Increase the number of added vehicles to the lane
@@ -154,7 +151,7 @@ namespace CA
         // Create a new vehicle
         unsigned initial_velocity = 0;
         unsigned initial_position = k;
-        Vehicle *new_vehicle_pt = new Vehicle(initial_velocity, initial_position);
+        CCVehicle *new_vehicle_pt = new CCVehicle(initial_velocity, initial_position);
         // Add a vehicle
         Lane[k] = new_vehicle_pt;
         // Increase the number of added vehicles to the lane
@@ -168,9 +165,9 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Update vehicles list
+ /// Update vehicles list
  // ----------------------------------------------------------------
- unsigned NaSchPBC::update_vehicles_list()
+ unsigned CCNaSchPBC::update_vehicles_list()
  {
   // Get the new vehicles order
   unsigned i = 0;
@@ -179,7 +176,7 @@ namespace CA
     if (Lane[k] != 0)
      {
       // Get a pointer to the vehicle
-      Vehicle *vehicle_pt = Lane[k];
+      CCVehicle *vehicle_pt = Lane[k];
 
       // Copy the vehicle at positon k in the lane as the i-th vehicle
       // in the vehicles vector
@@ -195,15 +192,31 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Update lane based on NaSchPBC rules
+ /// Set all statistics values to zero
  // ----------------------------------------------------------------
- void NaSchPBC::apply_nasch(Real &mean_velocity, Real &mean_current, Real &mean_delay,
-                            unsigned &sum_travel_time, Real &mean_travel_time,
-                            Real &mean_queue_length,
-                            Real &mean_co2, Real &mean_nox, Real &mean_voc, Real &mean_pm,
-                            Real &std_velocity,
-                            Real &std_co2, Real &std_nox, Real &std_voc, Real &std_pm)
+ void CCNaSchPBC::reset_statistics()
  {
+  Mean_velocity = 0;
+  Mean_current = 0;
+  Mean_co2 = 0;
+  Mean_nox = 0;
+  Mean_voc = 0;
+  Mean_pm = 0;
+  Std_velocity = 0;
+  Std_co2 = 0;
+  Std_nox = 0;
+  Std_voc = 0;
+  Std_pm = 0;
+ }
+
+ // ----------------------------------------------------------------
+ /// Update lane based on CCNaSchPBC rules
+ // ----------------------------------------------------------------
+ void CCNaSchPBC::apply_nasch()
+ {
+  // Set all statistics values to zero
+  reset_statistics();
+
   // Temporarly store the new values for each vehicle so we can
   // compute standard deviations
   std::vector<unsigned> tmp_vector_velocity(Current_number_of_vehicles, 0);
@@ -215,17 +228,11 @@ namespace CA
   // Accumulated velocity
   unsigned sum_velocity = 0;
 
-  // Accumulated delay
-  unsigned sum_delay = 0;
-
   // Emissions
   Real sum_co2 = 0.0;
   Real sum_nox = 0.0;
   Real sum_voc = 0.0;
   Real sum_pm = 0.0;
-
-  std::vector<unsigned> queues_length;
-  unsigned current_queue_length = 0;
 
   // Used to get a seed for the random number engine
   std::random_device rd;
@@ -239,7 +246,7 @@ namespace CA
   for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
-    Vehicle *current_vehicle_pt = Vehicles_pt[i];
+    CCVehicle *current_vehicle_pt = Vehicles_pt[i];
     const unsigned current_position = current_vehicle_pt->position();
     const unsigned current_velocity = current_vehicle_pt->velocity();
 
@@ -250,19 +257,19 @@ namespace CA
     // Is this the last vehicle
     if (i + 1 == Current_number_of_vehicles)
      {
-      Vehicle *next_vehicle_pt = Vehicles_pt[0];
+      CCVehicle *next_vehicle_pt = Vehicles_pt[0];
       spatial_headway = (next_vehicle_pt->position() + Lane_size) - current_position - 1;
      }
     else
      {
-      Vehicle *next_vehicle_pt = Vehicles_pt[i+1];
+      CCVehicle *next_vehicle_pt = Vehicles_pt[i+1];
       spatial_headway = next_vehicle_pt->position() - current_position - 1;
      }
 
     //std::cerr << i + 1 << ":" << current_position << "-" << spatial_headway << std::endl;
 
     // -----------------------------------------------------------------
-    // NaSchPBC rules
+    // CCNaSchPBC rules
     // -----------------------------------------------------------------
 
     // First rule (acceleration)
@@ -302,7 +309,7 @@ namespace CA
 
     // Third rule (randomization)
     const Real r = dis(gen);
-    if (r <= Break_probability)
+    if (r <= Braking_probability)
      {
       new_velocity = std::max(int(new_velocity - 1), 0);
       //std::cerr << "NV: " << new_velocity << std::endl;
@@ -313,13 +320,6 @@ namespace CA
     if (new_position >= Lane_size)
      {
       new_position = new_position - Lane_size;
-
-      // Increase the number of vehicles that have traverse the lane
-      N_vehicles_complete_travel++;
-      // Add up to the travel time sum
-      sum_travel_time+=current_vehicle_pt->travel_time();
-      // Reset travel time of vehicle
-      current_vehicle_pt->travel_time() = 0;
      }
 
     // Update velocity and positon of vehicle
@@ -327,28 +327,6 @@ namespace CA
     current_vehicle_pt->position(1) = new_position;
 
     sum_velocity+=new_velocity;
-
-    // Get the current travel time of the vehicle and add it up to
-    // the travel time of the lane
-    sum_delay+=current_vehicle_pt->delay();
-
-    // Check the length of the queue
-    if (spatial_headway==0)
-     {
-      // Increase counter for the size of the queue if there are no
-      // free space at the front
-      current_queue_length++;
-     }
-    else
-     {
-      // If there was a queue then store the length of the queue
-      if (current_queue_length>0)
-       {
-        queues_length.push_back(current_queue_length);
-        // Restart length of queue
-        current_queue_length = 0;
-       }
-     }
 
     // Emissions
     Real tmp_co2 = 0.0;
@@ -374,93 +352,64 @@ namespace CA
 
   if (Current_number_of_vehicles > 0)
    {
-    mean_velocity=static_cast<Real>(sum_velocity)/static_cast<Real>(Current_number_of_vehicles);
-    mean_delay=static_cast<Real>(sum_delay)/static_cast<Real>(Current_number_of_vehicles);
+    Mean_velocity=static_cast<Real>(sum_velocity)/static_cast<Real>(Current_number_of_vehicles);
    }
   else
    {
-    mean_velocity=0;
-    mean_delay=0;
+    Mean_velocity=0;
    }
 
-  mean_current=static_cast<Real>(sum_velocity)/static_cast<Real>(Lane_size);
-
-  if (N_vehicles_complete_travel > 0)
-   {
-    mean_travel_time=static_cast<Real>(sum_travel_time)/static_cast<Real>(N_vehicles_complete_travel);
-   }
-  else
-   {
-    mean_travel_time = 0;
-   }
-
-  unsigned sum_queue_size = 0;
-  // Get the number of queues
-  const unsigned n_queues = queues_length.size();
-  for (unsigned i = 0; i < n_queues; i++)
-   {
-    sum_queue_size+=queues_length[i];
-   }
-
-  if (n_queues > 0)
-   {
-    mean_queue_length = static_cast<Real>(sum_queue_size)/static_cast<Real>(n_queues);
-   }
-  else
-   {
-    mean_queue_length = 0;
-   }
+  Mean_current=static_cast<Real>(sum_velocity)/static_cast<Real>(Lane_size);
 
   // Emssions
   if (Current_number_of_vehicles > 0)
    {
-    mean_co2=static_cast<Real>(sum_co2)/static_cast<Real>(Current_number_of_vehicles);
-    mean_nox=static_cast<Real>(sum_nox)/static_cast<Real>(Current_number_of_vehicles);
-    mean_voc=static_cast<Real>(sum_voc)/static_cast<Real>(Current_number_of_vehicles);
-    mean_pm=static_cast<Real>(sum_pm)/static_cast<Real>(Current_number_of_vehicles);
+    Mean_co2=static_cast<Real>(sum_co2)/static_cast<Real>(Current_number_of_vehicles);
+    Mean_nox=static_cast<Real>(sum_nox)/static_cast<Real>(Current_number_of_vehicles);
+    Mean_voc=static_cast<Real>(sum_voc)/static_cast<Real>(Current_number_of_vehicles);
+    Mean_pm=static_cast<Real>(sum_pm)/static_cast<Real>(Current_number_of_vehicles);
    }
   else
    {
-    mean_co2=0;
-    mean_nox=0;
-    mean_voc=0;
-    mean_pm=0;
-
+    Mean_co2=0;
+    Mean_nox=0;
+    Mean_voc=0;
+    Mean_pm=0;
    }
 
   // Compute standard deviations
-  std_velocity = 0;
-  std_co2 = 0;
-  std_nox = 0;
-  std_voc = 0;
-  std_pm = 0;
+  Std_velocity = 0;
+  Std_co2 = 0;
+  Std_nox = 0;
+  Std_voc = 0;
+  Std_pm = 0;
 
   for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
-    std_velocity+=(tmp_vector_velocity[i] - mean_velocity)*(tmp_vector_velocity[i] - mean_velocity);
-    std_co2+=(tmp_vector_co2[i] - mean_co2)*(tmp_vector_co2[i] - mean_co2);
-    std_nox+=(tmp_vector_nox[i] - mean_nox)*(tmp_vector_nox[i] - mean_nox);
-    std_voc+=(tmp_vector_voc[i] - mean_voc)*(tmp_vector_voc[i] - mean_voc);
-    std_pm+=(tmp_vector_pm[i] - mean_pm)*(tmp_vector_pm[i] - mean_pm);
+    Std_velocity+=(tmp_vector_velocity[i] - Mean_velocity)*(tmp_vector_velocity[i] - Mean_velocity);
+    Std_co2+=(tmp_vector_co2[i] - Mean_co2)*(tmp_vector_co2[i] - Mean_co2);
+    Std_nox+=(tmp_vector_nox[i] - Mean_nox)*(tmp_vector_nox[i] - Mean_nox);
+    Std_voc+=(tmp_vector_voc[i] - Mean_voc)*(tmp_vector_voc[i] - Mean_voc);
+    Std_pm+=(tmp_vector_pm[i] - Mean_pm)*(tmp_vector_pm[i] - Mean_pm);
    }
 
-  std_velocity=sqrt(std_velocity/static_cast<Real>(Current_number_of_vehicles));
-  std_co2=sqrt(std_co2/static_cast<Real>(Current_number_of_vehicles));
-  std_nox=sqrt(std_nox/static_cast<Real>(Current_number_of_vehicles));
-  std_voc=sqrt(std_voc/static_cast<Real>(Current_number_of_vehicles));
-  std_pm=(std_pm/static_cast<Real>(Current_number_of_vehicles));
+  Std_velocity=sqrt(Std_velocity/static_cast<Real>(Current_number_of_vehicles));
+  Std_co2=sqrt(Std_co2/static_cast<Real>(Current_number_of_vehicles));
+  Std_nox=sqrt(Std_nox/static_cast<Real>(Current_number_of_vehicles));
+  Std_voc=sqrt(Std_voc/static_cast<Real>(Current_number_of_vehicles));
+  Std_pm=(Std_pm/static_cast<Real>(Current_number_of_vehicles));
 
  }
 
  // ----------------------------------------------------------------
- // Update the lane status
+ /// Update the lane status
  // ----------------------------------------------------------------
- void NaSchPBC::update()
+ void CCNaSchPBC::update()
  {
   for (unsigned i = 0; i < Current_number_of_vehicles; i++)
    {
     // Get a pointer to the current vehicle
-    Vehicle *vehicle_pt = Vehicles_pt[i];
+    CCVehicle *vehicle_pt = Vehicles_pt[i];
 
     const unsigned old_position = vehicle_pt->position(0);
     const unsigned new_position = vehicle_pt->position(1);
@@ -477,9 +426,9 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Compute the distance to the nearest bump
+ /// Compute the distance to the nearest bump
  // ----------------------------------------------------------------
- unsigned NaSchPBC::distance_to_nearest_bump(unsigned position)
+ unsigned CCNaSchPBC::distance_to_nearest_bump(unsigned position)
  {
   // Get the number of bumps in the lane
   const unsigned n_bumps = Bumps_pt.size();
@@ -504,13 +453,13 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Prints the lane status
+ /// Prints the lane status
  // ----------------------------------------------------------------
- void NaSchPBC::print(bool print_velocities)
+ void CCNaSchPBC::print(bool print_velocities)
  {
   for (unsigned i = 0; i < Lane_size; i++)
    {
-    Vehicle *vehicle_pt = Lane[i];
+    CCVehicle *vehicle_pt = Lane[i];
     if (vehicle_pt != 0)
      {
       if (print_velocities)
@@ -535,9 +484,9 @@ namespace CA
  }
 
  // ----------------------------------------------------------------
- // Output lane status
+ /// Output lane status
  // ----------------------------------------------------------------
- void NaSchPBC::output_time_space(std::ofstream &output_file)
+ void CCNaSchPBC::output_time_space(std::ofstream &output_file)
  {
   //std::cout << Current_number_of_vehicles << std::endl;
   // Loop over the lane and output its state
